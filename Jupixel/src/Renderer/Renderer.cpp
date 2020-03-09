@@ -5,6 +5,7 @@
 #include "glm/gtc/type_ptr.hpp"
 #include "glad/glad.h"
 #include "Camera.h"
+#include <glm/gtc/matrix_transform.hpp>
 
 RenderData* renderData = new RenderData();
 
@@ -65,6 +66,28 @@ void render_quad()
 
 	location = glGetUniformLocation(renderData->ShaderID, "u_ViewProjection");
 	glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(get_view_projection_matrix()));
+
+	glBindVertexArray(renderData->Quad_VA);
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+}
+
+void render_quad(glm::vec2& position)
+{
+	glClearColor(0.1f, 0.1f, 0.0f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	glUseProgram(renderData->ShaderID);
+
+	int location = glGetUniformLocation(renderData->ShaderID, "u_Color");
+	glUniform4fv(location, 1, glm::value_ptr(glm::vec4(0.66f, 0.3f, 0.2f, 1.0f)));
+
+	location = glGetUniformLocation(renderData->ShaderID, "u_ViewProjection");
+	glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(get_view_projection_matrix()));
+
+	location = glGetUniformLocation(renderData->ShaderID, "u_Transform");
+	glm::vec3 v3pos = { position.x, position.y, 0.0f };
+	glm::mat4 transform = glm::translate(glm::mat4(1.0f), v3pos) * glm::scale(glm::mat4(1.0f), { 1.0f, 1.0f, 1.0f});
+	glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(transform));
 
 	glBindVertexArray(renderData->Quad_VA);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);

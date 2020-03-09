@@ -1,6 +1,7 @@
 #pragma once
 
 #include <glad/glad.h>
+#include "glm/glm.hpp"
 
 struct RenderData
 {
@@ -10,4 +11,6 @@ struct RenderData
 
 bool init_renderer();
 void quit_renderer();
+
 void render_quad();
+void render_quad(glm::vec2& position);

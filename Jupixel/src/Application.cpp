@@ -1,11 +1,16 @@
 #include "Application.h"
 #include "Renderer/Renderer.h"
+#include "Camera.h"
 
-#include "GLFW/glfw3.h"
+#include "Key.h"
+
 #include <stdio.h>
+#include "ECS/ECS.h"
+#include "ECS/ComponentLists.h"
 
 bool isRunning = true;
-float timestep = 0.0f;
+float lastFrameTime = 0.0f;
+float deltaTime = 0.0f;
 
 GLFWwindow* window;
 
@@ -26,7 +31,7 @@ bool init_application()
 
 	glfwSetErrorCallback(error_callback);
 
-	window = glfwCreateWindow(640, 480, "Calcium Clash", NULL, NULL);
+	window = glfwCreateWindow(640, 480, "sick wind'", NULL, NULL);
 	if (!window)
 	{
 		printf("Unable to create window");
@@ -45,6 +50,21 @@ bool init_application()
 		return false;
 	}
 
+	glfwSetWindowSizeCallback(window, [](GLFWwindow* window, int width, int height)
+	{
+		on_window_resize(width, height);
+	});
+
+	glfwSetScrollCallback(window, [](GLFWwindow* window, double xOffset, double yOffset)
+	{
+		on_zoom(xOffset, yOffset);
+	});
+
+	glfwSetWindowCloseCallback(window, [](GLFWwindow* window)
+	{
+		isRunning = false;
+	});
+
 	init_renderer();
 
 	return success;
@@ -59,10 +79,39 @@ void quit()
 
 void run()
 {
+	ComponentLists* components = new ComponentLists[10];
+
+	create_entity(components);
+
 	while (isRunning)
 	{
-		render_quad();
+		float time = (float)glfwGetTime();
+		deltaTime = time - lastFrameTime;
+		lastFrameTime = time;
+
+		update(components, deltaTime);
+
+		//render_quad();
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
+}
+
+GLFWwindow* get_window()
+{
+	return window;
+}
+
+void on_window_resize(int width, int height)
+{
+	set_aspect_ratio((float)width / (float)height);
+	set_projection(get_aspect_ratio(), get_zoom_level());
+
+	glViewport(0, 0, width, height);
+}
+
+void on_zoom(int xOffset, int yOffset)
+{
+	zoom(yOffset * 0.25f);
+	set_projection(get_aspect_ratio(), get_zoom_level());
 }
