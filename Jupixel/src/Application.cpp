@@ -28,14 +28,12 @@ bool init_application()
 		printf("Unable to initialize glfw");
 		return false;
 	}
-
 	glfwSetErrorCallback(error_callback);
 
-	window = glfwCreateWindow(640, 480, "sick wind'", NULL, NULL);
+	window = glfwCreateWindow(640, 480, "Calcium Clash", NULL, NULL);
 	if (!window)
 	{
 		printf("Unable to create window");
-		glfwTerminate();
 		return false;
 	}
 
@@ -46,7 +44,6 @@ bool init_application()
 	if (!success)
 	{
 		printf("Unable to initialize glad");
-		glfwTerminate();
 		return false;
 	}
 
@@ -89,11 +86,16 @@ void run()
 		deltaTime = time - lastFrameTime;
 		lastFrameTime = time;
 
-		update(components, deltaTime);
-
-		//render_quad();
-		glfwSwapBuffers(window);
 		glfwPollEvents();
+
+		ecs_update(components, deltaTime);
+
+		begin_scene();
+
+		clear();
+		render();
+
+		glfwSwapBuffers(window);
 	}
 }
 

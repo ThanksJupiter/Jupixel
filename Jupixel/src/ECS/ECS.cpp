@@ -7,7 +7,7 @@
 int ENTITIES = 0;
 float dt = 0;
 
-void update(ComponentLists* components, float deltatime)
+void ecs_update(ComponentLists* components, float deltatime)
 {
 	dt = deltatime;
 
@@ -82,15 +82,30 @@ void update_position_system(Position* p, ComponentLists* components)
 
 void update_input_system(Input* i, ComponentLists* components)
 {
-	i->x = is_key_pressed(KeyCode::D) ?  1 :
-		   is_key_pressed(KeyCode::A) ? -1 :
-		   								 0;
+	if (i->entity_id == 0)
+	{
+		i->x = is_key_pressed(KeyCode::D) ?  1 :
+			   is_key_pressed(KeyCode::A) ? -1 :
+		   									 0;
 
-	i->y = is_key_pressed(KeyCode::D) ?  1 :
-		   is_key_pressed(KeyCode::A) ? -1 :
-										 0;
+		i->y = is_key_pressed(KeyCode::W) ?  1 :
+			   is_key_pressed(KeyCode::S) ? -1 :
+											 0;
 
-	i->jump = is_key_pressed(KeyCode::Space);
+		i->jump = is_key_pressed(KeyCode::Space);
+	}
+	else
+	{
+		i->x = is_key_pressed(KeyCode::J) ?  1 :
+			   is_key_pressed(KeyCode::L) ? -1 :
+											 0;
+
+		i->y = is_key_pressed(KeyCode::I) ?  1 :
+			   is_key_pressed(KeyCode::K) ? -1 :
+											 0;
+
+		i->jump = is_key_pressed(KeyCode::U);
+	}
 }
 
 void update_render_system(Render* r, ComponentLists* components)
@@ -98,5 +113,8 @@ void update_render_system(Render* r, ComponentLists* components)
 	Position* p = &components[r->entity_id].position_components[r->entity_id];
 
 	glm::vec2 pos = glm::vec2(p->x, p->y);
-	render_quad(pos);
+	queue_quad_for_rendering(pos, glm::vec4(0.7f, 0.0f, 0.0f, 1.0f));
+
+	glm::vec2 offset = glm::vec2(0.0f, 0.5f);
+	queue_GUI_quad_for_rendering(pos + offset, glm::vec4(0.0f, 0.0f, 1.0f, 0.5f));
 }
