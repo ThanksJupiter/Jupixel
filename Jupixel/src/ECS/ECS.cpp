@@ -1,7 +1,7 @@
 #include "ECS.h"
 #include "ComponentLists.h"
+#include "UserInput.h"
 #include "Key.h"
-#include "../UserInput.h"
 #include "Renderer/Renderer.h"
 
 int ENTITIES = 0;
