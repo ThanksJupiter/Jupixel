@@ -5,6 +5,7 @@
 #include "Key.h"
 
 #include <stdio.h>
+
 #include "ECS/ECS.h"
 #include "ECS/ComponentLists.h"
 
@@ -78,7 +79,8 @@ void run()
 {
 	ComponentLists* components = new ComponentLists[10];
 
-	create_entity(components);
+	create_entity(components, glm::vec4(0.6f, 0.1f, 0.1f, 1.0f));
+	create_entity(components, glm::vec4(0.1f, 0.6f, 0.1f, 1.0f));
 
 	while (isRunning)
 	{
