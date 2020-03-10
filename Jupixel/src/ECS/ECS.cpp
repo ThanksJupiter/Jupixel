@@ -98,7 +98,8 @@ void update_input_system(Input* i, ComponentLists* components)
 			   is_key_pressed(KeyCode::S) ? -1 :
 											 0;
 
-		i->jump = is_key_pressed(KeyCode::Space);
+		i->jump = is_key_pressed(KeyCode::Q);
+		i->attack = is_key_pressed(KeyCode::E);
 	}
 	else
 	{
@@ -111,16 +112,21 @@ void update_input_system(Input* i, ComponentLists* components)
 											 0;
 
 		i->jump = is_key_pressed(KeyCode::U);
+		i->attack = is_key_pressed(KeyCode::O);
 	}
 }
 
 void update_render_system(Render* r, ComponentLists* components)
 {
 	Position* p = &components->position_components[r->entity_id];
+	Input* i = &components->input_components[p->entity_id];
 
 	glm::vec2 pos = glm::vec2(p->x, p->y);
 	queue_quad_for_rendering(pos, r->Color);
 
-	glm::vec2 offset = glm::vec2(0.0f, 0.5f);
-	queue_GUI_quad_for_rendering(pos + offset, glm::vec4(0.0f, 0.0f, 1.0f, 0.5f));
+	if (i->attack)
+	{
+		glm::vec2 offset = glm::vec2(0.0f, 0.5f);
+		queue_GUI_quad_for_rendering(pos, glm::vec4(1.0f, 0.0f, 0.0f, 0.3f), glm::vec3(1.5f));
+	}
 }

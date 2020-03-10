@@ -9,7 +9,7 @@
 
 RenderData* renderData = new RenderData();
 
-// TODO what is this
+// TODO what is this max 10 render things pls
 RenderObject gameRenderQueue[10];
 RenderObject GUIRenderQueue[10];
 
@@ -73,15 +73,7 @@ void render()
 	{
 		RenderObject& o = gameRenderQueue[i];
 
-		if (o.UseColor)
-		{
-			render_quad(o.Position, o.Color);
-			o.UseColor = false;
-		}
-		else
-		{
-			render_quad(o.Position);
-		}
+		render_quad(o.Position, o.Color, o.Scale);
 	}
 	gameRenderQueueIndex = 0;
 
@@ -89,46 +81,26 @@ void render()
 	{
 		RenderObject& o = GUIRenderQueue[i];
 
-		if (o.UseColor)
-		{
-			render_quad(o.Position, o.Color);
-			o.UseColor = false;
-		}
-		else
-		{
-			render_quad(o.Position);
-		}
+		render_quad(o.Position, o.Color, o.Scale);
 	}
 	GUIRenderQueueIndex = 0;
 }
 
-void queue_quad_for_rendering(glm::vec2& position)
-{
-	gameRenderQueue[gameRenderQueueIndex].Position = position;
-	gameRenderQueueIndex++;
-}
-
-void queue_quad_for_rendering(glm::vec2& position, glm::vec4& color)
+void queue_quad_for_rendering(glm::vec2& position, glm::vec4& color, glm::vec2& scale)
 {
 	RenderObject& o = gameRenderQueue[gameRenderQueueIndex];
 	o.Position = position;
 	o.Color = color;
-	o.UseColor = true;
+	o.Scale = scale;
 	gameRenderQueueIndex++;
 }
 
-void queue_GUI_quad_for_rendering(glm::vec2& position)
-{
-	GUIRenderQueue[GUIRenderQueueIndex].Position = position;
-	GUIRenderQueueIndex++;
-}
-
-void queue_GUI_quad_for_rendering(glm::vec2& position, glm::vec4& color)
+void queue_GUI_quad_for_rendering(glm::vec2& position /*= glm::vec2(0.0f)*/, glm::vec4& color /*= glm::vec4(1.0f)*/, glm::vec3& scale /*= glm::vec3(1.0f)*/)
 {
 	RenderObject& o = GUIRenderQueue[GUIRenderQueueIndex];
 	o.Position = position;
 	o.Color = color;
-	o.UseColor = true;
+	o.Scale = scale;
 	GUIRenderQueueIndex++;
 }
 
@@ -149,41 +121,23 @@ void render_quad()
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 }
 
-void render_quad(glm::vec2& position)
-{
-	glm::vec3 pos = glm::vec3(position.x, position.y, 0.0f);
-	render_quad(pos);
-}
-
-void render_quad(glm::vec3& position)
-{
-	// TODO set color?
-	int location = glGetUniformLocation(renderData->ShaderID, "u_Color");
-	glUniform4fv(location, 1, glm::value_ptr(glm::vec4(0.66f, 0.3f, 0.2f, 1.0f)));
-
-	location = glGetUniformLocation(renderData->ShaderID, "u_Transform");
-	glm::mat4 transform = glm::translate(glm::mat4(1.0f), position) * glm::scale(glm::mat4(1.0f), { 1.0f, 1.0f, 1.0f });
-	glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(transform));
-
-	glBindVertexArray(renderData->Quad_VA);
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
-}
-
-void render_quad(glm::vec2& position, glm::vec4& color)
-{
-	glm::vec3 pos = glm::vec3(position.x, position.y, 0.0f);
-	render_quad(pos, color);
-}
-
-void render_quad(glm::vec3& position, glm::vec4& color)
+void render_quad(glm::vec3& position /*= glm::vec2(0.0f)*/, glm::vec4& color /*= glm::vec4(1.0f)*/, glm::vec3& scale /*= glm::vec3(1.0f)*/)
 {
 	int location = glGetUniformLocation(renderData->ShaderID, "u_Color");
 	glUniform4fv(location, 1, glm::value_ptr(color));
 
 	location = glGetUniformLocation(renderData->ShaderID, "u_Transform");
-	glm::mat4 transform = glm::translate(glm::mat4(1.0f), position) * glm::scale(glm::mat4(1.0f), { 1.0f, 1.0f, 1.0f });
+	glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(position.x, position.y, 1.0f)) * glm::scale(glm::mat4(1.0f), scale);
 	glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(transform));
 
 	glBindVertexArray(renderData->Quad_VA);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+}
+
+void render_quad(glm::vec2& position /*= glm::vec2(0.0f)*/, glm::vec4& color /*= glm::vec4(1.0f)*/, glm::vec2& scale /*= glm::vec2(1.0f)*/)
+{
+	glm::vec3 v3Pos = glm::vec3(position.x, position.y, 0.0f);
+	glm::vec3 v3Scale = glm::vec3(scale.x, scale.y, 1.0f);
+
+	render_quad(v3Pos, color, v3Scale);
 }

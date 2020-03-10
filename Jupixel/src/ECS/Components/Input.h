@@ -7,4 +7,5 @@ struct Input
 	float y = 0;
 
 	bool jump = false;
+	bool attack = false;
 };

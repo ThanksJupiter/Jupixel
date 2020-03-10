@@ -79,8 +79,8 @@ void run()
 {
 	ComponentLists* components = new ComponentLists[10];
 
-	create_entity(components, glm::vec4(0.6f, 0.1f, 0.1f, 1.0f));
-	create_entity(components, glm::vec4(0.1f, 0.6f, 0.1f, 1.0f));
+	create_entity(components, glm::vec4(0.1f, 1.0f, 0.1f, 1.0f));
+	create_entity(components, glm::vec4(0.1f, 0.1f, 1.0f, 1.0f));
 
 	while (isRunning)
 	{
