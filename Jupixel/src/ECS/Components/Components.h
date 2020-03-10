@@ -1,26 +1,34 @@
 #pragma once
 
-#include "Input.h"
+#include "InputComponent.h"
 #include "glm/glm.hpp"
 
-struct Position
+struct PositionComponent
 {
 	int entity_id = 0;
 	float x = 0;
 	float y = 0;
 };
 
-struct Velocity
+struct VelocityComponent
 {
 	int entity_id = 0;
 	float x = 0;
 	float y = 0;
 };
 
-struct Render
+struct RenderComponent
 {
 	int entity_id = 0;
 	int x = 0;
 	int y = 0;
 	glm::vec4 Color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+};
+
+struct CollisionComponent
+{
+	int entity_id = 0;
+	bool is_colliding = false;
+	float scale = 1.5f;
+	glm::vec2 offset = glm::vec2(0.0f);
 };

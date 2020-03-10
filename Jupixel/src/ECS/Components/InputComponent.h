@@ -1,6 +1,6 @@
 #pragma once
 
-struct Input
+struct InputComponent
 {
 	int entity_id = 0;
 	float x = 0;

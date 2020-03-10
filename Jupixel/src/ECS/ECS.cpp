@@ -21,6 +21,11 @@ void ecs_update(ComponentLists* components, float deltatime)
 		update_position_system(&components->position_components[i], components);
 	}
 
+	for (int i = 0; i < components->total_collision_components; i++)
+	{
+		update_collision_system(&components->collision_components[i], components);
+	}
+
 	for (int i = 0; i < components->total_render_components; i++)
 	{
 		update_render_system(&components->render_components[i], components);
@@ -41,6 +46,9 @@ void create_entity(ComponentLists* components)
 
 	components->render_components[id].entity_id = id;
 	components->total_render_components++;
+
+	components->collision_components[id].entity_id = id;
+	components->total_collision_components++;
 }
 
 void create_entity(ComponentLists* components, glm::vec4 color)
@@ -59,10 +67,10 @@ void create_non_input_entity(ComponentLists* components)
 	components->total_render_components++;
 }
 
-void update_position_system(Position* p, ComponentLists* components)
+void update_position_system(PositionComponent* p, ComponentLists* components)
 {
-	Input* i = &components->input_components[p->entity_id];
-	Velocity* v = &components->velocity_components[p->entity_id];
+	InputComponent* i = &components->input_components[p->entity_id];
+	VelocityComponent* v = &components->velocity_components[p->entity_id];
 
 	v->x = i->x * 4.0f;
 
@@ -86,8 +94,9 @@ void update_position_system(Position* p, ComponentLists* components)
 	}
 }
 
-void update_input_system(Input* i, ComponentLists* components)
+void update_input_system(InputComponent* i, ComponentLists* components)
 {
+	// TODO sort out input somehow, somewhy
 	if (i->entity_id == 0)
 	{
 		i->x = is_key_pressed(KeyCode::D) ?  1 :
@@ -98,7 +107,7 @@ void update_input_system(Input* i, ComponentLists* components)
 			   is_key_pressed(KeyCode::S) ? -1 :
 											 0;
 
-		i->jump = is_key_pressed(KeyCode::Q);
+		i->jump =   is_key_pressed(KeyCode::Q);
 		i->attack = is_key_pressed(KeyCode::E);
 	}
 	else
@@ -111,22 +120,50 @@ void update_input_system(Input* i, ComponentLists* components)
 			   is_key_pressed(KeyCode::K) ? -1 :
 											 0;
 
-		i->jump = is_key_pressed(KeyCode::U);
+		i->jump =   is_key_pressed(KeyCode::U);
 		i->attack = is_key_pressed(KeyCode::O);
 	}
 }
 
-void update_render_system(Render* r, ComponentLists* components)
+void update_render_system(RenderComponent* r, ComponentLists* components)
 {
-	Position* p = &components->position_components[r->entity_id];
-	Input* i = &components->input_components[p->entity_id];
+	PositionComponent* p = &components->position_components[r->entity_id];
+	InputComponent* i = &components->input_components[p->entity_id];
+	CollisionComponent* c = &components->collision_components[r->entity_id];
 
 	glm::vec2 pos = glm::vec2(p->x, p->y);
 	queue_quad_for_rendering(pos, r->Color);
 
-	if (i->attack)
+	glm::vec2 offset = glm::vec2(0.0f, 0.5f);
+
+	glm::vec4 noHitClr = glm::vec4(0.0f, 1.0f, 0.0f, 0.3f);
+	glm::vec4 hitClr = glm::vec4(1.0f, 0.0f, 0.0f, 0.3f);
+
+	queue_GUI_quad_for_rendering(pos, !c->is_colliding ? noHitClr : hitClr, glm::vec3(c->scale));
+}
+
+void update_collision_system(CollisionComponent* c, ComponentLists* components)
+{
+	PositionComponent* p = &components->position_components[c->entity_id];
+	c->is_colliding = false;
+
+	for (int i = 0; i < components->total_collision_components; i++)
 	{
-		glm::vec2 offset = glm::vec2(0.0f, 0.5f);
-		queue_GUI_quad_for_rendering(pos, glm::vec4(1.0f, 0.0f, 0.0f, 0.3f), glm::vec3(1.5f));
+		if (i == c->entity_id)
+		{
+			continue;
+		}
+		
+		CollisionComponent* otherC = &components->collision_components[i];
+		PositionComponent* otherP = &components->position_components[i];
+
+		if (p->x < otherP->x + otherC->scale &&
+			p->x + c->scale > otherP->x &&
+			p->y < otherP->y + otherC->scale &&
+			p->y + c->scale > otherP->y)
+		{
+			c->is_colliding = true;
+			otherC->is_colliding = true;
+		}
 	}
 }
