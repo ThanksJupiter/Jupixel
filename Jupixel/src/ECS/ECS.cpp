@@ -71,6 +71,7 @@ void update_position_system(PositionComponent* p, ComponentLists* components)
 {
 	InputComponent* i = &components->input_components[p->entity_id];
 	VelocityComponent* v = &components->velocity_components[p->entity_id];
+	ColliderComponent* c = &components->collision_components[p->entity_id];
 
 	v->x = i->x * 4.0f;
 
@@ -80,16 +81,21 @@ void update_position_system(PositionComponent* p, ComponentLists* components)
 	{
 		v->y -= 10 * dt;
 		p->y += v->y * dt;
+
+		// HACK cannot be hit in air to prevent is_hit from triggering another jump when landing
+		// because of getting hit while jumping
+		c->is_hit = false;
 	}
 	else
 	{
 		v->y = 0;
 		p->y = -1.0f;
 
-		if (i->jump)
+		if (i->jump || c->is_hit)
 		{
 			v->y += 5;
 			p->y += 0.01;
+			c->is_hit = false;
 		}
 	}
 }
@@ -129,32 +135,36 @@ void update_render_system(RenderComponent* r, ComponentLists* components)
 {
 	PositionComponent* p = &components->position_components[r->entity_id];
 	InputComponent* i = &components->input_components[p->entity_id];
-	CollisionComponent* c = &components->collision_components[r->entity_id];
+	ColliderComponent* c = &components->collision_components[r->entity_id];
 
 	glm::vec2 pos = glm::vec2(p->x, p->y);
 	queue_quad_for_rendering(pos, r->Color);
 
-	glm::vec2 offset = glm::vec2(0.0f, 0.5f);
+	if (c->is_active)
+	{
+		glm::vec4 noHitClr = glm::vec4(0.0f, 1.0f, 0.0f, 0.3f);
+		glm::vec4 hitClr = glm::vec4(1.0f, 0.0f, 0.0f, 0.3f);
 
-	glm::vec4 noHitClr = glm::vec4(0.0f, 1.0f, 0.0f, 0.3f);
-	glm::vec4 hitClr = glm::vec4(1.0f, 0.0f, 0.0f, 0.3f);
-
-	queue_GUI_quad_for_rendering(pos, !c->is_colliding ? noHitClr : hitClr, glm::vec3(c->scale));
+		queue_GUI_quad_for_rendering(pos, !c->is_colliding ? noHitClr : hitClr, glm::vec3(c->scale));
+	}
 }
 
-void update_collision_system(CollisionComponent* c, ComponentLists* components)
+void update_collision_system(ColliderComponent* c, ComponentLists* components)
 {
 	PositionComponent* p = &components->position_components[c->entity_id];
+	InputComponent* i = &components->input_components[p->entity_id];
+
+	c->is_active = i->attack;
 	c->is_colliding = false;
 
 	for (int i = 0; i < components->total_collision_components; i++)
 	{
-		if (i == c->entity_id)
+		if (i == c->entity_id || !c->is_active)
 		{
 			continue;
 		}
 		
-		CollisionComponent* otherC = &components->collision_components[i];
+		ColliderComponent* otherC = &components->collision_components[i];
 		PositionComponent* otherP = &components->position_components[i];
 
 		if (p->x < otherP->x + otherC->scale &&
@@ -164,6 +174,7 @@ void update_collision_system(CollisionComponent* c, ComponentLists* components)
 		{
 			c->is_colliding = true;
 			otherC->is_colliding = true;
+			otherC->is_hit = true;
 		}
 	}
 }
