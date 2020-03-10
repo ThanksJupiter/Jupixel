@@ -112,15 +112,6 @@ void begin_scene()
 	glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(get_view_projection_matrix()));
 }
 
-void render_quad()
-{
-	int location = glGetUniformLocation(renderData->ShaderID, "u_Color");
-	glUniform4fv(location, 1, glm::value_ptr(glm::vec4(0.45f, 0.75f, 0.2f, 1.0f)));
-
-	glBindVertexArray(renderData->Quad_VA);
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
-}
-
 void render_quad(glm::vec3& position /*= glm::vec2(0.0f)*/, glm::vec4& color /*= glm::vec4(1.0f)*/, glm::vec3& scale /*= glm::vec3(1.0f)*/)
 {
 	int location = glGetUniformLocation(renderData->ShaderID, "u_Color");
