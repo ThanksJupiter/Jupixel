@@ -138,7 +138,8 @@ void update_render_system(RenderComponent* r, ComponentLists* components)
 	ColliderComponent* c = &components->collision_components[r->entity_id];
 
 	glm::vec2 pos = glm::vec2(p->x, p->y);
-	queue_quad_for_rendering(pos, r->Color);
+	//queue_quad_for_rendering(pos, r->Color);
+	render_quad(pos, r->Color);
 
 	if (c->is_active)
 	{

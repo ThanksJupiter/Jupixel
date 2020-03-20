@@ -3,7 +3,7 @@
 #include <fstream>
 #include <vector>
 
-std::string ReadFileAsString(const std::string& filepath)
+std::string read_file_as_string(const std::string& filepath)
 {
 	std::string result;
 	std::ifstream in(filepath, std::ios::in | std::ios::binary);
@@ -25,15 +25,15 @@ std::string ReadFileAsString(const std::string& filepath)
 
 GLuint compile_shader_program_from_text_files(const std::string& vertexShaderPath, const std::string& fragmentShaderPath)
 {
-	std::string vertexSource = ReadFileAsString(vertexShaderPath);
-	std::string fragmentSource = ReadFileAsString(fragmentShaderPath);
+	std::string vertexSource = read_file_as_string(vertexShaderPath);
+	std::string fragmentSource = read_file_as_string(fragmentShaderPath);
 
 	GLuint program = glCreateProgram();
 	int glShaderIDIndex = 0;
 
-	GLuint vertexShader = CompileShader(GL_VERTEX_SHADER, vertexSource);
+	GLuint vertexShader = compile_shader(GL_VERTEX_SHADER, vertexSource);
 	glAttachShader(program, vertexShader);
-	GLuint fragmentShader = CompileShader(GL_FRAGMENT_SHADER, fragmentSource);
+	GLuint fragmentShader = compile_shader(GL_FRAGMENT_SHADER, fragmentSource);
 	glAttachShader(program, fragmentShader);
 
 	glLinkProgram(program);
@@ -64,7 +64,7 @@ GLuint compile_shader_program_from_text_files(const std::string& vertexShaderPat
 	return program;
 }
 
-GLuint CompileShader(GLenum type, const std::string& source)
+GLuint compile_shader(GLenum type, const std::string& source)
 {
 	GLuint shader = glCreateShader(type);
 
