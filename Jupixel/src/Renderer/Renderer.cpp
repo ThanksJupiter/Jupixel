@@ -177,7 +177,7 @@ void render_quad(glm::vec3& position /*= glm::vec2(0.0f)*/, glm::vec4& color /*=
 	glUniform4fv(location, 1, glm::value_ptr(color));
 
 	location = glGetUniformLocation(currentShaderID, "u_Transform");
-	glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(position.x, position.y, 1.0f)) * glm::scale(glm::mat4(1.0f), scale);
+	glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(position.x, position.y, 0.0f)) * glm::scale(glm::mat4(1.0f), scale);
 	glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(transform));
 
 	glBindVertexArray(flatColorRenderData->Quad_VA);
@@ -187,7 +187,7 @@ void render_quad(glm::vec3& position /*= glm::vec2(0.0f)*/, glm::vec4& color /*=
 void render_quad(glm::vec2& position /*= glm::vec2(0.0f)*/, glm::vec4& color /*= glm::vec4(1.0f)*/, glm::vec2& scale /*= glm::vec2(1.0f)*/)
 {
 	glm::vec3 v3Pos = glm::vec3(position.x, position.y, 0.0f);
-	glm::vec3 v3Scale = glm::vec3(scale.x, scale.y, 1.0f);
+	glm::vec3 v3Scale = glm::vec3(scale.x, scale.y, 0.0f);
 
 	render_quad(v3Pos, color, v3Scale);
 }
@@ -195,7 +195,7 @@ void render_quad(glm::vec2& position /*= glm::vec2(0.0f)*/, glm::vec4& color /*=
 void render_quad(Texture2D& texture, glm::vec2& position /*= glm::vec2(0.0f)*/, glm::vec2& scale /*= glm::vec2(1.0f)*/, glm::vec4& color /*= glm::vec4(1.0f)*/)
 {
 	glm::vec3 v3Pos = glm::vec3(position.x, position.y, 0.0f);
-	glm::vec3 v3Scale = glm::vec3(scale.x, scale.y, 1.0f);
+	glm::vec3 v3Scale = glm::vec3(scale.x, scale.y, 0.0f);
 
 	render_quad(texture, v3Pos, v3Scale, color);
 }
@@ -211,7 +211,7 @@ void render_quad(Texture2D& texture, glm::vec3& position /*= glm::vec3(0.0f)*/, 
 	glUniform1i(location, 0);
 
 	location = glGetUniformLocation(currentShaderID, "u_Transform");
-	glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(position.x, position.y, 1.0f)) * glm::scale(glm::mat4(1.0f), scale);
+	glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(position.x, position.y, 0.0f)) * glm::scale(glm::mat4(1.0f), scale);
 	glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(transform));
 
 	glBindVertexArray(textureRenderData->Quad_VA);

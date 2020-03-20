@@ -153,6 +153,8 @@ void update_render_system(RenderComponent* r, ComponentLists* components)
 	//queue_quad_for_rendering(pos, r->Color);
 	queue_quad_for_rendering(r);
 
+	queue_GUI_quad_for_rendering(pos, r->Color, glm::vec3(0.3f));
+
 	if (c->is_active)
 	{
 		glm::vec4 noHitClr = glm::vec4(0.0f, 1.0f, 0.0f, 0.3f);

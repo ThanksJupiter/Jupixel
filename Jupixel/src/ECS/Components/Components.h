@@ -33,6 +33,6 @@ struct ColliderComponent
 	bool is_active = false;
 	bool is_hit = false;
 	bool is_colliding = false;
-	float scale = 1.5f;
+	float scale = 1.0f;
 	glm::vec2 offset = glm::vec2(0.0f);
 };
