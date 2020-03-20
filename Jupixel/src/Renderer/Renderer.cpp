@@ -11,6 +11,7 @@
 
 RenderData* textureRenderData = nullptr;
 RenderData* flatColorRenderData = nullptr;
+RenderData* outlineRenderData = nullptr;
 
 // TODO what is this max 10 render things pls
 RenderObject gameRenderQueue[10];
@@ -30,11 +31,6 @@ bool init_renderer()
 	unsigned int shaderID;
 	unsigned int textureID;
 
-	unsigned int indices[] = {
-		0, 1, 2, // first triangle
-		2, 3, 0  // second triangle
-	};
-
 	{
 		float vertices[] = {
 			// positions        // texture coords
@@ -42,6 +38,11 @@ bool init_renderer()
 			 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, // bottom right
 			-0.5f, -0.5f, 0.0f, 0.0f, 0.0f, // bottom left
 			-0.5f,  0.5f, 0.0f, 0.0f, 1.0f  // top left 
+		};
+
+		unsigned int indices[] = {
+			0, 1, 2, // first triangle
+			2, 3, 0  // second triangle
 		};
 
 		glGenVertexArrays(1, &VAO);
@@ -75,6 +76,11 @@ bool init_renderer()
 			-0.5f,  0.5f, 0.0f
 		};
 
+		unsigned int indices[] = {
+			0, 1, 2, // first triangle
+			2, 3, 0  // second triangle
+		};
+
 		glGenVertexArrays(1, &VAO);
 		glBindVertexArray(VAO);
 
@@ -90,9 +96,45 @@ bool init_renderer()
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 
 		flatColorRenderData = new RenderData(VAO, VBO, IBO,
-										   compile_shader_program_from_text_files(
-										   "assets/shaders/vertex.glsl",
-										   "assets/shaders/fragment.glsl"));
+											 compile_shader_program_from_text_files(
+											 "assets/shaders/vertex.glsl",
+											 "assets/shaders/fragment.glsl"));
+	}
+
+	{
+		float vertices[] = {
+			// positions       
+			 0.5f,  0.5f, 0.0f,
+			 0.5f, -0.5f, 0.0f,
+			-0.5f, -0.5f, 0.0f,
+			-0.5f,  0.5f, 0.0f
+		};
+
+		unsigned int indices[] = {
+			0, 1,
+			1, 2,
+			2, 3,
+			3, 0
+		};
+
+		glGenVertexArrays(1, &VAO);
+		glBindVertexArray(VAO);
+
+		glGenBuffers(1, &VBO);
+		glBindBuffer(GL_ARRAY_BUFFER, VBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+		glGenBuffers(1, &IBO);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+
+		outlineRenderData = new RenderData(VAO, VBO, IBO,
+											 compile_shader_program_from_text_files(
+											 "assets/shaders/vertex.glsl",
+											 "assets/shaders/fragment.glsl"));
 	}
 
 	camera_init();
@@ -169,6 +211,27 @@ void begin_scene(GLuint shaderID)
 void end_scene()
 {
 	currentShaderID = 0;
+}
+
+void render_outline(glm::vec2& position /*= glm::vec2(0.0f)*/, glm::vec2& scale /*= glm::vec2(1.0f)*/, glm::vec4& color /*= glm::vec4(1.0f)*/)
+{
+	glm::vec3 v3Pos = glm::vec3(position.x, position.y, 0.0f);
+	glm::vec3 v3Scale = glm::vec3(scale.x, scale.y, 0.0f);
+
+	render_outline(v3Pos, v3Scale, color);
+}
+
+void render_outline(glm::vec3& position /*= glm::vec3(0.0f)*/, glm::vec3& scale /*= glm::vec3(1.0f)*/, glm::vec4& color /*= glm::vec4(1.0f)*/)
+{
+	int location = glGetUniformLocation(currentShaderID, "u_Color");
+	glUniform4fv(location, 1, glm::value_ptr(color));
+
+	location = glGetUniformLocation(currentShaderID, "u_Transform");
+	glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(position.x, position.y, 0.0f)) * glm::scale(glm::mat4(1.0f), scale);
+	glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(transform));
+
+	glBindVertexArray(outlineRenderData->Quad_VA);
+	glDrawElements(GL_LINES, 8, GL_UNSIGNED_INT, nullptr);
 }
 
 void render_quad(glm::vec3& position /*= glm::vec2(0.0f)*/, glm::vec4& color /*= glm::vec4(1.0f)*/, glm::vec3& scale /*= glm::vec3(1.0f)*/)

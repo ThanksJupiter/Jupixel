@@ -54,6 +54,7 @@ void create_entity(ComponentLists* components)
 	components->render_components[id].entity_id = id;
 	RenderComponent* rendComp = &components->render_components[id];
 	rendComp->texture = load_texture("assets/textures/skel.png");
+	rendComp->Scale = glm::vec2(rendComp->texture->width * 0.03);
 	components->total_render_components++;
 
 	// Collision
@@ -147,20 +148,22 @@ void update_render_system(RenderComponent* r, ComponentLists* components)
 	InputComponent* i = &components->input_components[p->entity_id];
 	ColliderComponent* c = &components->collision_components[r->entity_id];
 	r->x = p->x;
-	r->y = p->y;
+	r->y = p->y + r->Scale.x * 0.5f;
 
 	glm::vec2 pos = glm::vec2(p->x, p->y);
 	//queue_quad_for_rendering(pos, r->Color);
 	queue_quad_for_rendering(r);
 
-	queue_GUI_quad_for_rendering(pos, r->Color, glm::vec3(0.3f));
+	glm::vec2 offset = glm::vec2(0.0f, 0.5f);
+
+	queue_GUI_quad_for_rendering(pos, glm::vec4(r->Color.r, r->Color.g, r->Color.b, 1.0f), glm::vec3(0.1f));
 
 	if (c->is_active)
 	{
 		glm::vec4 noHitClr = glm::vec4(0.0f, 1.0f, 0.0f, 0.3f);
 		glm::vec4 hitClr = glm::vec4(1.0f, 0.0f, 0.0f, 0.3f);
 
-		queue_GUI_quad_for_rendering(pos, !c->is_colliding ? noHitClr : hitClr, glm::vec3(c->scale));
+		queue_GUI_quad_for_rendering(pos + offset, !c->is_colliding ? noHitClr : hitClr, glm::vec3(c->scale));
 	}
 }
 
@@ -171,6 +174,11 @@ void update_collision_system(ColliderComponent* c, ComponentLists* components)
 
 	c->is_active = i->attack;
 	c->is_colliding = false;
+
+	glm::vec2 pos = glm::vec2(p->x, p->y);
+	glm::vec2 offset = glm::vec2(0.0f, 0.5f);
+
+	render_outline(pos + offset, glm::vec2(c->scale), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
 
 	for (int i = 0; i < components->total_collision_components; i++)
 	{
