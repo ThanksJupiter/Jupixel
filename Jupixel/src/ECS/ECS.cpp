@@ -158,11 +158,12 @@ void update_render_system(RenderComponent* r, ComponentLists* components)
 
 	queue_GUI_quad_for_rendering(pos, glm::vec4(r->Color.r, r->Color.g, r->Color.b, 1.0f), glm::vec3(0.1f));
 
+	glm::vec4 noHitClr = glm::vec4(0.0f, 1.0f, 0.0f, 0.3f);
+	glm::vec4 hitClr = glm::vec4(1.0f, 0.0f, 0.0f, 0.3f);
+	render_quad_outline(pos + offset, glm::vec2(c->scale), noHitClr);
+
 	if (c->is_active)
 	{
-		glm::vec4 noHitClr = glm::vec4(0.0f, 1.0f, 0.0f, 0.3f);
-		glm::vec4 hitClr = glm::vec4(1.0f, 0.0f, 0.0f, 0.3f);
-
 		queue_GUI_quad_for_rendering(pos + offset, !c->is_colliding ? noHitClr : hitClr, glm::vec3(c->scale));
 	}
 }
@@ -177,8 +178,6 @@ void update_collision_system(ColliderComponent* c, ComponentLists* components)
 
 	glm::vec2 pos = glm::vec2(p->x, p->y);
 	glm::vec2 offset = glm::vec2(0.0f, 0.5f);
-
-	render_outline(pos + offset, glm::vec2(c->scale), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
 
 	for (int i = 0; i < components->total_collision_components; i++)
 	{

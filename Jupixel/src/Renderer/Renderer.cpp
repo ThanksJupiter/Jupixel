@@ -213,15 +213,15 @@ void end_scene()
 	currentShaderID = 0;
 }
 
-void render_outline(glm::vec2& position /*= glm::vec2(0.0f)*/, glm::vec2& scale /*= glm::vec2(1.0f)*/, glm::vec4& color /*= glm::vec4(1.0f)*/)
+void render_quad_outline(glm::vec2& position /*= glm::vec2(0.0f)*/, glm::vec2& scale /*= glm::vec2(1.0f)*/, glm::vec4& color /*= glm::vec4(1.0f)*/)
 {
 	glm::vec3 v3Pos = glm::vec3(position.x, position.y, 0.0f);
 	glm::vec3 v3Scale = glm::vec3(scale.x, scale.y, 0.0f);
 
-	render_outline(v3Pos, v3Scale, color);
+	render_quad_outline(v3Pos, v3Scale, color);
 }
 
-void render_outline(glm::vec3& position /*= glm::vec3(0.0f)*/, glm::vec3& scale /*= glm::vec3(1.0f)*/, glm::vec4& color /*= glm::vec4(1.0f)*/)
+void render_quad_outline(glm::vec3& position /*= glm::vec3(0.0f)*/, glm::vec3& scale /*= glm::vec3(1.0f)*/, glm::vec4& color /*= glm::vec4(1.0f)*/)
 {
 	int location = glGetUniformLocation(currentShaderID, "u_Color");
 	glUniform4fv(location, 1, glm::value_ptr(color));

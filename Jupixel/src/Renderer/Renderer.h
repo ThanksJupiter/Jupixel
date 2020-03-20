@@ -66,12 +66,12 @@ void render_quad(
 	glm::vec3& scale = glm::vec3(1.0f),
 	glm::vec4& color = glm::vec4(1.0f));
 
-void render_outline(
+void render_quad_outline(
 	glm::vec2& position = glm::vec2(0.0f),
 	glm::vec2& scale = glm::vec2(1.0f),
 	glm::vec4& color = glm::vec4(1.0f));
 
-void render_outline(
+void render_quad_outline(
 	glm::vec3& position = glm::vec3(0.0f),
 	glm::vec3& scale = glm::vec3(1.0f),
 	glm::vec4& color = glm::vec4(1.0f));
