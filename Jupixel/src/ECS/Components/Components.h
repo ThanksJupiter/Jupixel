@@ -20,9 +20,11 @@ struct VelocityComponent
 struct RenderComponent
 {
 	int entity_id = 0;
-	int x = 0;
-	int y = 0;
+	float x = 0;
+	float y = 0;
 	glm::vec4 Color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+	glm::vec2 Scale = glm::vec2(1.0f);
+	struct Texture2D* texture = nullptr;
 };
 
 struct ColliderComponent

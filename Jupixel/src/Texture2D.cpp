@@ -4,15 +4,9 @@
 #include <stb_image.h>
 #include <string>
 
-Texture2D texture;
-
-int TEXTURE_AMOUNT = 0;
-
-unsigned int load_texture(const std::string& path)
+Texture2D* load_texture(const std::string& path)
 {
-	unsigned int texID;
-
-	//d.path = path;
+	uint32_t texID;
 
 	int width, height, channels;
 
@@ -38,15 +32,10 @@ unsigned int load_texture(const std::string& path)
 
 	stbi_image_free(data);
 
-	return texID;
+	return new Texture2D(texID, path, width, height);
 }
 
-void bind_texture()
+void bind_texture(unsigned int textureID)
 {
-	glBindTextureUnit(0, texture.ID);
-}
-
-Texture2D get_texture()
-{
-	return texture;
+	glBindTextureUnit(0, textureID);
 }

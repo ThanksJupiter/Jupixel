@@ -3,6 +3,8 @@
 #include "UserInput.h"
 #include "Key.h"
 #include "Renderer/Renderer.h"
+#include "Texture2D.h"
+#include "Shader.h"
 
 int ENTITIES = 0;
 float dt = 0;
@@ -35,18 +37,26 @@ void ecs_update(ComponentLists* components, float deltatime)
 void create_entity(ComponentLists* components)
 {
 	int id = ENTITIES++;
+
+	// Position
 	components->position_components[id].entity_id = id;
 	components->total_position_components++;
 
+	// Velocity
 	components->velocity_components[id].entity_id = id;
 	components->total_velocity_components++;
 
+	// Input
 	components->input_components[id].entity_id = id;
 	components->total_input_components++;
 
+	// Render
 	components->render_components[id].entity_id = id;
+	RenderComponent* rendComp = &components->render_components[id];
+	rendComp->texture = load_texture("assets/textures/skel.png");
 	components->total_render_components++;
 
+	// Collision
 	components->collision_components[id].entity_id = id;
 	components->total_collision_components++;
 }
@@ -136,10 +146,12 @@ void update_render_system(RenderComponent* r, ComponentLists* components)
 	PositionComponent* p = &components->position_components[r->entity_id];
 	InputComponent* i = &components->input_components[p->entity_id];
 	ColliderComponent* c = &components->collision_components[r->entity_id];
+	r->x = p->x;
+	r->y = p->y;
 
 	glm::vec2 pos = glm::vec2(p->x, p->y);
 	//queue_quad_for_rendering(pos, r->Color);
-	render_quad(pos, r->Color);
+	queue_quad_for_rendering(r);
 
 	if (c->is_active)
 	{

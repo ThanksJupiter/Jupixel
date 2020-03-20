@@ -91,9 +91,7 @@ void run()
 		glfwPollEvents();
 
 		clear();
-		begin_scene();
 		ecs_update(components, deltaTime);
-
 
 		render();
 
