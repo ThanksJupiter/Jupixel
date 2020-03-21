@@ -175,6 +175,31 @@ void render()
 	GUIRenderQueueIndex = 0;
 }
 
+void update_texture_coordinates(int index)
+{
+	// TODO calculate based on sprite sheet
+	int rows = (int)64/32;
+
+	float uv_x = (float)(index % rows) / rows;
+	float uv_y = (float)(index / rows) / rows;
+
+	glm::vec2 topRight    = glm::vec2(uv_x + 1.0f / rows, uv_y);
+	glm::vec2 bottomRight = glm::vec2(uv_x + 1.0f / rows, uv_y + 1.0f / rows);
+	glm::vec2 bottomLeft  = glm::vec2(uv_x,							 uv_y + 1.0f / rows);
+	glm::vec2 topLeft     = glm::vec2(uv_x,							 uv_y);
+
+	float vertices[] = {
+		// positions        // texture coords
+		 0.5f,  0.5f, 0.0f, topRight.x,    topRight.y,
+		 0.5f, -0.5f, 0.0f, bottomRight.x, bottomRight.y,
+		-0.5f, -0.5f, 0.0f, bottomLeft.x,  bottomLeft.y,
+		-0.5f,  0.5f, 0.0f, topLeft.x,     topLeft.y
+	};
+
+	glBindBuffer(GL_ARRAY_BUFFER, textureRenderData->Quad_VB);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
+}
+
 void queue_quad_for_rendering(glm::vec2& position, glm::vec4& color, glm::vec2& scale)
 {
 	RenderObject& o = gameRenderQueue[gameRenderQueueIndex];

@@ -53,7 +53,7 @@ void create_entity(ComponentLists* components)
 	// Render
 	components->render_components[id].entity_id = id;
 	RenderComponent* rendComp = &components->render_components[id];
-	rendComp->texture = load_texture("assets/textures/skel.png");
+	rendComp->texture = load_texture("assets/textures/Idle_Sheet.png");
 	rendComp->Scale = glm::vec2(rendComp->texture->width * 0.03);
 	components->total_render_components++;
 
@@ -149,6 +149,20 @@ void update_render_system(RenderComponent* r, ComponentLists* components)
 	ColliderComponent* c = &components->collision_components[r->entity_id];
 	r->x = p->x;
 	r->y = p->y + r->Scale.x * 0.5f;
+
+	r->currentSpriteTime += dt * 0.5;
+
+	if (r->currentSpriteTime >= r->nextSpriteDelay)
+	{
+		r->currentSpriteIndex++;
+		if (r->currentSpriteIndex == 4)
+		{
+			r->currentSpriteIndex = 0;
+		}
+		r->currentSpriteTime = 0.0f;
+	}
+
+	update_texture_coordinates(r->currentSpriteIndex);
 
 	glm::vec2 pos = glm::vec2(p->x, p->y);
 	//queue_quad_for_rendering(pos, r->Color);

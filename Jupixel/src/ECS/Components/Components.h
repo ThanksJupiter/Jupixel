@@ -25,6 +25,9 @@ struct RenderComponent
 	glm::vec4 Color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 	glm::vec2 Scale = glm::vec2(1.0f);
 	struct Texture2D* texture = nullptr;
+	int currentSpriteIndex = 0;
+	float currentSpriteTime = 0.0f;
+	float nextSpriteDelay = 0.1f;
 };
 
 struct ColliderComponent

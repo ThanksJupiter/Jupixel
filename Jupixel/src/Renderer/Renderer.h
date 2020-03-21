@@ -32,6 +32,8 @@ void end_scene();
 void clear();
 void render();
 
+void update_texture_coordinates(int index);
+
 void queue_quad_for_rendering(
 	glm::vec2& position = glm::vec2(0.0f),
 	glm::vec4& color = glm::vec4(1.0f),
