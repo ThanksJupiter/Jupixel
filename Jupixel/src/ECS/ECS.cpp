@@ -54,7 +54,7 @@ void create_entity(ComponentLists* components)
 	components->render_components[id].entity_id = id;
 	RenderComponent* rendComp = &components->render_components[id];
 	rendComp->texture = load_texture("assets/textures/Idle_Sheet.png");
-	rendComp->Scale = glm::vec2(rendComp->texture->width * 0.03);
+	rendComp->Scale = glm::vec2(rendComp->texture->width * 0.02);
 	components->total_render_components++;
 
 	// Collision

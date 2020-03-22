@@ -185,8 +185,8 @@ void update_texture_coordinates(int index)
 
 	glm::vec2 topRight    = glm::vec2(uv_x + 1.0f / rows, uv_y);
 	glm::vec2 bottomRight = glm::vec2(uv_x + 1.0f / rows, uv_y + 1.0f / rows);
-	glm::vec2 bottomLeft  = glm::vec2(uv_x,							 uv_y + 1.0f / rows);
-	glm::vec2 topLeft     = glm::vec2(uv_x,							 uv_y);
+	glm::vec2 bottomLeft  = glm::vec2(uv_x,				  uv_y + 1.0f / rows);
+	glm::vec2 topLeft     = glm::vec2(uv_x,				  uv_y);
 
 	float vertices[] = {
 		// positions        // texture coords

@@ -6,12 +6,11 @@ struct Texture2D;
 
 struct Sprite
 {
-	Sprite(Texture2D* texture, int size);
+	Sprite(Texture2D* _texture, int _size, int _index);
 
-	Texture2D* texture;
-
-	// maybe
-	uint32_t index;
+	Texture2D* texture = nullptr;
+	uint32_t index = 0;
+	int size = 0;
 
 	glm::vec2 topRight = glm::vec2(0.0f);
 	glm::vec2 bottomRight = glm::vec2(0.0f);
