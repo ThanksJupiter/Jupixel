@@ -10,4 +10,5 @@ struct World
 
 };
 
+void setup_world();
 void update_world(float dt);

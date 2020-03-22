@@ -80,6 +80,8 @@ void quit()
 
 void run()
 {
+	setup_world();
+
 	ComponentLists* components = new ComponentLists[10];
 	load_skeleton_sprites();
 
@@ -95,6 +97,8 @@ void run()
 		glfwPollEvents();
 
 		clear();
+		
+		update_world(deltaTime);
 		ecs_update(components, deltaTime);
 
 		render();

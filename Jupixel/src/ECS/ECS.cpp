@@ -17,12 +17,12 @@ void ecs_update(ComponentLists* components, float deltatime)
 {
 	dt = deltatime; 
 
-	for (int i = 0; i < components->total_input_components; i++)
+	/*for (int i = 0; i < components->total_input_components; i++)
 	{
 		update_input_system(&components->input_components[i], components);
-	}
+	}*/
 
-	for (int i = 0; i < components->total_position_components; i++)
+	/*for (int i = 0; i < components->total_position_components; i++)
 	{
 		update_position_system(&components->position_components[i], components);
 	}
@@ -35,7 +35,7 @@ void ecs_update(ComponentLists* components, float deltatime)
 	for (int i = 0; i < components->total_render_components; i++)
 	{
 		update_render_system(&components->render_components[i], components);
-	}
+	}*/
 }
 
 void create_entity(ComponentLists* components)
@@ -59,7 +59,7 @@ void create_entity(ComponentLists* components)
 	RenderComponent* rendComp = &components->render_components[id];
 	//rendComp->texture = load_texture("assets/textures/Idle_Sheet.png");
 	rendComp->current_anim_sheet = get_idle_sheet();
-	rendComp->Scale = glm::vec2(rendComp->current_anim_sheet->texture->width * 0.02);
+	rendComp->Scale = glm::vec2(rendComp->current_anim_sheet->texture->width * 0.02f);
 	components->total_render_components++;
 
 	// Collision
@@ -90,20 +90,20 @@ void update_position_system(PositionComponent* p, ComponentLists* components)
 	ColliderComponent* c = &components->collision_components[p->entity_id];
 	RenderComponent* r = &components->render_components[p->entity_id];
 
-	if (i->x != 0)
+	if (i->left_stick_x != 0)
 	{
-		if (i->x > 0 && r->isFlipped)
+		if (i->left_stick_x > 0 && r->isFlipped)
 		{
 			r->isFlipped = false;
 			r->Scale.x = -r->Scale.x;
 		}
-		else if (i->x < 0 && !r->isFlipped)
+		else if (i->left_stick_x < 0 && !r->isFlipped)
 		{
 			r->isFlipped = true;
 			r->Scale.x = -r->Scale.x;
 		}
 
-		v->x = i->x * 2.0f;
+		v->x = i->left_stick_x * 2.0f;
 		r->current_anim_sheet = get_walk_sheet();
 	}
 	else

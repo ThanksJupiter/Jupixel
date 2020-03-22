@@ -1,6 +1,5 @@
 #pragma once
 
-struct InputComponent;
-struct ComponentLists;
+struct Player;
 
-void update_input_system(InputComponent* i, ComponentLists* components);
+void update_input_system(Player* _player);

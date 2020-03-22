@@ -282,11 +282,13 @@ void render_quad(Texture2D& texture, glm::vec2& position /*= glm::vec2(0.0f)*/, 
 void render_quad(Texture2D& texture, glm::vec3& position /*= glm::vec3(0.0f)*/, glm::vec3& scale /*= glm::vec3(1.0f)*/, glm::vec4& color /*= glm::vec4(1.0f)*/)
 {
 	int location = glGetUniformLocation(currentShaderID, "u_Color");
-	glUniform4fv(location, 1, glm::value_ptr(color));
+	/*glUniform4fv(location, 1, glm::value_ptr(color));*/
+	glUniform4fv(location, 1, glm::value_ptr(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
 
 	bind_texture(texture.ID);
 	location = glGetUniformLocation(currentShaderID, "u_Texture");
 	// TODO what is going on with this zero
+	// is it the texture slot that the texture is bound to?
 	glUniform1i(location, 0);
 
 	location = glGetUniformLocation(currentShaderID, "u_Transform");

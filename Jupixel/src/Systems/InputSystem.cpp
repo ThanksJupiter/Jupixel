@@ -4,17 +4,20 @@
 #include "ECS/Components/InputComponent.h"
 #include "ECS/ComponentLists.h"
 #include "Key.h"
+#include "Player.h"
 
-void update_input_system(InputComponent* i, ComponentLists* components)
+void update_input_system(Player* player)
 {
-	// TODO sort out input somehow, somewhy
-	if (i->entity_id == 0)
+	InputComponent* i = player->input;
+
+	// TODO can probably make beautiful with gamepads implemented
+	if (player->ID == 0)
 	{
-		i->x = is_key_pressed(KeyCode::D) ? 1 :
+		i->left_stick_x = is_key_pressed(KeyCode::D) ? 1 :
 			is_key_pressed(KeyCode::A) ? -1 :
 			0;
 
-		i->y = is_key_pressed(KeyCode::W) ? 1 :
+		i->left_stick_y = is_key_pressed(KeyCode::W) ? 1 :
 			is_key_pressed(KeyCode::S) ? -1 :
 			0;
 
@@ -23,11 +26,11 @@ void update_input_system(InputComponent* i, ComponentLists* components)
 	}
 	else
 	{
-		i->x = is_key_pressed(KeyCode::L) ? 1 :
+		i->left_stick_x = is_key_pressed(KeyCode::L) ? 1 :
 			is_key_pressed(KeyCode::J) ? -1 :
 			0;
 
-		i->y = is_key_pressed(KeyCode::I) ? 1 :
+		i->left_stick_y = is_key_pressed(KeyCode::I) ? 1 :
 			is_key_pressed(KeyCode::K) ? -1 :
 			0;
 
