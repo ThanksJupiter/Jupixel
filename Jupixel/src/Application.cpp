@@ -84,7 +84,7 @@ void run()
 	load_skeleton_sprites();
 
 	create_entity(components, glm::vec4(0.1f, 1.0f, 0.1f, 0.5f));
-	//create_entity(components, glm::vec4(0.1f, 0.1f, 1.0f, 0.5f));
+	create_entity(components, glm::vec4(0.1f, 0.1f, 1.0f, 0.5f));
 
 	while (isRunning)
 	{

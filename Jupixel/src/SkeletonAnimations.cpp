@@ -15,7 +15,9 @@ Spritesheet* jab_spritesheet;
 
 void load_skeleton_sprites()
 {
-	Texture2D* texture = load_texture("assets/textures/Idle_Sheet.png");
+	Texture2D* texture = nullptr;
+
+	texture = load_texture("assets/textures/Idle_Sheet.png");
 	idle_spritesheet = new Spritesheet(texture, 32, 32, 4);
 
 	texture = load_texture("assets/textures/Walk_Sheet.png");
