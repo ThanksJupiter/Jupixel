@@ -6,6 +6,9 @@
 #include "Texture2D.h"
 #include "Shader.h"
 
+#include "SkeletonAnimations.h"
+#include "Animation/Spritesheet.h"
+
 int ENTITIES = 0;
 float dt = 0;
 
@@ -53,8 +56,9 @@ void create_entity(ComponentLists* components)
 	// Render
 	components->render_components[id].entity_id = id;
 	RenderComponent* rendComp = &components->render_components[id];
-	rendComp->texture = load_texture("assets/textures/Idle_Sheet.png");
-	rendComp->Scale = glm::vec2(rendComp->texture->width * 0.02);
+	//rendComp->texture = load_texture("assets/textures/Idle_Sheet.png");
+	rendComp->current_anim_sheet = get_idle_sheet();
+	rendComp->Scale = glm::vec2(rendComp->current_anim_sheet->texture->width * 0.02);
 	components->total_render_components++;
 
 	// Collision
@@ -83,8 +87,29 @@ void update_position_system(PositionComponent* p, ComponentLists* components)
 	InputComponent* i = &components->input_components[p->entity_id];
 	VelocityComponent* v = &components->velocity_components[p->entity_id];
 	ColliderComponent* c = &components->collision_components[p->entity_id];
+	RenderComponent* r = &components->render_components[p->entity_id];
 
-	v->x = i->x * 4.0f;
+	if (i->x != 0)
+	{
+		if (i->x > 0 && r->isFlipped)
+		{
+			r->isFlipped = false;
+			r->Scale.x = -r->Scale.x;
+		}
+		else if (i->x < 0 && !r->isFlipped)
+		{
+			r->isFlipped = true;
+			r->Scale.x = -r->Scale.x;
+		}
+
+		v->x = i->x * 2.0f;
+		r->current_anim_sheet = get_walk_sheet();
+	}
+	else
+	{
+		r->current_anim_sheet = get_idle_sheet();
+		v->x = 0;
+	}
 
 	p->x += v->x * dt;
 
@@ -148,21 +173,21 @@ void update_render_system(RenderComponent* r, ComponentLists* components)
 	InputComponent* i = &components->input_components[p->entity_id];
 	ColliderComponent* c = &components->collision_components[r->entity_id];
 	r->x = p->x;
-	r->y = p->y + r->Scale.x * 0.5f;
+	r->y = p->y + r->Scale.y * 0.5f;
 
 	r->currentSpriteTime += dt * 0.5;
 
 	if (r->currentSpriteTime >= r->nextSpriteDelay)
 	{
 		r->currentSpriteIndex++;
-		if (r->currentSpriteIndex == 4)
+		if (r->currentSpriteIndex == r->current_anim_sheet->sprites.size())
 		{
 			r->currentSpriteIndex = 0;
 		}
 		r->currentSpriteTime = 0.0f;
 	}
 
-	update_texture_coordinates(r->currentSpriteIndex);
+	update_texture_coordinates(r->current_anim_sheet->sprites[r->currentSpriteIndex]);
 
 	glm::vec2 pos = glm::vec2(p->x, p->y);
 	//queue_quad_for_rendering(pos, r->Color);

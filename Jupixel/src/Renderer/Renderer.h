@@ -5,6 +5,7 @@
 
 struct Texture2D;
 struct RenderComponent;
+struct Sprite;
 
 struct RenderData
 {
@@ -32,7 +33,7 @@ void end_scene();
 void clear();
 void render();
 
-void update_texture_coordinates(int index);
+void update_texture_coordinates(Sprite* sprite);
 
 void queue_quad_for_rendering(
 	glm::vec2& position = glm::vec2(0.0f),
