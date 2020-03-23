@@ -2,4 +2,4 @@
 
 struct Player;
 
-void update_position_system(Player* _player, float _dt);
+void update_position_system(Player* player, float dt);

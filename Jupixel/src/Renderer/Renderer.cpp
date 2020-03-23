@@ -154,6 +154,9 @@ void clear()
 {
 	glClearColor(0.1f, 0.1f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
+
+	gameRenderQueueIndex = 0;
+	GUIRenderQueueIndex = 0;
 }
 
 void render()
@@ -181,10 +184,10 @@ void update_texture_coordinates(Sprite* sprite)
 {
 	float vertices[] = {
 		// positions        // texture coords
-		 0.5f,  0.5f, 0.0f, sprite->topRight.x,    sprite->topRight.y,
-		 0.5f, -0.5f, 0.0f, sprite->bottomRight.x, sprite->bottomRight.y,
-		-0.5f, -0.5f, 0.0f, sprite->bottomLeft.x,  sprite->bottomLeft.y,
-		-0.5f,  0.5f, 0.0f, sprite->topLeft.x,     sprite->topLeft.y
+		 0.5f,  0.5f, 0.0f, sprite->TopRight.x,    sprite->TopRight.y,
+		 0.5f, -0.5f, 0.0f, sprite->BottomRight.x, sprite->BottomRight.y,
+		-0.5f, -0.5f, 0.0f, sprite->BottomLeft.x,  sprite->BottomLeft.y,
+		-0.5f,  0.5f, 0.0f, sprite->TopLeft.x,     sprite->TopLeft.y
 	};
 
 	glBindBuffer(GL_ARRAY_BUFFER, textureRenderData->Quad_VB);
@@ -239,8 +242,14 @@ void render_quad_outline(glm::vec2& position /*= glm::vec2(0.0f)*/, glm::vec2& s
 
 void render_quad_outline(glm::vec3& position /*= glm::vec3(0.0f)*/, glm::vec3& scale /*= glm::vec3(1.0f)*/, glm::vec4& color /*= glm::vec4(1.0f)*/)
 {
+	glUseProgram(outlineRenderData->ShaderID);
+	currentShaderID = outlineRenderData->ShaderID;
+
 	int location = glGetUniformLocation(currentShaderID, "u_Color");
 	glUniform4fv(location, 1, glm::value_ptr(color));
+
+	location = glGetUniformLocation(currentShaderID, "u_ViewProjection");
+	glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(get_view_projection_matrix()));
 
 	location = glGetUniformLocation(currentShaderID, "u_Transform");
 	glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(position.x, position.y, 0.0f)) * glm::scale(glm::mat4(1.0f), scale);
@@ -251,7 +260,10 @@ void render_quad_outline(glm::vec3& position /*= glm::vec3(0.0f)*/, glm::vec3& s
 }
 
 void render_quad(glm::vec3& position /*= glm::vec2(0.0f)*/, glm::vec4& color /*= glm::vec4(1.0f)*/, glm::vec3& scale /*= glm::vec3(1.0f)*/)
-{
+{ 
+	glUseProgram(flatColorRenderData->ShaderID);
+	currentShaderID = flatColorRenderData->ShaderID;
+
 	int location = glGetUniformLocation(currentShaderID, "u_Color");
 	glUniform4fv(location, 1, glm::value_ptr(color));
 
@@ -281,6 +293,9 @@ void render_quad(Texture2D& texture, glm::vec2& position /*= glm::vec2(0.0f)*/, 
 
 void render_quad(Texture2D& texture, glm::vec3& position /*= glm::vec3(0.0f)*/, glm::vec3& scale /*= glm::vec3(1.0f)*/, glm::vec4& color /*= glm::vec4(1.0f)*/)
 {
+	glUseProgram(textureRenderData->ShaderID);
+	currentShaderID = textureRenderData->ShaderID;
+
 	int location = glGetUniformLocation(currentShaderID, "u_Color");
 	/*glUniform4fv(location, 1, glm::value_ptr(color));*/
 	glUniform4fv(location, 1, glm::value_ptr(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));

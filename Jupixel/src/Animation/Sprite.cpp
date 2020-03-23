@@ -2,20 +2,20 @@
 
 #include "Texture2D.h"
 
-Sprite::Sprite(Texture2D* _texture, int _width, int _height, int _index)
+Sprite::Sprite(Texture2D* texture, int width, int height, int index)
 {
-	texture = _texture;
-	index = _index;
-	width = _width;
-	height = _height;
+	Texture = texture;
+	Index = index;
+	Width = width;
+	Height = height;
 
-	int rows = (int)texture->width / width;
+	int rows = (int)Texture->width / Width;
 
-	float uv_x = (float)(index % rows) / rows;
-	float uv_y = (float)(index / rows) / rows;
+	float uv_x = (float)(Index % rows) / rows;
+	float uv_y = (float)(Index / rows) / rows;
 
-	topRight =    glm::vec2(uv_x + 1.0f / rows, uv_y);
-	bottomRight = glm::vec2(uv_x + 1.0f / rows, uv_y + 1.0f / rows);
-	bottomLeft =  glm::vec2(uv_x,				uv_y + 1.0f / rows);
-	topLeft =     glm::vec2(uv_x,				uv_y);
+	TopRight =    glm::vec2(uv_x + 1.0f / rows, uv_y);
+	BottomRight = glm::vec2(uv_x + 1.0f / rows, uv_y + 1.0f / rows);
+	BottomLeft =  glm::vec2(uv_x,				uv_y + 1.0f / rows);
+	TopLeft =     glm::vec2(uv_x,				uv_y);
 }

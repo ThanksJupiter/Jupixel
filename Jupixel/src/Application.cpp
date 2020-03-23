@@ -80,13 +80,13 @@ void quit()
 
 void run()
 {
-	setup_world();
-
-	ComponentLists* components = new ComponentLists[10];
 	load_skeleton_sprites();
 
-	create_entity(components, glm::vec4(0.1f, 1.0f, 0.1f, 0.5f));
-	create_entity(components, glm::vec4(0.1f, 0.1f, 1.0f, 0.5f));
+	setup_world();
+
+	//ComponentLists* components = new ComponentLists[10];
+	//create_entity(components, glm::vec4(0.1f, 1.0f, 0.1f, 0.5f));
+	//create_entity(components, glm::vec4(0.1f, 0.1f, 1.0f, 0.5f));
 
 	while (isRunning)
 	{
@@ -99,7 +99,7 @@ void run()
 		clear();
 		
 		update_world(deltaTime);
-		ecs_update(components, deltaTime);
+		//ecs_update(components, deltaTime);
 
 		render();
 

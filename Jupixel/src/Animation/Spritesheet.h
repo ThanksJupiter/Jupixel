@@ -9,5 +9,5 @@ struct Spritesheet
 	Spritesheet(Texture2D* _texture, int _sprite_width, int _sprite_height, int _frames);
 
 	Texture2D* texture = nullptr;
-	std::vector<Sprite*> sprites = std::vector<Sprite*>();
+	std::vector<Sprite*> Sprites = std::vector<Sprite*>();
 };

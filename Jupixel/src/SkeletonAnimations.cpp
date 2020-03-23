@@ -10,7 +10,7 @@ Spritesheet* idle_spritesheet;
 Spritesheet* walk_spritesheet;
 
 // attack spritesheets
-Spritesheet* jab_spritesheet;
+Spritesheet* punch_spritesheet;
 
 
 void load_skeleton_sprites()
@@ -22,6 +22,9 @@ void load_skeleton_sprites()
 
 	texture = load_texture("assets/textures/Walk_Sheet.png");
 	walk_spritesheet = new Spritesheet(texture, 32, 32, 4);
+
+	texture = load_texture("assets/textures/Punch_Sheet.png");
+	punch_spritesheet = new Spritesheet(texture, 64, 32, 9);
 }
 
 Spritesheet* get_idle_sheet()
@@ -32,4 +35,9 @@ Spritesheet* get_idle_sheet()
 Spritesheet* get_walk_sheet()
 {
 	return walk_spritesheet;
+}
+
+Spritesheet* get_punch_sheet()
+{
+	return punch_spritesheet;
 }

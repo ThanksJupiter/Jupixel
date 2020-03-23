@@ -90,20 +90,20 @@ void update_position_system(PositionComponent* p, ComponentLists* components)
 	ColliderComponent* c = &components->collision_components[p->entity_id];
 	RenderComponent* r = &components->render_components[p->entity_id];
 
-	if (i->left_stick_x != 0)
+	if (i->Left_stick_x != 0)
 	{
-		if (i->left_stick_x > 0 && r->isFlipped)
+		if (i->Left_stick_x > 0 && r->isFlipped)
 		{
 			r->isFlipped = false;
 			r->Scale.x = -r->Scale.x;
 		}
-		else if (i->left_stick_x < 0 && !r->isFlipped)
+		else if (i->Left_stick_x < 0 && !r->isFlipped)
 		{
 			r->isFlipped = true;
 			r->Scale.x = -r->Scale.x;
 		}
 
-		v->x = i->left_stick_x * 2.0f;
+		v->x = i->Left_stick_x * 2.0f;
 		r->current_anim_sheet = get_walk_sheet();
 	}
 	else
@@ -128,7 +128,7 @@ void update_position_system(PositionComponent* p, ComponentLists* components)
 		v->y = 0;
 		p->y = -1.0f;
 
-		if (i->jump || c->is_hit)
+		if (i->Jump || c->is_hit)
 		{
 			v->y += 5;
 			p->y += 0.01;
@@ -150,14 +150,14 @@ void update_render_system(RenderComponent* r, ComponentLists* components)
 	if (r->currentSpriteTime >= r->nextSpriteDelay)
 	{
 		r->currentSpriteIndex++;
-		if (r->currentSpriteIndex == r->current_anim_sheet->sprites.size())
+		if (r->currentSpriteIndex == r->current_anim_sheet->Sprites.size())
 		{
 			r->currentSpriteIndex = 0;
 		}
 		r->currentSpriteTime = 0.0f;
 	}
 
-	update_texture_coordinates(r->current_anim_sheet->sprites[r->currentSpriteIndex]);
+	update_texture_coordinates(r->current_anim_sheet->Sprites[r->currentSpriteIndex]);
 
 	glm::vec2 pos = glm::vec2(p->x, p->y);
 	//queue_quad_for_rendering(pos, r->Color);
@@ -182,7 +182,7 @@ void update_collision_system(ColliderComponent* c, ComponentLists* components)
 	PositionComponent* p = &components->position_components[c->entity_id];
 	InputComponent* i = &components->input_components[p->entity_id];
 
-	c->is_active = i->attack;
+	c->is_active = i->Attack;
 	c->is_colliding = false;
 
 	glm::vec2 pos = glm::vec2(p->x, p->y);

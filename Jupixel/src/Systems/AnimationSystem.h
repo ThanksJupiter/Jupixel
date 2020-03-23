@@ -2,4 +2,7 @@
 
 struct Player;
 
-void update_animation_system(Player* _player, float _dt);
+struct Sprite;
+
+void update_animation_system(Player* player, float dt);
+void update_player_animation(Player* player, Sprite* new_anim);
