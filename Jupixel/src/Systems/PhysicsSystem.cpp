@@ -42,7 +42,7 @@ void update_position_system(Player* player, float dt)
 
 				if (action_state.Value == 0)
 				{
-					change_player_state(player, 1);
+					set_player_state(player, 1);
 					change_player_animation(player, get_walk_sheet());
 				}
 			}
@@ -50,7 +50,7 @@ void update_position_system(Player* player, float dt)
 			{
 				if (action_state.Value == 1)
 				{
-					change_player_state(player, 0);
+					set_player_state(player, 0);
 					change_player_animation(player, get_idle_sheet());
 				}
 				v.x = 0;
@@ -97,4 +97,10 @@ void update_position_system(Player* player, float dt)
 			transform.Position.y = -1.0f;
 		}
 	}
+}
+
+void update_position_system(Player* player_one, Player* player_two, float dt)
+{
+	update_position_system(player_one, dt);
+	update_position_system(player_two, dt);
 }

@@ -8,13 +8,6 @@
 #include "Components/ColliderComponent.h"
 #include "Components/ActionStateComponent.h"
 
-struct InputComponent;
-struct TransformComponent;
-struct PhysicsComponent;
-struct AnimationComponent;
-struct ColliderComponent;
-struct ActionStateComponent;
-
 struct Spritesheet;
 
 struct Player
@@ -31,6 +24,9 @@ struct Player
 	ActionStateComponent ActionState = ActionStateComponent();
 };
 
+void setup_player(Player* player_to_setup, Player* player_opponent, int player_id);
 void change_player_animation(Player* player, Spritesheet* new_anim);
-void change_player_state(Player* player, int state);
-void change_player_state(Player* player, int state, float duration);
+void set_player_state(Player* player, PositionState state);
+void set_player_state(Player* player, ActionState state);
+void set_player_state(Player* player, int state);
+void set_player_state(Player* player, int state, float duration);

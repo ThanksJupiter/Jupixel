@@ -19,7 +19,7 @@ void update_action_state_system(Player* player, float dt)
 		if (input->Attack)
 		{
 			// TODO make animation times something worthwile
-			change_player_state(player, 2, 9 * 0.1f);
+			set_player_state(player, 2, 9 * 0.1f);
 			change_player_animation(player, get_punch_sheet());
 		}
 	}
@@ -28,7 +28,7 @@ void update_action_state_system(Player* player, float dt)
 		state.Timer += dt;
 		if (state.Timer >= state.Time_in_state)
 		{
-			change_player_state(player, 0);
+			set_player_state(player, 0);
 			change_player_animation(player, get_idle_sheet());
 		}
 		else if (state.Timer >= 0.6f) // TODO don't magic number the attack hitbox checking

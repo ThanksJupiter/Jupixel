@@ -7,7 +7,7 @@
 #include "glad/glad.h"
 #include "Camera.h"
 #include "Texture2D.h"
-#include "ECS/Components/Components.h"
+#include "Components/Components.h"
 #include "Animation/Spritesheet.h"
 #include "Animation/Sprite.h"
 

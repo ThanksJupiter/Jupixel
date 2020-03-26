@@ -1,8 +1,6 @@
 #include "InputSystem.h"
 
 #include "UserInput.h"
-#include "ECS/Components/InputComponent.h"
-#include "ECS/ComponentLists.h"
 #include "Key.h"
 #include "Player.h"
 
