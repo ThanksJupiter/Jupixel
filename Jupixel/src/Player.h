@@ -1,10 +1,10 @@
 #pragma once
 
-#include "ECS/Components/InputComponent.h"
+#include "Components/InputComponent.h"
 #include "Components/TransformComponent.h"
 #include "Components/PhysicsComponent.h"
 #include "Components/AnimationComponent.h"
-#include "ECS/Components/Components.h"
+#include "Components/Components.h"
 #include "Components/ColliderComponent.h"
 #include "Components/ActionStateComponent.h"
 
@@ -20,6 +20,8 @@ struct Spritesheet;
 struct Player
 {
 	unsigned int ID = 0;
+
+	Player* Opponent = nullptr;
 
 	InputComponent* Input = new InputComponent();
 	TransformComponent Transform = TransformComponent();

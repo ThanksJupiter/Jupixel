@@ -1,3 +1,6 @@
 #pragma once
 
-void resolve_collisions();
+struct CollisionTestRequest;
+
+void queue_collision(CollisionTestRequest* request);
+void test_collisions();

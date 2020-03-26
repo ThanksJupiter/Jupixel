@@ -22,7 +22,7 @@ Texture2D* load_texture(const std::string& path)
 	glCreateTextures(GL_TEXTURE_2D, 1, &texID);
 	glTextureStorage2D(texID, 1, GL_RGBA8, width, height);
 
-	glTextureParameteri(texID, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTextureParameteri(texID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTextureParameteri(texID, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
 	glTextureParameteri(texID, GL_TEXTURE_WRAP_S, GL_REPEAT);

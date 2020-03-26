@@ -6,9 +6,6 @@
 
 #include <stdio.h>
 
-#include "ECS/ECS.h"
-#include "ECS/ComponentLists.h"
-
 #include "World.h"
 #include "SkeletonAnimations.h"
 
@@ -71,22 +68,18 @@ bool init_application()
 	return success;
 }
 
-void quit()
+void quit_application()
 {
 	quit_renderer();
 	glfwDestroyWindow(window);
 	glfwTerminate();
 }
 
-void run()
+void run_application()
 {
 	load_skeleton_sprites();
 
 	setup_world();
-
-	//ComponentLists* components = new ComponentLists[10];
-	//create_entity(components, glm::vec4(0.1f, 1.0f, 0.1f, 0.5f));
-	//create_entity(components, glm::vec4(0.1f, 0.1f, 1.0f, 0.5f));
 
 	while (isRunning)
 	{
@@ -95,12 +88,9 @@ void run()
 		lastFrameTime = time;
 
 		glfwPollEvents();
-
 		clear();
 		
 		update_world(deltaTime);
-		//ecs_update(components, deltaTime);
-
 		render();
 
 		glfwSwapBuffers(window);

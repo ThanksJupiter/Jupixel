@@ -14,6 +14,7 @@ void update_animation_system(Player* player, float dt)
 {
 	AnimationComponent& anim = player->Animation;
 	TransformComponent& transform = player->Transform;
+	ColliderComponent& collider = player->Collider;
 
 	anim.Current_sprite_time += dt;
 
@@ -36,15 +37,16 @@ void update_animation_system(Player* player, float dt)
 	update_player_animation(player, anim.Current_anim->Sprites[anim.Current_Sprite_Index]);
 
 	glm::vec2 pos = glm::vec2(transform.Position.x, transform.Position.y);
-	glm::vec2 offset = glm::vec2(0.0f, 0.5f);
+	glm::vec2 offset = glm::vec2(0.0f, anim.Animation_scale.y / 2);
 	
 	render_quad(*anim.Current_anim->texture, pos + offset, anim.Animation_scale, anim.Color);
 
-	queue_GUI_quad_for_rendering(pos, anim.Color, glm::vec3(0.1f));
-
+	//queue_GUI_quad_for_rendering(pos, anim.Color, glm::vec3(0.1f));
 	glm::vec4 noHitClr = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f);
 	glm::vec4 hitClr = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
-	render_quad_outline(pos + offset, transform.Scale, anim.Color);
+	//render_quad_outline(pos + offset, transform.Scale, anim.Color);
+	collider.Position = pos + offset;
+	collider.Scale = transform.Scale;
 }
 
 void update_player_animation(Player* player, Sprite* new_anim)

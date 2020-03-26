@@ -9,6 +9,7 @@
 #include "SkeletonAnimations.h"
 #include "Renderer/Renderer.h"
 #include "Systems/ActionStateSystem.h"
+#include "Systems/CollisionSystem.h"
 
 World* world = nullptr;
 
@@ -27,11 +28,14 @@ void setup_world()
 
 	player_two->ID = 1;
 
-	player_one->Animation.Current_anim = get_punch_sheet();
+	player_one->Animation.Current_anim = get_idle_sheet();
 	player_one->Animation.Color = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f);
 
 	player_two->Animation.Current_anim = get_idle_sheet();
 	player_two->Animation.Color = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
+
+	player_one->Opponent = player_two;
+	player_two->Opponent = player_one;
 }
 
 void update_world(float dt)
@@ -44,6 +48,8 @@ void update_world(float dt)
 
 	update_position_system(player_one, dt);
 	update_position_system(player_two, dt);
+
+	test_collisions();
 
 	update_animation_system(player_one, dt);
 	update_animation_system(player_two, dt);	

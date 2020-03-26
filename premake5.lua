@@ -23,6 +23,7 @@ IncludeDir["Glad"] = "Jupixel/vendor/Glad/include"
 IncludeDir["ImGui"] = "Jupixel/vendor/imgui"
 IncludeDir["glm"] = "Jupixel/vendor/glm"
 IncludeDir["stb_image"] = "Jupixel/vendor/stb_image"
+IncludeDir["jsonc"] = "Jupixel/vendor/json-c"
 
 group "Dependencies"
 	include "Jupixel/vendor/GLFW"
@@ -48,6 +49,7 @@ project "Jupixel"
 		"%{prj.name}/vendor/stb_image/**.cpp",
 		"%{prj.name}/vendor/glm/glm/**.hpp",
 		"%{prj.name}/vendor/glm/glm/**.inl",
+		"%{prj.name}/vendor/json-c/*.c",
 	}
 
 	defines
@@ -63,7 +65,8 @@ project "Jupixel"
 		"%{IncludeDir.Glad}",
 		"%{IncludeDir.ImGui}",
 		"%{IncludeDir.glm}",
-		"%{IncludeDir.stb_image}"
+		"%{IncludeDir.stb_image}",
+		"%{IncludeDir.jsonc}"
 	}
 
 	links 

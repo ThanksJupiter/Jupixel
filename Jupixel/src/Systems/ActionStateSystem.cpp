@@ -4,8 +4,10 @@
 
 #include "SkeletonAnimations.h"
 
-#include "ECS/Components/InputComponent.h"
+#include "Components/InputComponent.h"
 #include "Components/ActionStateComponent.h"
+#include "Physics/CollisionTestRequest.h"
+#include "CollisionSystem.h"
 
 void update_action_state_system(Player* player, float dt)
 {
@@ -28,6 +30,21 @@ void update_action_state_system(Player* player, float dt)
 		{
 			change_player_state(player, 0);
 			change_player_animation(player, get_idle_sheet());
+		}
+		else if (state.Timer >= 0.6f) // TODO don't magic number the attack hitbox checking
+		{
+			CollisionTestRequest* request = new CollisionTestRequest();
+
+			ColliderComponent col_comp = ColliderComponent();
+			// TODO know which attack should be used for collider position & scale here
+			col_comp.Position = player->Transform.Position;
+			col_comp.Scale = player->Transform.Scale;
+			request->Collider = col_comp;
+
+			request->Instigator = player;
+			request->Target = player->Opponent;
+
+			queue_collision(request);
 		}
 	}
 

@@ -11,9 +11,9 @@ int main(int argc, char** argv)
 		return -1;
 	}
 
-	run();
+	run_application();
 
-	quit();
+	quit_application();
 
 	return 0;
 }
