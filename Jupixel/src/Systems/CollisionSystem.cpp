@@ -9,9 +9,10 @@
 #include "Renderer/Renderer.h"
 #include <vector>
 
-std::vector<CollisionTestRequest*> requests = std::vector<CollisionTestRequest*>();
+std::vector<CollisionTestRequest> requests = std::vector<CollisionTestRequest>();
+glm::vec2 point_scale = glm::vec2(0.05f, 0.05f);
 
-void queue_collision(CollisionTestRequest* request)
+void queue_collision(CollisionTestRequest request)
 {
 	requests.push_back(request);
 }
@@ -20,7 +21,7 @@ void test_collisions()
 {
 	for (int i = 0; i < requests.size(); i++)
 	{
-		CollisionTestRequest& request = *requests[i];
+		CollisionTestRequest& request = requests[i];
 
 		if (request.Is_resolved)
 		{
@@ -28,21 +29,19 @@ void test_collisions()
 		}
 
 		Player* otherP = request.Target;
-		AnimationComponent anim = request.Instigator->Animation;
-		CollisionTestRequest* c = &request;
+		ColliderComponent* c = &request.Collider;
 		ColliderComponent* otherC = &request.Target->Collider;
 
-		glm::vec2& p = request.Collider.Position;
+		c->Position = request.Collider.Position;
+		glm::vec2& p = c->Position;
 
-		// TODO don't calculate this here obviously my man you know better than that the little ofc
 		glm::vec2 hitbox_pos = p;
-		float value_to_add = 0.35f * (request.Instigator->Animation.Is_flipped ? -1 : 1);
-		hitbox_pos.x += value_to_add;
-		hitbox_pos.y += 0.2f;
 
-		glm::vec2 scale = glm::vec2(0.4f, 0.2f);
-		glm::vec2 point_scale = glm::vec2(0.05f, 0.05f);
+		hitbox_pos.x += c->Offset.x;
+		hitbox_pos.y += c->Offset.y;
 
+		glm::vec2 scale = c->Scale;
+		
 		render_quad(hitbox_pos, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), point_scale);
 		render_quad_outline(hitbox_pos, scale, glm::vec4(1.0f, 0.0f, 0.0f, 0.5f));
 
@@ -68,6 +67,21 @@ void test_collisions()
 			request.Is_resolved = true;
 			otherC->Is_colliding = true;
 			otherC->Is_hit = true;
+			otherC->Pending_knockback.y = request.Instigator->Combat.Current_attack->Knockback_direction.y;
+
+			if (request.Instigator->Combat.Current_attack == &request.Instigator->Combat.Attacks[5])
+			{
+				otherC->Pending_knockback.x = request.Instigator->Animation.Is_flipped ?
+					request.Instigator->Combat.Current_attack->Knockback_direction.x :
+					-request.Instigator->Combat.Current_attack->Knockback_direction.x;
+			}
+			else
+			{
+				otherC->Pending_knockback.x = request.Instigator->Animation.Is_flipped ?
+					-request.Instigator->Combat.Current_attack->Knockback_direction.x :
+					request.Instigator->Combat.Current_attack->Knockback_direction.x;
+			}
+
 		}
 	}
 

@@ -8,4 +8,9 @@ struct InputComponent
 
 	bool Jump = false;
 	bool Attack = false;
+
+	bool C_down = false;
+	bool C_up = false;
+	bool C_right = false;
+	bool C_left = false;
 };

@@ -18,9 +18,10 @@ void update_animation_system(Player* player, float dt)
 
 	anim.Current_sprite_time += dt;
 
-	if (anim.Current_sprite_time >= anim.Next_sprite_delay)
+	if (anim.Current_sprite_time >= anim.Current_anim->Frame_delay)
 	{
 		anim.Current_Sprite_Index++;
+
 		if (anim.Current_Sprite_Index == anim.Current_anim->Sprites.size())
 		{
 			anim.Current_Sprite_Index = 0;

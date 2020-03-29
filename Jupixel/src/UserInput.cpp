@@ -35,3 +35,71 @@ float get_mouse_position_y()
 	std::pair<float, float> pair = get_mouse_position();
 	return pair.second;
 }
+
+std::pair<float, float> get_left_stick(int id)
+{
+	GLFWgamepadstate state;
+
+	if (glfwGetGamepadState(GLFW_JOYSTICK_1 + id, &state))
+	{
+		double x, y;
+
+		x = state.axes[GLFW_GAMEPAD_AXIS_LEFT_X];
+		y = state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y];
+
+		return { (float)x, (float) y };
+	}
+
+	return { (float)0.0f, (float)0.0f };
+}
+
+float get_left_stick_x(int id)
+{
+	std::pair<float, float> pair = get_left_stick(id);
+	return abs(pair.first) > 0.15f ? pair.first : 0;
+}
+
+float get_left_stick_y(int id)
+{
+	std::pair<float, float> pair = get_left_stick(id);
+	return abs(pair.second) > 0.15f ? pair.second : 0;
+}
+
+std::pair<float, float> get_right_stick(int id)
+{
+	GLFWgamepadstate state;
+
+	if (glfwGetGamepadState(GLFW_JOYSTICK_1 + id, &state))
+	{
+		double x, y;
+
+		x = state.axes[GLFW_GAMEPAD_AXIS_RIGHT_X];
+		y = state.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y];
+
+		return { (float)x, (float)y };
+	}
+
+	return { (float)0.0f, (float)0.0f };
+}
+
+float get_right_stick_x(int id)
+{
+	std::pair<float, float> pair = get_right_stick(id);
+	return abs(pair.first) > 0.15f ? pair.first : 0;
+}
+
+float get_right_stick_y(int id)
+{
+	std::pair<float, float> pair = get_right_stick(id);
+	return abs(pair.second) > 0.15f ? pair.second : 0;
+}
+
+bool is_button_pressed(int id, int button)
+{
+	GLFWgamepadstate state;
+
+	if (glfwGetGamepadState(GLFW_JOYSTICK_1 + id, &state))
+	{
+		return state.buttons[button];
+	}
+}

@@ -8,55 +8,109 @@
 #include "Components/ActionStateComponent.h"
 #include "Physics/CollisionTestRequest.h"
 #include "CollisionSystem.h"
+#include "Components/CombatComponent.h"
+#include "Attack.h"
 
 void update_action_state_system(Player* player, float dt)
 {
-	InputComponent* input = player->Input;
 	ActionStateComponent& state = player->ActionState;
 
-	if (state.Value != 2)
+	if (state.Action_state != Attacking)
 	{
-		if (input->Attack)
+		InputComponent* input = player->Input;
+		AnimationComponent& anim = player->Animation;
+		CombatComponent& combat = player->Combat;
+
+		// TODO if running dash attack etc
+		if (state.Position_state == Grounded)
 		{
-			// TODO make animation times something worthwile
-			set_player_state(player, 2, 9 * 0.1f);
-			change_player_animation(player, get_punch_sheet());
-		}
-	}
-	else
-	{
-		state.Timer += dt;
-		if (state.Timer >= state.Time_in_state)
+			if (input->Attack)
+			{
+				player->Physics.Velocity.x = 0.0f;
+				set_player_state(player, Attacking);
+				combat.Current_attack = &combat.Attacks[0];
+				change_player_animation(player, get_attack_anim(0));
+			}
+		} 
+		else if (state.Position_state == Airborne)
 		{
-			set_player_state(player, 0);
-			change_player_animation(player, get_idle_sheet());
+			if (input->Attack)
+			{
+				set_player_state(player, Attacking);
+				// combat_player_attack(Attack_ID);
+				combat.Current_attack = &combat.Attacks[1];
+				change_player_animation(player, get_attack_anim(1));
+			}
+
+			if (input->C_up)
+			{
+				set_player_state(player, Attacking);
+				combat.Current_attack = &combat.Attacks[2];
+				change_player_animation(player, get_attack_anim(2));
+			}
+
+			if (input->C_down)
+			{
+				set_player_state(player, Attacking);
+				combat.Current_attack = &combat.Attacks[3];
+				change_player_animation(player, get_attack_anim(3));
+			}
+
+			if (input->C_right)
+			{
+				set_player_state(player, Attacking);
+				anim.Is_flipped ? change_player_animation(player, get_attack_anim(5)) :
+					change_player_animation(player, get_attack_anim(4));
+
+				anim.Is_flipped ? combat.Current_attack = &combat.Attacks[5] :
+					combat.Current_attack = &combat.Attacks[4];
+			}
+
+			if (input->C_left)
+			{
+				set_player_state(player, Attacking);
+				anim.Is_flipped ? change_player_animation(player, get_attack_anim(4)) :
+					change_player_animation(player, get_attack_anim(5));
+
+				anim.Is_flipped ? combat.Current_attack = &combat.Attacks[4] :
+					combat.Current_attack = &combat.Attacks[5];
+			}
 		}
-		else if (state.Timer >= 0.6f) // TODO don't magic number the attack hitbox checking
-		{
-			CollisionTestRequest* request = new CollisionTestRequest();
-
-			ColliderComponent col_comp = ColliderComponent();
-			// TODO know which attack should be used for collider position & scale here
-			col_comp.Position = player->Transform.Position;
-			col_comp.Scale = player->Transform.Scale;
-			request->Collider = col_comp;
-
-			request->Instigator = player;
-			request->Target = player->Opponent;
-
-			queue_collision(request);
-		}
-	}
-
-	switch (state.Value)
-	{
-		case 0:
-			break;
-
-		case 1:
-			break;
-
-		case 2:
-			break;
 	}
 }
+
+void grounded_update(Player* player, float dt)
+{
+	 
+}
+
+void airborne_update(Player* player, float dt)
+{
+	
+}
+
+void state_idle_update(Player* player, float dt)
+{
+	
+}
+
+void state_walk_update(Player* player, float dt)
+{
+	
+}
+
+void state_attack_update(Player* player, float dt)
+{
+	
+}
+
+void state_jump_update(Player* player, float dt)
+{
+	
+}
+
+void state_fall_update(Player* player, float dt)
+{
+
+}
+

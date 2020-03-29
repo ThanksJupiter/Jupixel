@@ -1,10 +1,7 @@
 #pragma once
 
-#include "Systems/ActionStateSystem.h"
-
-#define IDLE_STATE 0
-#define WALK_STATE 1
-#define ATTACK_STATE 2
+enum PositionState { Grounded, Airborne };
+enum ActionState { Idle, Walking, Attacking, Jumping, Falling };
 
 struct ActionStateComponent
 {

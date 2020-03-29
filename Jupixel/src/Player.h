@@ -7,6 +7,7 @@
 #include "Components/Components.h"
 #include "Components/ColliderComponent.h"
 #include "Components/ActionStateComponent.h"
+#include "Components/CombatComponent.h"
 
 struct Spritesheet;
 
@@ -22,6 +23,7 @@ struct Player
 	AnimationComponent Animation = AnimationComponent();
 	ColliderComponent Collider = ColliderComponent();
 	ActionStateComponent ActionState = ActionStateComponent();
+	CombatComponent Combat = CombatComponent();
 };
 
 void setup_player(Player* player_to_setup, Player* player_opponent, int player_id);

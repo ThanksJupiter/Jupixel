@@ -2,9 +2,11 @@
 
 #include "Sprite.h"
 
-Spritesheet::Spritesheet(Texture2D* _texture, int _sprite_width, int _sprite_height, int _frames)
+Spritesheet::Spritesheet(Texture2D* _texture, int _sprite_width, int _sprite_height, int _frames, float frame_delay)
 {
 	texture = _texture;
+	Frame_delay = frame_delay;
+	Duration = frame_delay * _frames;
 
 	for (int i = 0; i < _frames; i++)
 	{
