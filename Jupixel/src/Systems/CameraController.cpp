@@ -7,6 +7,8 @@
 
 #include "Renderer/Renderer.h"
 
+const float x_clamp = 10.5f; // 0.5f is good hehe
+
 void camera_update(Player* player_one, Player* player_two, float dt)
 {
 	glm::vec2 pos_one = player_one->Transform.Position;
@@ -22,6 +24,9 @@ void camera_update(Player* player_one, Player* player_two, float dt)
 	set_zoom_level(zoom_level);
 	set_projection(get_aspect_ratio(), get_zoom_level());
 
-	glm::vec3 cam_pos = glm::vec3(center.x, center.y + 0.5f, 0.0f);
+	float cam_y_pos = glm::clamp(center.y, 0.0f, 1.5f);
+	float cam_x_pos = glm::clamp(center.x, -x_clamp, x_clamp);
+
+	glm::vec3 cam_pos = glm::vec3(cam_x_pos, cam_y_pos, 0.0f);
 	set_position(cam_pos);
 }
