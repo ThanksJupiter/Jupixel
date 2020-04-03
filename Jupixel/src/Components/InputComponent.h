@@ -13,4 +13,14 @@ struct InputComponent
 	bool C_up = false;
 	bool C_right = false;
 	bool C_left = false;
+
+	bool Smash_down = false;
+	bool Smash_up = false;
+	bool Smash_right = false;
+	bool Smash_left = false;
+
+	bool Tilt_down = false;
+	bool Tilt_up = false;
+	bool Tilt_right = false;
+	bool Tilt_left = false;
 };

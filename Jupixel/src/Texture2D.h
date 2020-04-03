@@ -5,6 +5,8 @@
 
 struct Texture2D
 {
+	Texture2D() {}
+
 	Texture2D(uint32_t _id, std::string _path, uint32_t _width, uint32_t _height)
 		: ID(_id), path(_path), width(_width), height(_height) { }
 

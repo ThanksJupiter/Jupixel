@@ -10,6 +10,8 @@
 #include "Animation/Spritesheet.h"
 #include "Animation/Sprite.h"
 
+const float pixel_ratio = 0.02f;
+
 void update_animation_system(Player* player, float dt)
 {
 	AnimationComponent& anim = player->Animation;
@@ -18,16 +20,42 @@ void update_animation_system(Player* player, float dt)
 
 	anim.Current_sprite_time += dt;
 
-	if (anim.Current_sprite_time >= anim.Current_anim->Frame_delay)
+	if (anim.Anim_state == Loop)
 	{
-		anim.Current_Sprite_Index++;
-
-		if (anim.Current_Sprite_Index == anim.Current_anim->Sprites.size())
+		if (anim.Current_sprite_time >= anim.Current_anim->Frame_delay)
 		{
-			anim.Current_Sprite_Index = 0;
-		}
+			anim.Current_Sprite_Index++;
 
-		anim.Current_sprite_time = 0.0f;
+			if (anim.Current_Sprite_Index == anim.Current_anim->Sprites.size())
+			{
+				anim.Current_Sprite_Index = 0;
+			}
+
+			anim.Current_sprite_time = 0.0f;
+
+			update_player_animation(player, anim.Current_anim->Sprites[anim.Current_Sprite_Index]);
+		}
+	}
+	else if (anim.Anim_state == LastFrameStick)
+	{
+		if (!anim.Has_full_anim_played && anim.Current_sprite_time >= anim.Current_anim->Frame_delay)
+		{
+			if (anim.Current_Sprite_Index == anim.Current_anim->Sprites.size() - 1)
+			{
+				anim.Has_full_anim_played = true;
+			}
+			else
+			{
+				anim.Current_Sprite_Index++;
+			}
+
+			if (anim.Current_Sprite_Index == anim.Current_anim->Sprites.size())
+			{
+				anim.Current_Sprite_Index = anim.Current_anim->Sprites.size() - 1;
+			}
+
+			anim.Current_sprite_time = 0.0f;
+		}
 
 		update_player_animation(player, anim.Current_anim->Sprites[anim.Current_Sprite_Index]);
 	}
@@ -50,16 +78,19 @@ void update_animation_system(Player* player, float dt)
 	collider.Scale = transform.Scale;
 }
 
-void update_player_animation(Player* player, Sprite* new_anim)
+void update_player_animation(Player* player, Sprite* new_sprite)
 {
-	glm::vec2 new_scale = glm::vec2();
+	if (player != nullptr)
+	{
+		glm::vec2 new_scale = glm::vec2();
 
-	float pixel_ratio = 0.02f;
-	float width_x = new_anim->Width * pixel_ratio;
+		float width_x = new_sprite->Width * pixel_ratio;
 
-	new_scale.x = player->Animation.Is_flipped? - width_x : width_x;
-	new_scale.y = new_anim->Height * pixel_ratio;
+		new_scale.x = player->Animation.Is_flipped? - width_x : width_x;
+		new_scale.y = new_sprite->Height * pixel_ratio;
 
-	player->Animation.Animation_scale = new_scale;
-	update_texture_coordinates(new_anim);
+		player->Animation.Animation_scale = new_scale;
+	}
+
+	update_texture_coordinates(new_sprite);
 }

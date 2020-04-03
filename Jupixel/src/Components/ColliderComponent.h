@@ -8,7 +8,9 @@ struct ColliderComponent
 	bool Is_active = false;
 	bool Is_hit = false;
 	bool Is_colliding = false;
+	bool Flip = false;
 	glm::vec2 Pending_knockback = glm::vec2(0.0f);
+	float Pending_damage = 0.0f;
 	glm::vec2 Scale = glm::vec2(1.0f, 0.5f);
 	glm::vec2 Position = glm::vec2(0.0f);
 	glm::vec2 Offset = glm::vec2(0.0f);

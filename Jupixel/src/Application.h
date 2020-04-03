@@ -8,6 +8,8 @@ void quit_application();
 void run_application();
 
 GLFWwindow* get_window();
+float get_window_width();
+float get_window_height();
 
 // window functions
 void on_window_resize(int width, int height);

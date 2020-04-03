@@ -1,6 +1,7 @@
 #include "CollisionSystem.h"
 
 #include "Player.h"
+#include "World.h"
 #include "glm/glm.hpp"
 
 #include "Physics/CollisionTestRequest.h"
@@ -64,22 +65,30 @@ void test_collisions()
 		}
 		else
 		{
+			set_time_scale(0.0001f);
+			request.Target->Reset_time_scale_on_land = true;
 			request.Is_resolved = true;
 			otherC->Is_colliding = true;
 			otherC->Is_hit = true;
+			request.Instigator->Combat.Is_current_attack_resolved = true;
 			otherC->Pending_knockback.y = request.Instigator->Combat.Current_attack->Knockback_direction.y;
+			otherC->Pending_damage = request.Instigator->Combat.Current_attack->Damage;
 
 			if (request.Instigator->Combat.Current_attack == &request.Instigator->Combat.Attacks[5])
 			{
 				otherC->Pending_knockback.x = request.Instigator->Animation.Is_flipped ?
 					request.Instigator->Combat.Current_attack->Knockback_direction.x :
 					-request.Instigator->Combat.Current_attack->Knockback_direction.x;
+
+				otherC->Flip = request.Instigator->Animation.Is_flipped;
 			}
 			else
 			{
 				otherC->Pending_knockback.x = request.Instigator->Animation.Is_flipped ?
 					-request.Instigator->Combat.Current_attack->Knockback_direction.x :
 					request.Instigator->Combat.Current_attack->Knockback_direction.x;
+
+				otherC->Flip = !request.Instigator->Animation.Is_flipped;
 			}
 
 		}

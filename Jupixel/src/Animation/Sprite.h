@@ -6,6 +6,7 @@ struct Texture2D;
 
 struct Sprite
 {
+	Sprite() {}
 	Sprite(Texture2D* texture, int width, int height, int index);
 
 	Texture2D* Texture = nullptr;

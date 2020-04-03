@@ -18,10 +18,25 @@
 #include "Animation/Spritesheet.h"
 #include <vector>
 #include "Components/ColliderComponent.h"
+#include "World.h"
 
-void update_position_system(Player* player, float dt)
+#define GLM_ENABLE_EXPERIMENTAL
+#include "glm/gtx/string_cast.hpp"
+
+const float knockback_scale_factor = 0.01f;
+
+void update_physics_system(Player* player, float dt)
 {
 	ActionStateComponent& state = player->ActionState;
+
+	if (get_time_scale() < 1.0f)
+	{
+		set_time_scale(get_time_scale() + 120.0f * dt);
+	}
+	else
+	{
+		reset_time_scale();
+	}
 
 	switch (state.Action_state)
 	{
@@ -30,6 +45,9 @@ void update_position_system(Player* player, float dt)
 			break;
 		case Walking:
 			physics_walk_update(player, dt);
+			break;
+		case Running:
+			physics_run_update(player, dt);
 			break;
 		case Attacking:
 			physics_attack_update(player, dt);
@@ -40,31 +58,78 @@ void update_position_system(Player* player, float dt)
 		case Falling:
 			physics_fall_update(player, dt);
 			break;
+		case Crouching:
+			physics_crouch_update(player, dt);
+			break;
+		case Airdodge:
+			break;
+		case Knockback:
+			physics_knockback_update(player, dt);
+			break;
+		case MAX:
+			break;
 		default:
+			printf("invalid action state");
+			break;
+		case Locomotion:
+			break;
+		case TurnAround:
+			physics_turn_around_update(player, dt);
+			break;
+		case JumpSquat:
+			break;
+		case Knockdown:
+			physics_knockdown_update(player, dt);
 			break;
 	}
 }
 
-void update_position_system(Player* player_one, Player* player_two, float dt)
+void update_physics_system(Player* player_one, Player* player_two, float dt)
 {
-	update_position_system(player_one, dt);
-	update_position_system(player_two, dt);
+	update_physics_system(player_one, dt);
+	update_physics_system(player_two, dt);
 }
 
 void grounded_physics_update(Player* player, float dt)
 {
-	InputComponent& input = *player->Input;
+	InputComponent input = player->Input;
 	TransformComponent& transform = player->Transform;
 	AnimationComponent& anim = player->Animation;
 	PhysicsComponent& physics = player->Physics;
 	ColliderComponent& collider = player->Collider;
 	ActionStateComponent& state = player->ActionState;
+	CombatComponent& combat = player->Combat;
 
 	glm::vec2& v = physics.Velocity;
 
-	if (state.Action_state == Attacking)
+	// TODO remove no x-velocity hack when attacking on ground
+	if (state.Action_state == Attacking && !combat.Allow_attacking_movement)
 	{
 		v.x = 0.0f;
+	}
+
+	if (collider.Is_hit)
+	{
+		combat.Current_health_percentage += collider.Pending_damage;
+		collider.Pending_damage = 0.0f;
+
+		v = state.Action_state == ActionState::Crouching ? collider.Pending_knockback * 0.3f : collider.Pending_knockback;
+
+		if (v.y < 0.0f)
+		{
+			v.y = -v.y;
+		}
+
+		v += v * combat.Current_health_percentage  * knockback_scale_factor;
+		glm::vec2 printV = v;
+		printf("Knockback: %s\n", glm::to_string(printV).c_str());
+
+		transform.Position.y += 0.01;
+		collider.Is_hit = false;
+		anim.Is_flipped = collider.Flip;
+		set_player_state(player, Airborne);
+		set_player_state(player, Knockback);
+		change_player_animation(player, get_anim(3), LastFrameStick);
 	}
 
 	transform.Position.x += v.x * dt;
@@ -72,7 +137,7 @@ void grounded_physics_update(Player* player, float dt)
 
 void airborne_physics_update(Player* player, float dt)
 {
-	InputComponent& input = *player->Input;
+	InputComponent& input = player->Input;
 	TransformComponent& transform = player->Transform;
 	AnimationComponent& anim = player->Animation;
 	PhysicsComponent& physics = player->Physics;
@@ -86,22 +151,51 @@ void airborne_physics_update(Player* player, float dt)
 		v.x = input.Left_stick_x * 1.0f;
 	}
 
+	if (collider.Is_hit)
+	{
+		CombatComponent& combat = player->Combat;
+		combat.Current_health_percentage += collider.Pending_damage;
+		collider.Pending_damage = 0.0f;
+
+		v.x = collider.Pending_knockback.x;
+
+		if (v.y < 0)
+		{
+			if (collider.Pending_knockback.y < 0)
+			{
+				v.y += collider.Pending_knockback.y;
+			}
+			else
+			{
+				v.y = collider.Pending_knockback.y;
+			}
+		}
+
+		v += v * combat.Current_health_percentage * knockback_scale_factor;
+		glm::vec2 printV = v;
+		printf("Knockback: %s\n", glm::to_string(printV).c_str());
+
+		collider.Is_hit = false;
+		anim.Is_flipped = collider.Flip;
+		set_player_state(player, Airborne);
+		set_player_state(player, Knockback);
+		change_player_animation(player, get_anim(3), LastFrameStick);
+	}
+
 	if (transform.Position.y > -1.0f)
 	{
 		transform.Position.y += v.y * dt;
 		transform.Position.x += v.x * dt;
-		v.y -= 10 * dt;
 
-		// HACK cannot be hit in air to prevent is_hit from triggering another jump when landing
-		// because of getting hit while jumping
-		collider.Is_hit = false;
+		// TODO remove magic gravity number
+		v.y -= 10 * dt;
 	}
 }
 
 void physics_idle_update(Player* player, float dt)
 {
 	ActionStateComponent& state = player->ActionState;
-	InputComponent& input = *player->Input;
+	InputComponent& input = player->Input;
 	TransformComponent& transform = player->Transform;
 	AnimationComponent& anim = player->Animation;
 	PhysicsComponent& physics = player->Physics;
@@ -113,31 +207,10 @@ void physics_idle_update(Player* player, float dt)
 	{
 		case Grounded:
 
-			physics_set_velocity_to_input(input.Left_stick_x, v.x);
-			physics_flip_on_input(input.Left_stick_x, anim);
+			physics_add_velocity_to_input(input.Left_stick_x, v.x, dt);
+			physics_flip_on_input(player, dt);
+			physics_apply_drag(player, dt);
 			grounded_physics_update(player, dt);
-
-			if (input.Left_stick_x != 0)
-			{
-				set_player_state(player, Walking);
-			}
-
-			if (input.Jump)
-			{
-				v.y += 2;
-				transform.Position.y += 0.01;
-				set_player_state(player, Airborne);
-				set_player_state(player, Jumping);
-			}
-
-			if (collider.Is_hit)
-			{
-				v = collider.Pending_knockback;
-				transform.Position.y += 0.01;
-				collider.Is_hit = false;
-				set_player_state(player, Airborne);
-				set_player_state(player, Falling);
-			}
 
 			break;
 		case Airborne:
@@ -152,11 +225,12 @@ void physics_idle_update(Player* player, float dt)
 void physics_walk_update(Player* player, float dt)
 {
 	ActionStateComponent& state = player->ActionState;
-	InputComponent& input = *player->Input;
+	InputComponent& input = player->Input;
 	TransformComponent& transform = player->Transform;
 	AnimationComponent& anim = player->Animation;
 	PhysicsComponent& physics = player->Physics;
 	ColliderComponent& collider = player->Collider;
+	LocomotionComponent loco = player->Locomotion;
 
 	glm::vec2& v = physics.Velocity;
 
@@ -164,33 +238,10 @@ void physics_walk_update(Player* player, float dt)
 	{
 		case Grounded:
 
-			physics_set_velocity_to_input(input.Left_stick_x, v.x);
-			physics_apply_velocity_to_position(player, dt);
-			physics_flip_on_input(input.Left_stick_x, anim);
+			//physics_add_velocity_to_input(input.Left_stick_x * loco.Run_speed, v.x, dt);
+			physics_apply_input_to_velocity(player, dt);
+			physics_flip_on_input(player, dt);
 			grounded_physics_update(player, dt);
-
-			if (v.x == 0.0f)
-			{
-				set_player_state(player, Idle);
-			}
-
-			if (input.Jump)
-			{
-				v.y += 2;
-				transform.Position.y += 0.01;
-				set_player_state(player, Airborne);
-				set_player_state(player, Jumping);
-			}
-
-			if (collider.Is_hit)
-			{
-				v = collider.Pending_knockback;
-				transform.Position.y += 0.01;
-				collider.Is_hit = false;
-				set_player_state(player, Airborne);
-				set_player_state(player, Falling);
-			}
-
 
 			break;
 		case Airborne:
@@ -202,6 +253,58 @@ void physics_walk_update(Player* player, float dt)
 	}
 }
 
+void physics_run_update(Player* player, float dt)
+{
+	ActionStateComponent& state = player->ActionState;
+	InputComponent& input = player->Input;
+	TransformComponent& transform = player->Transform;
+	AnimationComponent& anim = player->Animation;
+	PhysicsComponent& physics = player->Physics;
+	ColliderComponent& collider = player->Collider;
+	LocomotionComponent loco = player->Locomotion;
+
+	glm::vec2& v = physics.Velocity;
+
+	switch (state.Position_state)
+	{
+		case Grounded:
+
+			physics_set_velocity_to_input(input.Left_stick_x * loco.Run_speed, v.x);
+			physics_apply_input_to_velocity(player, dt);
+			//physics_flip_on_input(player, dt);
+			grounded_physics_update(player, dt);
+
+			// TODO ground physics update before state updates?
+
+			break;
+		case Airborne:
+			physics_land_on_touch_ground(player);
+			airborne_physics_update(player, dt);
+			break;
+		default:
+			break;
+	}
+}
+
+void physics_turn_around_update(Player* player, float dt)
+{
+	AnimationComponent& anim = player->Animation;
+	PhysicsComponent& physics = player->Physics;
+	ColliderComponent& collider = player->Collider;
+
+	glm::vec2& v = physics.Velocity;
+
+	if (anim.Has_full_anim_played)
+	{
+		anim.Is_flipped = !anim.Is_flipped;
+		set_player_state(player, Idle);
+	}
+
+	//physics_add_velocity_to_input(player->Input.Left_stick_x, v.x, dt);
+	physics_apply_input_to_velocity(player, dt);
+	grounded_physics_update(player, dt);
+}
+
 void physics_attack_update(Player* player, float dt)
 {
 	ActionStateComponent& state = player->ActionState;
@@ -210,7 +313,7 @@ void physics_attack_update(Player* player, float dt)
 
 	combat.Current_timer += dt;
 
-	if (anim.Current_Sprite_Index == combat.Current_attack->Hitbox_frame)
+	if (anim.Current_Sprite_Index == combat.Current_attack->Hitbox_frame && !combat.Is_current_attack_resolved)
 	{
 		CollisionTestRequest request = CollisionTestRequest();
 		AnimationComponent anim = player->Animation;
@@ -233,10 +336,13 @@ void physics_attack_update(Player* player, float dt)
 		set_player_state(player, Idle);
 	}
 
-	if (anim.Current_Sprite_Index == anim.Current_anim->Sprites.size() - 1)
+	if (anim.Has_full_anim_played)
 	{
 		combat.Current_timer = 0.0f;
 		set_player_state(player, Idle);
+		anim.Has_full_anim_played = false;
+		anim.Anim_state = Loop;
+		combat.Allow_attacking_movement = false;
 	}
 
 	switch (state.Position_state)
@@ -277,6 +383,7 @@ void physics_fall_update(Player* player, float dt)
 	TransformComponent& transform = player->Transform;
 	PhysicsComponent& physics = player->Physics;
 	ColliderComponent& collider = player->Collider;
+	AnimationComponent& anim = player->Animation;
 
 	glm::vec2& v = physics.Velocity;
 
@@ -286,16 +393,6 @@ void physics_fall_update(Player* player, float dt)
 			printf("grounded and falling, this seems wroong :D");
 			break;
 		case Airborne:
-			
-			if (collider.Is_hit)
-			{
-				v = collider.Pending_knockback;
-				transform.Position.y += 0.01;
-				collider.Is_hit = false;
-				set_player_state(player, Airborne);
-				set_player_state(player, Falling);
-			}
-
 			physics_land_on_touch_ground(player);
 			airborne_physics_update(player, dt);
 			break;
@@ -304,50 +401,149 @@ void physics_fall_update(Player* player, float dt)
 	}
 }
 
-void physics_flip_on_input(float x_input, AnimationComponent& anim)
+void physics_crouch_update(Player* player, float dt)
 {
-	if (x_input != 0)
+	ActionStateComponent& state = player->ActionState;
+	TransformComponent& transform = player->Transform;
+	PhysicsComponent& physics = player->Physics;
+	ColliderComponent& collider = player->Collider;
+	AnimationComponent& anim = player->Animation;
+
+	glm::vec2& v = physics.Velocity;
+
+	switch (state.Position_state)
+	{
+		case Grounded:
+
+			grounded_physics_update(player, dt);
+			break;
+		case Airborne:
+
+			printf("crouching in mid air? hmm ;)");
+			break;
+		default:
+			break;
+	}
+}
+
+void physics_knockback_update(Player* player, float dt)
+{
+	ActionStateComponent& state = player->ActionState;
+	TransformComponent& transform = player->Transform;
+	PhysicsComponent& physics = player->Physics;
+	ColliderComponent& collider = player->Collider;
+	AnimationComponent& anim = player->Animation;
+
+	glm::vec2& v = physics.Velocity;
+
+	switch (state.Position_state)
+	{
+		case Grounded:
+			grounded_physics_update(player, dt);
+			break;
+		case Airborne:
+
+			airborne_physics_update(player, dt);
+			physics_land_on_touch_ground(player);
+			break;
+		default:
+			break;
+	}
+}
+
+void physics_knockdown_update(Player* player, float dt)
+{
+	physics_apply_drag(player, dt);
+	grounded_physics_update(player, dt);
+}
+
+void physics_flip_on_input(Player* player, float dt)
+{
+	AnimationComponent& anim = player->Animation;
+	float x_input = player->Input.Left_stick_x;
+
+	if (abs(x_input) > 0.2f)
 	{
 		if (x_input > 0 && anim.Is_flipped)
 		{
-			anim.Is_flipped = false;
+			set_player_state(player, TurnAround);
+			change_player_animation(player, get_anim(5), LastFrameStick);
 		}
 		else if (x_input < 0 && !anim.Is_flipped)
 		{
-			anim.Is_flipped = true;
+			set_player_state(player, TurnAround);
+			change_player_animation(player, get_anim(5), LastFrameStick);
 		}
 	}
 }
 
 void physics_set_velocity_to_input(float x_input, float& x_velocity)
 {
-	x_velocity = x_input;
+	if (abs(x_input) == 1.0f)
+	{
+		x_velocity = x_input;
+	}
 }
 
-void physics_apply_velocity_to_position(Player* player, float dt)
+void physics_add_velocity_to_input(float x_input, float& x_velocity, float dt)
 {
-	InputComponent& input = *player->Input;
+	x_velocity += x_input * dt;
+}
+
+void physics_apply_input_to_velocity(Player* player, float dt)
+{
+	InputComponent& input = player->Input;
 	TransformComponent& transform = player->Transform;
 	AnimationComponent& anim = player->Animation;
 	PhysicsComponent& physics = player->Physics;
 	ColliderComponent& collider = player->Collider;
 	ActionStateComponent& state = player->ActionState;
+	LocomotionComponent& loco = player->Locomotion;
 
 	glm::vec2& v = physics.Velocity;
 
-	if (input.Left_stick_x != 0)
+	// HACK ? maybe this is a hack
+	if (state.Action_state == ActionState::TurnAround)
 	{
-		v.x = input.Left_stick_x * 2.0f;
+		if (input.Left_stick_x != 0)
+		{
+			v.x += input.Left_stick_x * loco.Walk_speed * dt;
+		}
 	}
 	else
 	{
-		v.x = 0.0f;
+		if (input.Left_stick_x != 0)
+		{
+			float speed = state.Action_state == ActionState::Walking ? loco.Walk_speed : loco.Run_speed;
+
+			if (input.Left_stick_x * v.x < speed * 0.5f)
+			{
+				v.x = input.Left_stick_x * speed;
+			}
+
+			v.x += input.Left_stick_x * speed * dt;
+		}
 	}
+
+	physics_apply_drag(player, dt);
 }
 
 void physics_apply_drag(Player* player, float dt)
 {
-	
+	PhysicsComponent& physics = player->Physics;
+
+	glm::vec2& v = physics.Velocity;
+
+	if (abs(v.x) >= 0.1f)
+	{
+		physics.Acceleration.x = -v.x * 5.0f;
+		v.x += physics.Acceleration.x * dt;
+	}
+	else
+	{
+		physics.Acceleration.x = 0.0f;
+		v.x = 0.0f;
+	}
 }
 
 void physics_land_on_touch_ground(Player* player)
@@ -360,14 +556,38 @@ void physics_land_on_touch_ground(Player* player)
 
 	if (transform.Position.y <= -1.0f)
 	{
+		// TODO knockdown on hit ground too hard (lay down, effects and whatnot) (check velocity on impact)
+		if (player->Reset_time_scale_on_land)
+		{
+			reset_time_scale();
+		}
+
+		//printf("Player: %i hit ground with velocity.y: %f\n", player->ID, v.y);
+
+		/*if (v.y < -6.0f)
+		{
+			player->Collider.Is_hit = true;
+			player->Collider.Pending_knockback = glm::vec2(0.0f, 2.5f);
+		}*/
+
 		v.y = 0;
 		transform.Position.y = -1.0f;
+
+		if (state.Action_state == Knockback)
+		{
+			set_player_state(player, Grounded);
+			set_player_state(player, Knockdown);
+			change_player_animation(player, get_anim(6), LastFrameStick);
+			return;
+		}
 
 		// TODO special case aerial attack l-cancel or summink
 		if (state.Action_state != Attacking)
 		{
 			set_player_state(player, Grounded);
 			set_player_state(player, Idle);	
-		}
+			return;
+
+		} // TODO landing lag if landed while attacking
 	}
 }

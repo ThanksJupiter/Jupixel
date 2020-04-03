@@ -9,9 +9,17 @@
 #include "World.h"
 #include "SkeletonAnimations.h"
 
+#include "ImGui/GUILayer.h"
+
 bool isRunning = true;
 float lastFrameTime = 0.0f;
 float deltaTime = 0.0f;
+
+const int SCREEN_WIDTH = 1000;
+const int SCREEN_HEIGHT = 480;
+
+float window_width = 0.0f;
+float window_height = 0.0f;
 
 GLFWwindow* window;
 
@@ -31,7 +39,7 @@ bool init_application()
 	}
 	glfwSetErrorCallback(error_callback);
 
-	window = glfwCreateWindow(640, 480, "Calcium Clash", NULL, NULL);
+	window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Calcium Clash", NULL, NULL);
 	if (!window)
 	{
 		printf("Unable to create window");
@@ -64,12 +72,15 @@ bool init_application()
 	});
 
 	init_renderer();
+	on_window_resize(SCREEN_WIDTH, SCREEN_HEIGHT);
+	init_GUI();
 
 	return success;
 }
 
 void quit_application()
 {
+	quit_GUI();
 	quit_renderer();
 	glfwDestroyWindow(window);
 	glfwTerminate();
@@ -90,7 +101,7 @@ void run_application()
 		glfwPollEvents();
 		clear();
 		
-		update_world(deltaTime);
+		update_world(deltaTime * get_time_scale());
 		render();
 
 		glfwSwapBuffers(window);
@@ -100,6 +111,16 @@ void run_application()
 GLFWwindow* get_window()
 {
 	return window;
+}
+
+float get_window_width()
+{
+	return window_width;
+}
+
+float get_window_height()
+{
+	return window_height;
 }
 
 void on_window_resize(int width, int height)
