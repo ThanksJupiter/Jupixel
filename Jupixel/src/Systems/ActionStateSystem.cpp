@@ -165,6 +165,10 @@ void state_grounded_update(Player* player, float dt)
 
 			if (input.Smash_right)
 			{
+				if (anim.Is_flipped)
+				{
+					anim.Is_flipped = false;
+				}
 				player->Physics.Velocity.x = 0.0f;
 				set_player_state(player, Attacking);
 				combat.Current_attack = &combat.Attacks[0];
@@ -174,6 +178,10 @@ void state_grounded_update(Player* player, float dt)
 
 			if (input.Smash_left)
 			{
+				if (!anim.Is_flipped)
+				{
+					anim.Is_flipped = true;
+				}
 				player->Physics.Velocity.x = 0.0f;
 				set_player_state(player, Attacking);
 				combat.Current_attack = &combat.Attacks[0];
