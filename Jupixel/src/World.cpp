@@ -19,6 +19,7 @@
 #include "UserInput.h"
 #include "Key.h"
 #include "GLFW/glfw3.h"
+#include "Systems/CameraController.h"
 
 World* world = nullptr;
 
@@ -66,6 +67,8 @@ void update_world(float dt)
 
 	update_animation_system(player_one, dt);
 	update_animation_system(player_two, dt);	
+
+	camera_update(player_one, player_two, dt);
 
 	// HACK to render level without adding separate buffers
 	update_player_animation(nullptr, &level_sprite);
