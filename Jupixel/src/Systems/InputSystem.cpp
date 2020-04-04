@@ -24,8 +24,8 @@ void update_input_system(Player* player)
 			is_key_pressed(KeyCode::S) ? -1.0f :
 			-get_left_stick_y(player->ID);
 
-		input.Jump = is_key_pressed(KeyCode::Q) || is_button_pressed(player->ID, GLFW_GAMEPAD_BUTTON_RIGHT_BUMPER);
-		input.Attack = is_key_pressed(KeyCode::E) || is_button_pressed(player->ID, GLFW_GAMEPAD_BUTTON_X);
+		input.Jump = is_key_pressed(KeyCode::Q) || is_button_down(player->ID, GLFW_GAMEPAD_BUTTON_RIGHT_BUMPER);
+		input.Attack = is_key_pressed(KeyCode::E) || is_button_down(player->ID, GLFW_GAMEPAD_BUTTON_X);
 	}
 	else
 	{
@@ -37,9 +37,11 @@ void update_input_system(Player* player)
 			is_key_pressed(KeyCode::K) ? -1.0f :
 			-get_left_stick_y(player->ID);
 
-		input.Jump = is_key_pressed(KeyCode::U) || is_button_pressed(player->ID, GLFW_GAMEPAD_BUTTON_RIGHT_BUMPER);
-		input.Attack = is_key_pressed(KeyCode::O) || is_button_pressed(player->ID, GLFW_GAMEPAD_BUTTON_X);
+		input.Jump = is_key_pressed(KeyCode::U) || is_button_down(player->ID, GLFW_GAMEPAD_BUTTON_RIGHT_BUMPER);
+		input.Attack = is_key_pressed(KeyCode::O) || is_button_down(player->ID, GLFW_GAMEPAD_BUTTON_X);
 	}
+
+	input.Jump_held = is_button_held(player->ID, GLFW_GAMEPAD_BUTTON_RIGHT_BUMPER);
 
 	float rs_x = get_right_stick_x(player->ID);
 	float rs_y = get_right_stick_y(player->ID);

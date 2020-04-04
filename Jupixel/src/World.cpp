@@ -8,6 +8,7 @@
 #include "Systems/ActionStateSystem.h"
 #include "Systems/CollisionSystem.h"
 #include "Systems/CameraController.h"
+#include "Systems/MatchSystem.h"
 
 #include "SkeletonAnimations.h"
 #include "Renderer/Renderer.h"
@@ -21,43 +22,39 @@
 #include "ImGui/GUILayer.h"
 #include "GLFW/glfw3.h"
 #include "Physics/Raycaster.h"
+#include "Components/LevelComponent.h"
 
-World* world = nullptr;
+World world = World();
 
 Player* player_one = nullptr;
 Player* player_two = nullptr;
 
-Texture2D level_texture;
-Sprite level_sprite;
-ColliderComponent level_collider = ColliderComponent();
-glm::vec2 level_scale = glm::vec2(0.0f);
-glm::vec2 level_position = glm::vec2(0.0f);
+Level level = Level();
 
 void setup_world()
 {
-	world = new World();
+	world.player_one = new Player();
+	world.player_two = new Player();
 
-	world->player_one = new Player();
-	world->player_two = new Player();
+	setup_player(world.player_one, world.player_two, 0);
+	setup_player(world.player_two, world.player_one, 1);
 
-	setup_player(world->player_one, world->player_two, 0);
-	setup_player(world->player_two, world->player_one, 1);
-
-	player_one = world->player_one;
-	player_two = world->player_two;
+	player_one = world.player_one;
+	player_two = world.player_two;
 
 	player_one->Animation.Color = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f);
 	player_two->Animation.Color = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
 
-	level_texture = *load_texture("assets/textures/Level.png");
-	level_sprite = Sprite(&level_texture, 256, 22, 0);
-	level_scale = glm::vec2(level_sprite.Width * 0.02f, level_sprite.Height * 0.02f);
-	level_position = glm::vec2(0.0f, -1.17f);
+	level.Texture = *load_texture("assets/textures/Level.png");
+	level.Sprite = Sprite(&level.Texture, 256, 22, 0);
+	level.Scale = glm::vec2(level.Sprite.Width * 0.02f, level.Sprite.Height * 0.02f);
+	level.Position = glm::vec2(0.0f, -1.17f);
 
-	level_collider.Scale = glm::vec2(level_scale.x, level_scale.y * 0.80f);
-	level_collider.Position = level_position;
+	level.Collider.Scale = glm::vec2(level.Scale.x, level.Scale.y * 0.80f);
+	level.Collider.Position = level.Position;
 
-	add_target_collider(&level_collider);
+	add_target_collider(&level.Collider);
+	set_world(&world);
 }
 
 void update_world(float dt)
@@ -79,11 +76,13 @@ void update_world(float dt)
 
 	camera_update(player_one, player_two, dt);
 
+
 	// HACK to render level without adding separate buffers
-	update_player_animation(nullptr, &level_sprite);
-	render_quad(level_texture, level_position, level_scale, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	update_player_animation(nullptr, &level.Sprite);
+	render_quad(level.Texture, level.Position, level.Scale, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 
 	begin_GUI();
+	update_match(dt);
 	ImGui::Begin("Player stats");
 	ImGui::Text("Player: %i\n pos state: %s\n action state: %s\n Health: %f",
 		player_one->ID,
@@ -102,22 +101,22 @@ void update_world(float dt)
 
 float get_time_scale()
 {
-	return world->current_time_scale;
+	return world.current_time_scale;
 }
 
 void set_time_scale(float value)
 {
-	world->current_time_scale = value;
+	world.current_time_scale = value;
 }
 
 void reset_time_scale()
 {
-	world->current_time_scale = 1.0f;
+	world.current_time_scale = 1.0f;
 }
 
 void debug_functionality()
 {
-	if (is_key_pressed(KeyCode::R) || is_button_pressed(0, GLFW_GAMEPAD_BUTTON_B))
+	if (is_key_pressed(KeyCode::R) || is_button_held(0, GLFW_GAMEPAD_BUTTON_B))
 	{
 		player_one->Combat.Current_health_percentage = 0.0f;
 		player_two->Combat.Current_health_percentage = 0.0f;
@@ -131,8 +130,8 @@ void debug_functionality()
 		player_two->ActionState.Position_state = Airborne;
 		player_two->ActionState.Action_state = Falling;
 
-		player_one->Physics.Velocity.y = 0.0f;
-		player_two->Physics.Velocity.y = 0.0f;
+		player_one->Physics.Velocity = glm::vec2(0.0f, 0.0f);
+		player_two->Physics.Velocity = glm::vec2(0.0f, 0.0f);
 
 		printf("Health reset!\n");
 	}

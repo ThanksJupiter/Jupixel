@@ -7,7 +7,7 @@
 
 #include "Renderer/Renderer.h"
 
-const float x_clamp = 10.5f; // 0.5f is good hehe
+const float x_clamp = 0.5f; // 0.5f is good hehe
 
 void camera_update(Player* player_one, Player* player_two, float dt)
 {

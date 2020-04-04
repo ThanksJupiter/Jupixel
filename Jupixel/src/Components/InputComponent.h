@@ -7,6 +7,7 @@ struct InputComponent
 	float Left_stick_y = 0;
 
 	bool Jump = false;
+	bool Jump_held = false;
 	bool Attack = false;
 
 	bool C_down = false;

@@ -26,5 +26,5 @@ void physics_set_velocity_to_input(float x_input, float& x_velocity);
 void physics_add_velocity_to_input(float x_input, float& x_velocity, float dt);
 void physics_apply_input_to_velocity(Player* player, float dt);
 void physics_apply_drag(Player* player, float dt);
-
+void physics_check_grab_ledge(Player* player, float dt);
 void physics_land_on_touch_ground(Player* player);

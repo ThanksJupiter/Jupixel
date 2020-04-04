@@ -13,6 +13,7 @@ struct LocomotionComponent
 	float Run_speed = 2.0f;
 	float Walk_speed = 1.0f;
 
+	bool Can_double_jump = false;
 	float Current_short_hop_timer = 0.0f;
 	float Short_hop_time = 0.15f;
 

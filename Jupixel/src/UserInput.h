@@ -4,6 +4,11 @@
 #include "MouseCodes.h"
 #include <utility>
 
+struct GamepadButtonState
+{
+	bool Previously_pressed = false;
+};
+
 bool is_key_pressed(KeyCode key);
 bool is_mouse_button_pressed(MouseCode button);
 
@@ -19,4 +24,5 @@ std::pair<float, float> get_right_stick(int id);
 float get_right_stick_x(int id);
 float get_right_stick_y(int id);
 
-bool is_button_pressed(int id, int button);
+bool is_button_held(int id, int button);
+bool is_button_down(int id, int button);

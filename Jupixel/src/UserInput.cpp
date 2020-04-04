@@ -2,6 +2,8 @@
 
 #include "Application.h"
 
+GamepadButtonState button_states[15];
+
 bool is_key_pressed(KeyCode key)
 {
 	int state = glfwGetKey(get_window(), static_cast<int32_t>(key));
@@ -94,12 +96,35 @@ float get_right_stick_y(int id)
 	return abs(pair.second) > 0.15f ? pair.second : 0;
 }
 
-bool is_button_pressed(int id, int button)
+bool is_button_held(int id, int button)
 {
 	GLFWgamepadstate state;
 
 	if (glfwGetGamepadState(GLFW_JOYSTICK_1 + id, &state))
 	{
 		return state.buttons[button];
+	}
+	
+	return false;
+}
+
+bool is_button_down(int id, int button)
+{
+	GLFWgamepadstate state;
+
+	if (glfwGetGamepadState(GLFW_JOYSTICK_1 + id, &state))
+	{
+		bool the_fuck = state.buttons[button] == GLFW_PRESS;
+
+		if (the_fuck && !button_states[button].Previously_pressed)
+		{
+			button_states[button].Previously_pressed = true;
+			return true;
+		}
+		else
+		{
+			button_states[button].Previously_pressed = state.buttons[button];
+			return false;
+		}
 	}
 }

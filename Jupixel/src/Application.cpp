@@ -8,6 +8,7 @@
 
 #include "World.h"
 #include "SkeletonAnimations.h"
+#include "UserInput.h"
 
 #include "ImGui/GUILayer.h"
 

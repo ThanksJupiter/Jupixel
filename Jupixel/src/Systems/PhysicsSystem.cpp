@@ -23,7 +23,7 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/string_cast.hpp"
 
-const float knockback_scale_factor = 0.01f;
+const float knockback_scale_factor = 0.014f;
 
 void update_physics_system(Player* player, float dt)
 {
@@ -566,6 +566,26 @@ void physics_apply_drag(Player* player, float dt)
 	}
 }
 
+void physics_check_grab_ledge(Player* player, float dt)
+{
+	TransformComponent& transform = player->Transform;
+	PhysicsComponent& physics = player->Physics;
+	ActionStateComponent& state = player->ActionState;
+	AnimationComponent& anim = player->Animation;
+
+	glm::vec2& v = physics.Velocity;
+
+	RaycastHit hit = RaycastHit();
+
+	glm::vec2 origin = glm::vec2(transform.Position.x, transform.Position.y + 24 * 0.03f);
+
+	if (raycast(origin, glm::vec2(anim.Is_flipped? -1.0f : 1.0f, 0.0f), 0.01f, hit))
+	{
+		// fucking hell ledgegrab
+
+	}
+}
+
 void physics_land_on_touch_ground(Player* player)
 {
 	TransformComponent& transform = player->Transform;
@@ -587,6 +607,8 @@ void physics_land_on_touch_ground(Player* player)
 		{
 			reset_time_scale();
 		}
+
+		player->Locomotion.Can_double_jump = true;
 
 		//printf("Player: %i hit ground with velocity.y: %f\n", player->ID, v.y);
 

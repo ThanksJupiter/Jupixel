@@ -223,12 +223,25 @@ void state_grounded_update(Player* player, float dt)
 void state_airborne_update(Player* player, float dt)
 {
 	ActionStateComponent& state = player->ActionState;
+	LocomotionComponent& loco = player->Locomotion;
+	TransformComponent& transform = player->Transform;
+	PhysicsComponent& physics = player->Physics;
 
 	if (state.Action_state != Attacking)
 	{
 		AnimationComponent& anim = player->Animation;
 		CombatComponent& combat = player->Combat;
 		InputComponent input = player->Input;
+
+		if (input.Jump && loco.Can_double_jump)
+		{
+			loco.Can_double_jump = false;
+			physics.Velocity.y = loco.Full_jump_velocity;
+			transform.Position.y += 0.01;
+			set_player_state(player, Airborne);
+			set_player_state(player, Jumping);
+			return;
+		}
 
 		if (input.Attack)
 		{
@@ -242,14 +255,14 @@ void state_airborne_update(Player* player, float dt)
 		{
 			set_player_state(player, Attacking);
 			combat.Current_attack = &combat.Attacks[2];
-			change_player_animation(player, get_attack_anim(2));
+			change_player_animation(player, get_attack_anim(2), LastFrameStick);
 		}
 
 		if (input.C_down)
 		{
 			set_player_state(player, Attacking);
 			combat.Current_attack = &combat.Attacks[3];
-			change_player_animation(player, get_attack_anim(3));
+			change_player_animation(player, get_attack_anim(3), LastFrameStick);
 		}
 
 		if (input.C_right)
@@ -258,8 +271,8 @@ void state_airborne_update(Player* player, float dt)
 
 			int anim_to_play = anim.Is_flipped ? 5 : 4;
 
-			change_player_animation(player, get_attack_anim(anim_to_play));
 			combat.Current_attack = &combat.Attacks[anim_to_play];
+			change_player_animation(player, get_attack_anim(anim_to_play), LastFrameStick);
 		}
 
 		if (input.C_left)
@@ -268,8 +281,8 @@ void state_airborne_update(Player* player, float dt)
 
 			int anim_to_play = anim.Is_flipped ? 4 : 5;
 
-			change_player_animation(player, get_attack_anim(anim_to_play));
 			combat.Current_attack = &combat.Attacks[anim_to_play];
+			change_player_animation(player, get_attack_anim(anim_to_play), LastFrameStick);
 		}
 	}
 }
@@ -458,7 +471,7 @@ void state_jump_squat_update(Player* player, float dt)
 
 	loco.Current_short_hop_timer += dt;
 
-	if (!input.Jump)
+	if (!input.Jump_held)
 	{
 		v.y += loco.Short_hop_velocity;
 		transform.Position.y += 0.01;
@@ -485,7 +498,7 @@ void state_attack_update(Player* player, float dt)
 
 void state_jump_update(Player* player, float dt)
 {
-
+	
 }
 
 void state_fall_update(Player* player, float dt)
