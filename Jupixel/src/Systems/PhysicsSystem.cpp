@@ -1,9 +1,11 @@
 #include "PhysicsSystem.h"
 
+#include "World.h"
 #include "Player.h"
 #include "SkeletonAnimations.h"
-
-#include "glm/glm.hpp"
+#include "Animation/Spritesheet.h"
+#include "Attack.h"
+#include "Physics/Raycaster.h"
 
 #include "Components/PhysicsComponent.h"
 #include "Components/InputComponent.h"
@@ -11,15 +13,13 @@
 #include "Components/TransformComponent.h"
 #include "Components/Components.h"
 #include "Components/ActionStateComponent.h"
-#include <stdio.h>
-#include "Attack.h"
 #include "CollisionSystem.h"
 #include "Physics/CollisionTestRequest.h"
-#include "Animation/Spritesheet.h"
-#include <vector>
 #include "Components/ColliderComponent.h"
-#include "World.h"
 
+#include <stdio.h>
+#include <vector>
+#include "glm/glm.hpp"
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/string_cast.hpp"
 
@@ -108,6 +108,21 @@ void grounded_physics_update(Player* player, float dt)
 		v.x = 0.0f;
 	}
 
+	RaycastHit hit = RaycastHit();
+	if (raycast(transform.Position, glm::vec2(0.0f, -1.0f), 0.1f, hit))
+	{
+		
+	}
+	else
+	{
+		if (state.Action_state != Attacking)
+		{
+			set_player_state(player, Airborne);
+			set_player_state(player, Falling);
+			return;
+		}
+	}
+
 	if (collider.Is_hit)
 	{
 		combat.Current_health_percentage += collider.Pending_damage;
@@ -182,14 +197,11 @@ void airborne_physics_update(Player* player, float dt)
 		change_player_animation(player, get_anim(3), LastFrameStick);
 	}
 
-	if (transform.Position.y > -1.0f)
-	{
-		transform.Position.y += v.y * dt;
-		transform.Position.x += v.x * dt;
+	transform.Position.y += v.y * dt;
+	transform.Position.x += v.x * dt;
 
-		// TODO remove magic gravity number
-		v.y -= 10 * dt;
-	}
+	// TODO remove magic gravity number
+	v.y -= 10 * dt;
 }
 
 void physics_idle_update(Player* player, float dt)
@@ -362,6 +374,9 @@ void physics_attack_update(Player* player, float dt)
 void physics_jump_update(Player* player, float dt)
 {
 	ActionStateComponent& state = player->ActionState;
+	PhysicsComponent& physics = player->Physics;
+
+	glm::vec2& v = physics.Velocity;
 
 	switch (state.Position_state)
 	{
@@ -369,7 +384,12 @@ void physics_jump_update(Player* player, float dt)
 			printf("grounded and jumping, this seems wroong :D");
 			break;
 		case Airborne:
-			physics_land_on_touch_ground(player);
+
+			if (v.y < 0)
+			{
+				physics_land_on_touch_ground(player);
+			}
+
 			airborne_physics_update(player, dt);
 			break;
 		default:
@@ -554,7 +574,13 @@ void physics_land_on_touch_ground(Player* player)
 
 	glm::vec2& v = physics.Velocity;
 
-	if (transform.Position.y <= -1.0f)
+	if (v.y > 0.0f)
+	{
+		return;
+	}
+
+	RaycastHit hit = RaycastHit();
+	if (raycast(transform.Position, glm::vec2(0.0f, -1.0f), 0.01f, hit))
 	{
 		// TODO knockdown on hit ground too hard (lay down, effects and whatnot) (check velocity on impact)
 		if (player->Reset_time_scale_on_land)
@@ -570,8 +596,8 @@ void physics_land_on_touch_ground(Player* player)
 			player->Collider.Pending_knockback = glm::vec2(0.0f, 2.5f);
 		}*/
 
-		v.y = 0;
-		transform.Position.y = -1.0f;
+		v.y = 0.0f;
+		transform.Position.y = hit.point.y;
 
 		if (state.Action_state == Knockback)
 		{
@@ -585,9 +611,14 @@ void physics_land_on_touch_ground(Player* player)
 		if (state.Action_state != Attacking)
 		{
 			set_player_state(player, Grounded);
-			set_player_state(player, Idle);	
+			set_player_state(player, Idle);
 			return;
 
-		} // TODO landing lag if landed while attacking
+		} 
+		else
+		{
+			set_player_state(player, Grounded);
+		}
+		// TODO landing lag if landed while attacking
 	}
 }

@@ -15,6 +15,9 @@ struct ColliderComponent
 	glm::vec2 Position = glm::vec2(0.0f);
 	glm::vec2 Offset = glm::vec2(0.0f);
 
+	float Extents_x = 0.0f;
+	float Extents_y = 0.0f;
+
 	glm::vec2 Min() { return glm::vec2(Position.x - Scale.x, Position.y - Scale.y); }
 	glm::vec2 Max() { return glm::vec2(Position.x + Scale.x, Position.y + Scale.y); }
 };

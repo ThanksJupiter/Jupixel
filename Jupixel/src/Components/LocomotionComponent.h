@@ -2,6 +2,8 @@
 
 struct LocomotionComponent
 {
+	bool Is_grounded = false;
+
 	float Current_dash_timer = 0.0f;
 	float Dash_time = 0.1f;
 

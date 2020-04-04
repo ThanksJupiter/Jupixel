@@ -13,6 +13,4 @@ struct CollisionTestRequest
 	ColliderComponent Collider = ColliderComponent();
 
 	bool Is_resolved = false;
-	bool Has_skipped_frame = false;
-	bool Has_skipped_two_frames = false;
 };
