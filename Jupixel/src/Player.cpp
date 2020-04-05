@@ -27,11 +27,11 @@ float attack_damage[] =
 	11.0f, // dair
 	13.0f, // fair
 	7.0f,  // bair
-	6.0f,   // dash tackle
-	18.0f,	  // usmash
-	21.0f,	  // dsmash
-	6.0f,	  // ftilt
-	3.0f	  // dtilt
+	6.0f,  // dash tackle
+	18.0f, // usmash
+	21.0f, // dsmash
+	6.0f,  // ftilt
+	3.0f   // dtilt
 };
 
 glm::vec2 knockback_vectors[] = 
@@ -43,10 +43,10 @@ glm::vec2 knockback_vectors[] =
 	{ 1.3f, 1.5f },	 // fair
 	{ 1.6f, 1.7 },	 // bair
 	{ 1.8f, 1.0f },	 // dash tackle
-	{ 0.3f, 3.0f },	// usmash
-	{ 0.7f, -3.0 },	// dsmash
-	{ 1.1f, 0.8f },	// ftilt
-	{ 0.2f, 1.7f }	// dtilt
+	{ 0.3f, 3.0f },	 // usmash
+	{ 0.7f, -3.0 },	 // dsmash
+	{ 1.1f, 0.8f },	 // ftilt
+	{ 0.2f, 1.7f }	 // dtilt
 };
 
 glm::vec2 hitbox_offsets[] =
@@ -61,7 +61,7 @@ glm::vec2 hitbox_offsets[] =
 	{ 0.1f, 0.4f },		// usmash
 	{ 0.18f, 0.0f },	// dsmash
 	{ 0.18f, 0.1f },	// ftilt
-	{ 0.42f, 0.04f }		// dtilt
+	{ 0.42f, 0.04f }	// dtilt
 };
 
 glm::vec2 hitbox_scales[] =
@@ -75,8 +75,8 @@ glm::vec2 hitbox_scales[] =
 	{ 0.2f, 0.2f },	 // dash tackle
 	{ 0.3f, 0.3f },	 // usmash
 	{ 0.1f, 0.1f },	 // dsmash
-	{ 0.15f, 0.15f },	 // ftilt
-	{ 0.18f, 0.1f }		 // dtilt
+	{ 0.15f, 0.15f },// ftilt
+	{ 0.18f, 0.1f }	 // dtilt
 };
 
 void setup_player(Player* player_to_setup, Player* player_opponent, int player_id)
@@ -124,6 +124,11 @@ void set_player_state(Player* player, ActionState state)
 	if (state <2)
 	{
 		change_player_animation(player, get_anim(state), Loop);
+	}
+
+	if (state == Falling)
+	{
+		change_player_animation(player, get_anim(8), Loop);
 	}
 
 	if (state == Attacking)

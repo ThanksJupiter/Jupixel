@@ -16,7 +16,8 @@
 std::string position_state_names[] =
 {
 	"Grounded",
-	"Airborne"
+	"Airborne",
+	"Special"
 };
 
 std::string action_state_names[] =
@@ -33,7 +34,8 @@ std::string action_state_names[] =
 	"Airdodge",
 	"Knockback",
 	"Knockdown",
-	"Locomotion"
+	"Locomotion",
+	"Ledgegrab"
 };
 
 void update_action_state_system(Player* player, float dt)
@@ -73,6 +75,11 @@ void update_action_state_system(Player* player, float dt)
 			state_jump_squat_update(player, dt);
 			break;
 		default:
+			break;
+		case Knockdown:
+			break;
+		case Ledgegrab:
+			state_ledgegrab_update(player, dt);
 			break;
 	}
 
@@ -504,6 +511,25 @@ void state_jump_update(Player* player, float dt)
 void state_fall_update(Player* player, float dt)
 {
 
+}
+
+void state_ledgegrab_update(Player* player, float dt)
+{
+	InputComponent input = player->Input;
+
+	if (!player->Animation.Has_full_anim_played)
+	{
+		return;
+	}
+
+	if (abs(input.Left_stick_x) > 0.9f)
+	{
+		player->Locomotion.Can_double_jump = true;
+		player->Locomotion.Can_ledge_grab = false;
+		player->Locomotion.Current_ledge_grab_timer = 0.0f;
+		set_player_state(player, Falling);
+		set_player_state(player, Airborne);
+	}
 }
 
 const char* get_position_state_name(int id)

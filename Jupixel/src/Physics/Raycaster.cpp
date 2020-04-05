@@ -4,6 +4,7 @@
 
 std::vector<ColliderComponent*> current_colliders = std::vector<ColliderComponent*>();
 
+// Only returns normal opposite of direction
 bool raycast(glm::vec2 from_position, glm::vec2 direction, float distance, RaycastHit& hit)
 {
 	for (int i = 0; i < current_colliders.size(); i++)
@@ -28,9 +29,10 @@ bool raycast(glm::vec2 from_position, glm::vec2 direction, float distance, Rayca
 			point.y < b_max.y && point.y > b_min.y)
 		{
 			float col_pos_y = col.Position.y + (col.Scale.y * 0.5f);
+			float col_pos_x = col.Position.x + (col.Scale.x * 0.5f);
 
 			glm::vec2 hit_point = glm::vec2(
-				point.x, // TODO convert to extents to avoid * 0.5f
+				col_pos_x, // TODO convert to extents to avoid * 0.5f
 				col_pos_y
 				);
 			hit.point = hit_point;

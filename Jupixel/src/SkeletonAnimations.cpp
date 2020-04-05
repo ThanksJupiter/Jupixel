@@ -57,6 +57,12 @@ void load_skeleton_sprites()
 	texture = load_texture("assets/textures/Knockdown_Sheet.png");
 	anim_sheets.push_back(new Spritesheet(texture, 32, 32, 5, 0.1f));
 
+	texture = load_texture("assets/textures/Ledgegrab_Sheet.png");
+	anim_sheets.push_back(new Spritesheet(texture, 32, 32, 6, 0.06f));
+
+	texture = load_texture("assets/textures/Fall_Sheet.png");
+	anim_sheets.push_back(new Spritesheet(texture, 32, 32, 4, 0.1f));
+
 	//  -------------------------------------------------------------------------------------
 	//  ------------------- SMASH ATTACKS ---------------------------------------------------
 	//  -------------------------------------------------------------------------------------

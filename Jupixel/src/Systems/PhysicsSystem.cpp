@@ -22,6 +22,7 @@
 #include "glm/glm.hpp"
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/string_cast.hpp"
+#include "Renderer/Renderer.h"
 
 const float knockback_scale_factor = 0.014f;
 
@@ -80,6 +81,9 @@ void update_physics_system(Player* player, float dt)
 			break;
 		case Knockdown:
 			physics_knockdown_update(player, dt);
+			break;
+		case Ledgegrab:
+			
 			break;
 	}
 }
@@ -165,6 +169,8 @@ void airborne_physics_update(Player* player, float dt)
 	{
 		v.x = input.Left_stick_x * 1.0f;
 	}
+
+	physics_check_grab_ledge(player, dt);
 
 	if (collider.Is_hit)
 	{
@@ -342,19 +348,21 @@ void physics_attack_update(Player* player, float dt)
 		queue_collision(request);
 	}
 
-	if (combat.Current_timer >= anim.Current_anim->Duration)
-	{
-		combat.Current_timer = 0.0f;
-		set_player_state(player, Idle);
-	}
-
 	if (anim.Has_full_anim_played)
 	{
 		combat.Current_timer = 0.0f;
-		set_player_state(player, Idle);
 		anim.Has_full_anim_played = false;
 		anim.Anim_state = Loop;
 		combat.Allow_attacking_movement = false;
+
+		if (state.Position_state == Grounded)
+		{
+			set_player_state(player, Idle);
+		}
+		else
+		{
+			set_player_state(player, Falling);
+		}
 	}
 
 	switch (state.Position_state)
@@ -577,12 +585,33 @@ void physics_check_grab_ledge(Player* player, float dt)
 
 	RaycastHit hit = RaycastHit();
 
-	glm::vec2 origin = glm::vec2(transform.Position.x, transform.Position.y + 24 * 0.03f);
+	player->Locomotion.Current_ledge_grab_timer += dt;
 
-	if (raycast(origin, glm::vec2(anim.Is_flipped? -1.0f : 1.0f, 0.0f), 0.01f, hit))
+	if (player->Locomotion.Current_ledge_grab_timer >= player->Locomotion.Ledge_grab_time)
 	{
-		// fucking hell ledgegrab
+		player->Locomotion.Current_ledge_grab_timer = 0.0f;
+		player->Locomotion.Can_ledge_grab = true;
+	}
 
+	if (!player->Locomotion.Can_ledge_grab) { return; }
+
+	glm::vec2 origin = glm::vec2(transform.Position.x, transform.Position.y + 16 * 0.02f);
+	glm::vec2 direction = glm::vec2(anim.Is_flipped ? -1.0f : 1.0f, 0.0f);
+	float distance = 0.25f;
+
+	//render_quad(origin + (direction * distance), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f), glm::vec2(0.1f, 0.1f));
+	if (raycast(origin, direction, distance, hit))
+	{
+		v = glm::vec2(0.0f);
+		transform.Position = glm::vec2(hit.point.x + 4 * 0.02f, hit.point.y - 16 * 0.02f);
+		printf("Ledge pos: %s\n", glm::to_string(transform.Position).c_str());
+		player->Locomotion.Can_double_jump = false;
+		player->Locomotion.Can_ledge_grab = false;
+		player->Locomotion.Current_ledge_grab_timer = 0.0f;
+
+		set_player_state(player, Ledgegrab);
+		set_player_state(player, Special);
+		change_player_animation(player, get_anim(7), LastFrameStick);
 	}
 }
 
@@ -611,12 +640,6 @@ void physics_land_on_touch_ground(Player* player)
 		player->Locomotion.Can_double_jump = true;
 
 		//printf("Player: %i hit ground with velocity.y: %f\n", player->ID, v.y);
-
-		/*if (v.y < -6.0f)
-		{
-			player->Collider.Is_hit = true;
-			player->Collider.Pending_knockback = glm::vec2(0.0f, 2.5f);
-		}*/
 
 		v.y = 0.0f;
 		transform.Position.y = hit.point.y;
