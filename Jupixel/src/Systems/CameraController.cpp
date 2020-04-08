@@ -24,9 +24,9 @@ void camera_update(Player* player_one, Player* player_two, float dt)
 	set_zoom_level(zoom_level);
 	set_projection(get_aspect_ratio(), get_zoom_level());
 
-	float cam_y_pos = glm::clamp(center.y, 0.0f, 1.0f);
+	float cam_y_pos = glm::clamp(center.y, -1.0f, 1.0f);
 	float cam_x_pos = glm::clamp(center.x, -x_clamp, x_clamp);
 
-	glm::vec3 cam_pos = glm::vec3(cam_x_pos, cam_y_pos, 0.0f);
+	glm::vec3 cam_pos = glm::vec3(cam_x_pos, cam_y_pos + 1.0f, 0.0f);
 	set_position(cam_pos);
 }

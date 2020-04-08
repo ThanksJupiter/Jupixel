@@ -4,7 +4,7 @@
 
 GamepadButtonState button_states[15];
 
-const float deadzone = 0.2f;
+const float deadzone = 0.25f;
 
 bool is_key_pressed(KeyCode key)
 {
@@ -60,13 +60,13 @@ std::pair<float, float> get_left_stick(int id)
 float get_left_stick_x(int id)
 {
 	std::pair<float, float> pair = get_left_stick(id);
-	return abs(pair.first) > 0.15f ? pair.first : 0;
+	return abs(pair.first) > deadzone ? pair.first : 0;
 }
 
 float get_left_stick_y(int id)
 {
 	std::pair<float, float> pair = get_left_stick(id);
-	return abs(pair.second) > 0.15f ? pair.second : 0;
+	return abs(pair.second) > deadzone ? pair.second : 0;
 }
 
 std::pair<float, float> get_right_stick(int id)

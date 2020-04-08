@@ -25,7 +25,7 @@
 #include "Renderer/Renderer.h"
 #include "VFXSystem.h"
 
-const float knockback_scale_factor = 0.1f;
+const float knockback_scale_factor = 0.05f;
 
 void update_physics_system(Player* player, float dt)
 {
@@ -796,7 +796,7 @@ void physics_land_on_touch_ground(Player* player)
 		}
 
 		// TODO special case aerial attack l-cancel or summink
-		if (state.Action_state != Attacking)
+		if (true)
 		{
 			set_player_state(player, Grounded);
 			set_player_state(player, Idle);

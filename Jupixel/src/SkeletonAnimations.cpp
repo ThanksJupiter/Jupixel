@@ -87,7 +87,7 @@ void load_skeleton_sprites()
 	attack_anim_sheets.push_back(new Spritesheet(texture, 32, 32, 8, 0.08f));
 
 	texture = load_texture("assets/textures/Fair_Sheet.png");
-	attack_anim_sheets.push_back(new Spritesheet(texture, 32, 32, 8, 0.08f));
+	attack_anim_sheets.push_back(new Spritesheet(texture, 32, 32, 8, 0.08f)); // 5
 
 	texture = load_texture("assets/textures/Bair_Sheet.png");
 	attack_anim_sheets.push_back(new Spritesheet(texture, 32, 32, 9, 0.05f));
@@ -102,7 +102,7 @@ void load_skeleton_sprites()
 	attack_anim_sheets.push_back(new Spritesheet(texture, 32, 32, 15, 0.08f));
 
 	texture = load_texture("assets/textures/Ftilt_Sheet.png");
-	attack_anim_sheets.push_back(new Spritesheet(texture, 32, 32, 5, 0.1f));
+	attack_anim_sheets.push_back(new Spritesheet(texture, 32, 32, 5, 0.1f)); // 10
 
 	texture = load_texture("assets/textures/Dtilt_Sheet.png");
 	attack_anim_sheets.push_back(new Spritesheet(texture, 64, 32, 7, 0.05f));
@@ -129,6 +129,9 @@ void load_skeleton_sprites()
 
 	texture = load_texture("assets/textures/Knockback_Dust_Sheet.png");
 	vfx_sheets.push_back(new Spritesheet(texture, 16, 16, 9, 0.05));
+
+	texture = load_texture("assets/textures/Death_effect_Sheet.png");
+	vfx_sheets.push_back(new Spritesheet(texture, 128, 128, 7, 0.1)); // 4
 }
 
 Spritesheet* get_anim(int index)

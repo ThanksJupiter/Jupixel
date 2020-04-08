@@ -6,6 +6,8 @@
 #include "imgui.h"
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/string_cast.hpp"
+#include "VFXSystem.h"
+#include "SkeletonAnimations.h"
 
 MatchData match_data = MatchData();
 World* current_world = nullptr;
@@ -54,6 +56,8 @@ void handle_player_death(Player& player)
 	{
 		player.MatchData.Current_stock_count--;
 
+		vfx_spawn_effect(get_vfx_anim(3), player.Transform.Position + glm::vec2(0.0f, 0.3f));
+
 		if (player.MatchData.Current_stock_count == 0)
 		{
 			printf("Player: %i dieded! :/", player.ID);
@@ -91,5 +95,5 @@ void reset_match()
 
 bool player_out_of_bounds(Player& player)
 {
-	return player.Transform.Position.y < -4.0f || abs(player.Transform.Position.x) > 6.0f;
+	return abs(player.Transform.Position.y) > 3.0f || abs(player.Transform.Position.x) > 4.0f;
 }
