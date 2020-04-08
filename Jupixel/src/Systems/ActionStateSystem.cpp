@@ -36,7 +36,8 @@ std::string action_state_names[] =
 	"Knockdown",
 	"Locomotion",
 	"Ledgegrab",
-	"Getup"
+	"Getup",
+	"LedgeBalance"
 };
 
 void update_action_state_system(Player* player, float dt)
@@ -82,6 +83,11 @@ void update_action_state_system(Player* player, float dt)
 			break;
 		case Ledgegrab:
 			state_ledgegrab_update(player, dt);
+			break;
+		case Getup:
+			break;
+		case LedgeBalance:
+			state_ledge_balance_update(player, dt);
 			break;
 	}
 
@@ -519,7 +525,8 @@ void state_attack_update(Player* player, float dt)
 				anim.Current_Sprite_Index = 3;
 				combat.Current_attack = &combat.Attacks[13];
 			}
-		} else if (anim.Current_Sprite_Index >= 2)
+		}
+		else if (anim.Current_Sprite_Index >= 2)
 		{
 			set_player_state(player, Idle);
 			change_player_animation(player, get_anim(0));
@@ -529,7 +536,7 @@ void state_attack_update(Player* player, float dt)
 
 void state_jump_update(Player* player, float dt)
 {
-	
+
 }
 
 void state_fall_update(Player* player, float dt)
@@ -561,6 +568,89 @@ void state_ledgegrab_update(Player* player, float dt)
 		player->Locomotion.Current_ledge_grab_timer = 0.0f;
 		set_player_state(player, Falling);
 		set_player_state(player, Airborne);
+	}
+}
+
+void state_ledge_balance_update(Player* player, float dt)
+{
+	InputComponent input = player->Input;
+	LocomotionComponent& loco = player->Locomotion;
+	CombatComponent& combat = player->Combat;
+	AnimationComponent& anim = player->Animation;
+
+	float ls_x = input.Left_stick_x;
+
+	if (ls_x != 0)
+	{
+		loco.Current_dash_timer += dt;
+
+		if (loco.Current_dash_timer >= loco.Dash_time)
+		{
+			if (anim.Is_flipped) // if facing left
+			{
+				if (ls_x < -loco.Ledge_balance_threshold) // if input left (walk)
+				{
+					set_player_state(player, Walking);
+					loco.Is_dash_from_walk_allowed = false;
+
+				}
+				else if (ls_x == -1.0f) // if input left (run)
+				{
+					set_player_state(player, Running);
+					change_player_animation(player, get_anim(4), Loop);
+					loco.Current_dash_timer = 0.0f;
+					loco.Current_dash_back_timer = 0.0f;
+				}
+				else if (ls_x > loco.Ledge_balance_threshold) // if input right (walk)
+				{
+					anim.Is_flipped = false;
+					set_player_state(player, Walking);
+					loco.Is_dash_from_walk_allowed = false;
+				}
+				else if (ls_x == 1.0f) // if input right (run)
+				{
+					anim.Is_flipped = false;
+					set_player_state(player, Running);
+					change_player_animation(player, get_anim(4), Loop);
+					loco.Current_dash_timer = 0.0f;
+					loco.Current_dash_back_timer = 0.0f;
+				}
+			}
+			else // if facing right
+			{
+				if (ls_x > loco.Ledge_balance_threshold && ls_x < 1.0f) // if input right (walk)
+				{
+					set_player_state(player, Walking);
+					loco.Is_dash_from_walk_allowed = false;
+				}
+				else if (ls_x == 1.0f) // if input right (run)
+				{
+					set_player_state(player, Running);
+					change_player_animation(player, get_anim(4), Loop);
+					loco.Current_dash_timer = 0.0f;
+					loco.Current_dash_back_timer = 0.0f;
+				}
+				else if (ls_x < -loco.Ledge_balance_threshold && ls_x != -1.0f) // if input left (walk)
+				{
+					anim.Is_flipped = true;
+					set_player_state(player, Walking);
+					loco.Is_dash_from_walk_allowed = false;
+				}
+				else if (ls_x == -1.0f) // if input left (run)
+				{
+					anim.Is_flipped = true;
+					set_player_state(player, Running);
+					change_player_animation(player, get_anim(4), Loop);
+					loco.Current_dash_timer = 0.0f;
+					loco.Current_dash_back_timer = 0.0f;
+				}
+			}
+		}
+	}
+	else
+	{
+		loco.Current_dash_timer = 0.0f;
+		loco.Current_dash_back_timer = 0.0f;
 	}
 }
 

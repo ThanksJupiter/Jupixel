@@ -91,5 +91,5 @@ void reset_match()
 
 bool player_out_of_bounds(Player& player)
 {
-	return player.Transform.Position.y < -4.0f || abs(player.Transform.Position.x) > 4.0f;
+	return player.Transform.Position.y < -4.0f || abs(player.Transform.Position.x) > 6.0f;
 }

@@ -49,7 +49,7 @@ void load_skeleton_sprites()
 	texture = load_texture("assets/textures/Knockback_Sheet.png");
 	anim_sheets.push_back(new Spritesheet(texture, 32, 32, 4, 0.1f));
 
-	texture = load_texture("assets/textures/Run_Sheet.png");
+	texture = load_texture("assets/textures/Run_Sheet.png"); // 5
 	anim_sheets.push_back(new Spritesheet(texture, 32, 32, 6, 0.1f));
 
 	texture = load_texture("assets/textures/Turn_Sheet.png");
@@ -64,8 +64,11 @@ void load_skeleton_sprites()
 	texture = load_texture("assets/textures/Falling_Sheet.png");
 	anim_sheets.push_back(new Spritesheet(texture, 32, 32, 4, 0.1f));
 
-	texture = load_texture("assets/textures/Get_Up_Sheet.png");
+	texture = load_texture("assets/textures/Get_Up_Sheet.png"); // 10
 	anim_sheets.push_back(new Spritesheet(texture, 32, 32, 3, 0.15f));
+
+	texture = load_texture("assets/textures/Ledge_Balance_Sheet.png");
+	anim_sheets.push_back(new Spritesheet(texture, 32, 32, 8, 0.1f));
 
 	//  -------------------------------------------------------------------------------------
 	//  ------------------- SMASH ATTACKS ---------------------------------------------------

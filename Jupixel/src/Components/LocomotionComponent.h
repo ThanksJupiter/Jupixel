@@ -26,6 +26,9 @@ struct LocomotionComponent
 
 	bool Is_dash_from_walk_allowed = false;
 
+	const float Ledge_balance_threshold = 0.9f;
+	bool Ledge_balance_queued = false;
+
 	float Current_get_up_timer = 0.0f;
 	float Auto_get_up = 1.0f;
 };

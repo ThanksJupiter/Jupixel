@@ -70,10 +70,10 @@ glm::vec2 hitbox_offsets[] =
 	{ 0.1f, 0.4f },		// usmash
 	{ 0.18f, 0.0f },	// dsmash
 	{ 0.18f, 0.1f },	// ftilt
-	{ 0.42f, 0.04f },	// dtilt
+	{ 0.32f, 0.04f },	// dtilt
 	{ 0.1f, 0.3f},      // utilt
-	{ 0.15f, 0.2f },    // first jab
-	{ 0.15f, 0.2f }		// second jab
+	{ 0.2f, 0.2f },    // first jab
+	{ 0.3f, 0.2f }		// second jab
 };
 
 glm::vec2 hitbox_scales[] =
@@ -88,10 +88,10 @@ glm::vec2 hitbox_scales[] =
 	{ 0.3f, 0.3f },	 // usmash
 	{ 0.1f, 0.1f },	 // dsmash
 	{ 0.15f, 0.15f },// ftilt
-	{ 0.18f, 0.1f }, // dtilt
-	{ 0.2f, 0.45f },   // utilt
-	{ 0.15f, 0.15f },    // first jab
-	{ 0.15f, 0.15f }		// second jab
+	{ 0.35f, 0.1f }, // dtilt
+	{ 0.2f, 0.45f }, // utilt
+	{ 0.15f, 0.15f },// first jab
+	{ 0.15f, 0.15f } // second jab
 };
 
 void setup_player(Player* player_to_setup, Player* player_opponent, int player_id)

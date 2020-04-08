@@ -9,6 +9,8 @@
 
 #include "Renderer/Renderer.h"
 #include <vector>
+#include "VFXSystem.h"
+#include "SkeletonAnimations.h"
 
 std::vector<CollisionTestRequest> requests = std::vector<CollisionTestRequest>();
 glm::vec2 point_scale = glm::vec2(0.05f, 0.05f);
@@ -67,6 +69,10 @@ void test_collisions()
 		{
 			set_time_scale(0.0001f);
 			request.Target->Reset_time_scale_on_land = true;
+
+			glm::vec2 vfx_position = hitbox_pos + ((b_pos - hitbox_pos) * 0.5f);
+			vfx_spawn_effect(get_vfx_anim(1), vfx_position, glm::vec4(1.0f, 1.0f, 1.0f, 0.85f));
+
 			request.Is_resolved = true;
 			otherC->Is_colliding = true;
 			otherC->Is_hit = true;

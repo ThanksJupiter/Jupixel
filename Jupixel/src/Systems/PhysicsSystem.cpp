@@ -25,7 +25,7 @@
 #include "Renderer/Renderer.h"
 #include "VFXSystem.h"
 
-const float knockback_scale_factor = 0.003f;
+const float knockback_scale_factor = 0.1f;
 
 void update_physics_system(Player* player, float dt)
 {
@@ -89,6 +89,9 @@ void update_physics_system(Player* player, float dt)
 		case Getup:
 			physics_getup_update(player, dt);
 			break;
+		case LedgeBalance:
+			physics_ledge_balance_update(player, dt);
+			break;
 	}
 
 	if (state.Position_state == PositionState::Special)
@@ -128,7 +131,7 @@ void grounded_physics_update(Player* player, float dt)
 		collider.Pending_damage = 0.0f;
 
 		v = state.Action_state == ActionState::Crouching ? collider.Pending_knockback * 0.3f : collider.Pending_knockback;
-		vfx_spawn_effect(get_vfx_anim(1), transform.Position + glm::vec2(0.0f, 0.3f));
+
 		if (v.y < 0.0f)
 		{
 			v.y = -v.y;
@@ -152,8 +155,18 @@ void grounded_physics_update(Player* player, float dt)
 	{
 		transform.Position.x += v.x * dt;
 	}
-	else
+	else // TODO know if *is about* to walk off edge
 	{
+		if (state.Action_state == Walking && abs(input.Left_stick_x) < loco.Ledge_balance_threshold)
+		{
+			transform.Position.x -= v.x * dt;
+			v.x = 0.0f;
+
+			set_player_state(player, LedgeBalance);
+			change_player_animation(player, get_anim(10), Loop);
+			return;
+		}
+
 		if (state.Action_state != Attacking)
 		{
 			set_player_state(player, Airborne);
@@ -164,6 +177,7 @@ void grounded_physics_update(Player* player, float dt)
 		{
 			transform.Position.x -= v.x * dt;
 			v.x = 0.0f;
+			loco.Ledge_balance_queued = true;
 		}
 	}
 }
@@ -205,7 +219,7 @@ void airborne_physics_update(Player* player, float dt)
 		CombatComponent& combat = player->Combat;
 		combat.Current_health_percentage += collider.Pending_damage;
 		collider.Pending_damage = 0.0f;
-		vfx_spawn_effect(get_vfx_anim(1), transform.Position + glm::vec2(0.0f, 0.3f));
+
 		v.x = collider.Pending_knockback.x;
 
 		if (v.y < 0)
@@ -279,8 +293,6 @@ void special_physics_update(Player* player, float dt)
 		combat.Current_health_percentage += collider.Pending_damage;
 		collider.Pending_damage = 0.0f;
 
-		vfx_spawn_effect(get_vfx_anim(1), transform.Position + glm::vec2(0.0f, 0.3f));
-
 		v = collider.Pending_knockback;
 
 		v += v * combat.Current_health_percentage  * knockback_scale_factor;
@@ -311,7 +323,7 @@ void physics_idle_update(Player* player, float dt)
 	{
 		case Grounded:
 
-			physics_add_velocity_to_input(input.Left_stick_x, v.x, dt);
+			physics_add_input_to_velocity(input.Left_stick_x, v.x, dt);
 			physics_flip_on_input(player, dt);
 			physics_apply_drag(player, dt);
 			grounded_physics_update(player, dt);
@@ -414,6 +426,7 @@ void physics_attack_update(Player* player, float dt)
 	ActionStateComponent& state = player->ActionState;
 	CombatComponent& combat = player->Combat;
 	AnimationComponent& anim = player->Animation;
+	InputComponent input = player->Input;
 
 	combat.Current_timer += dt;
 
@@ -443,7 +456,17 @@ void physics_attack_update(Player* player, float dt)
 
 		if (state.Position_state == Grounded)
 		{
-			set_player_state(player, Idle);
+			if (player->Locomotion.Ledge_balance_queued && input.Left_stick_x == 0.0f)
+			{
+				set_player_state(player, LedgeBalance);
+				change_player_animation(player, get_anim(10), Loop);
+				player->Locomotion.Ledge_balance_queued = false;
+			}
+			else
+			{
+				set_player_state(player, Idle);
+				player->Locomotion.Ledge_balance_queued = false;
+			}
 		}
 		else
 		{
@@ -599,6 +622,13 @@ void physics_getup_update(Player* player, float dt)
 		set_player_state(player, Idle);
 		change_player_animation(player, get_anim(0));
 	}
+
+	grounded_physics_update(player, dt);
+}
+
+void physics_ledge_balance_update(Player* player, float dt)
+{
+	grounded_physics_update(player, dt);
 }
 
 void physics_flip_on_input(Player* player, float dt)
@@ -629,7 +659,7 @@ void physics_set_velocity_to_input(float x_input, float& x_velocity)
 	}
 }
 
-void physics_add_velocity_to_input(float x_input, float& x_velocity, float dt)
+void physics_add_input_to_velocity(float x_input, float& x_velocity, float dt)
 {
 	x_velocity += x_input * dt;
 }
