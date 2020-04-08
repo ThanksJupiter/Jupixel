@@ -118,25 +118,6 @@ void grounded_physics_update(Player* player, float dt)
 		v.x = 0.0f;
 	}
 
-	RaycastHit hit = RaycastHit();
-	if (raycast(transform.Position, glm::vec2(0.0f, -1.0f), 0.1f, hit))
-	{
-		
-	}
-	else
-	{
-		if (state.Action_state != Attacking)
-		{
-			set_player_state(player, Airborne);
-			set_player_state(player, Falling);
-			return;
-		}
-		else
-		{
-			v.x = 0.0f;
-		}
-	}
-
 	if (collider.Is_hit)
 	{
 		combat.Current_health_percentage += collider.Pending_damage;
@@ -161,7 +142,25 @@ void grounded_physics_update(Player* player, float dt)
 		change_player_animation(player, get_anim(3), LastFrameStick);
 	}
 
-	transform.Position.x += v.x * dt;
+	RaycastHit hit = RaycastHit();
+	if (raycast(transform.Position, glm::vec2(0.0f, -1.0f), 0.1f, hit))
+	{
+		transform.Position.x += v.x * dt;
+	}
+	else
+	{
+		if (state.Action_state != Attacking)
+		{
+			set_player_state(player, Airborne);
+			set_player_state(player, Falling);
+			return;
+		}
+		else
+		{
+			transform.Position.x -= v.x * dt;
+			v.x = 0.0f;
+		}
+	}
 }
 
 void airborne_physics_update(Player* player, float dt)
