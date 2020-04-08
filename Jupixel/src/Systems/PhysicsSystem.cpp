@@ -131,6 +131,10 @@ void grounded_physics_update(Player* player, float dt)
 			set_player_state(player, Falling);
 			return;
 		}
+		else
+		{
+			v.x = 0.0f;
+		}
 	}
 
 	if (collider.Is_hit)
