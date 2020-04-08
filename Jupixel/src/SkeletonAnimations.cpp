@@ -13,6 +13,7 @@
 
 std::vector<Spritesheet*> anim_sheets = std::vector<Spritesheet*>();
 std::vector<Spritesheet*> attack_anim_sheets = std::vector<Spritesheet*>();
+std::vector<Spritesheet*> vfx_sheets = std::vector<Spritesheet*>();
 
 void load_skeleton_sprites()
 {
@@ -60,12 +61,13 @@ void load_skeleton_sprites()
 	texture = load_texture("assets/textures/Ledgegrab_Sheet.png");
 	anim_sheets.push_back(new Spritesheet(texture, 32, 32, 6, 0.06f));
 
-	texture = load_texture("assets/textures/Fall_Sheet.png");
+	texture = load_texture("assets/textures/Falling_Sheet.png");
 	anim_sheets.push_back(new Spritesheet(texture, 32, 32, 4, 0.1f));
 
 	//  -------------------------------------------------------------------------------------
 	//  ------------------- SMASH ATTACKS ---------------------------------------------------
 	//  -------------------------------------------------------------------------------------
+
 	texture = load_texture("assets/textures/Fsmash_Sheet.png");
 	attack_anim_sheets.push_back(new Spritesheet(texture, 64, 32, 9, 0.08f));
 
@@ -99,8 +101,15 @@ void load_skeleton_sprites()
 	texture = load_texture("assets/textures/Dtilt_Sheet.png");
 	attack_anim_sheets.push_back(new Spritesheet(texture, 64, 32, 7, 0.05f));
 
-	/*texture = load_texture("assets/textures/Usmash_Sheet.png");
-	attack_anim_sheets.push_back(new Spritesheet(texture, 64, 32, 5, 0.05f));*/
+	texture = load_texture("assets/textures/Utilt_Sheet.png");
+	attack_anim_sheets.push_back(new Spritesheet(texture, 32, 32, 7, 0.05f));
+
+	//  -------------------------------------------------------------------------------------
+	//  ------------------- VFX -------------------------------------------------------------
+	//  -------------------------------------------------------------------------------------
+
+	texture = load_texture("assets/textures/Ledgegrab_VFX_Sheet.png");
+	vfx_sheets.push_back(new Spritesheet(texture, 8, 8, 7, 0.02));
 }
 
 Spritesheet* get_anim(int index)
@@ -111,6 +120,11 @@ Spritesheet* get_anim(int index)
 Spritesheet* get_attack_anim(int index)
 {
 	return attack_anim_sheets[index];
+}
+
+Spritesheet* get_VFX_anim(int index)
+{
+	return vfx_sheets[index];
 }
 
 int get_attack_anim_count()

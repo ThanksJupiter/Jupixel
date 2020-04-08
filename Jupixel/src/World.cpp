@@ -23,6 +23,7 @@
 #include "GLFW/glfw3.h"
 #include "Physics/Raycaster.h"
 #include "Components/LevelComponent.h"
+#include "Systems/VFXSystem.h"
 
 World world = World();
 
@@ -76,6 +77,7 @@ void update_world(float dt)
 
 	camera_update(player_one, player_two, dt);
 
+	vfx_update(dt);
 
 	// HACK to render level without adding separate buffers
 	update_player_animation(nullptr, &level.Sprite);
@@ -134,5 +136,17 @@ void debug_functionality()
 		player_two->Physics.Velocity = glm::vec2(0.0f, 0.0f);
 
 		printf("Health reset!\n");
+	}
+
+	if (is_button_down(0, GLFW_GAMEPAD_BUTTON_Y))
+	{
+		if (get_time_scale() < 0.4f)
+		{
+			reset_time_scale();
+		}
+		else
+		{
+			set_time_scale(0.3f);
+		}
 	}
 }

@@ -28,13 +28,15 @@ bool raycast(glm::vec2 from_position, glm::vec2 direction, float distance, Rayca
 		if (point.x < b_max.x && point.x > b_min.x &&
 			point.y < b_max.y && point.y > b_min.y)
 		{
+			// TODO convert to extents to avoid * 0.5f
 			float col_pos_y = col.Position.y + (col.Scale.y * 0.5f);
-			float col_pos_x = col.Position.x + (col.Scale.x * 0.5f);
+			float col_pos_x = col.Position.x + ((col.Scale.x * 0.5f) * -direction.x);
 
 			glm::vec2 hit_point = glm::vec2(
-				col_pos_x, // TODO convert to extents to avoid * 0.5f
+				col_pos_x,
 				col_pos_y
 				);
+
 			hit.point = hit_point;
 			hit.normal = -direction; // TODO actually calculate normal
 

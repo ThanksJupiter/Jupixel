@@ -9,6 +9,7 @@ void update_physics_system(Player* player_one, Player* player_two, float dt);
 
 void grounded_physics_update(Player* player, float dt);
 void airborne_physics_update(Player* player, float dt);
+void special_physics_update(Player* player, float dt);
 
 void physics_idle_update(Player* player, float dt);
 void physics_walk_update(Player* player, float dt);

@@ -117,11 +117,11 @@ void state_grounded_update(Player* player, float dt)
 		{
 			if (input.Tilt_up)
 			{
-				/*player->Physics.Velocity.x = 0.0f;
+				player->Physics.Velocity.x = 0.0f;
 				set_player_state(player, Attacking);
-				combat.Current_attack = &combat.Attacks[0];
-				change_player_animation(player, get_attack_anim(0), LastFrameStick);
-				return;*/
+				combat.Current_attack = &combat.Attacks[11];
+				change_player_animation(player, get_attack_anim(11), LastFrameStick);
+				return;
 			}
 
 			if (input.Tilt_down)
@@ -254,7 +254,7 @@ void state_airborne_update(Player* player, float dt)
 		{
 			set_player_state(player, Attacking);
 			combat.Current_attack = &combat.Attacks[1];
-			change_player_animation(player, get_attack_anim(1));
+			change_player_animation(player, get_attack_anim(1), LastFrameStick);
 			return;
 		}
 
@@ -517,12 +517,20 @@ void state_ledgegrab_update(Player* player, float dt)
 {
 	InputComponent input = player->Input;
 
-	if (!player->Animation.Has_full_anim_played)
+	if (player->Animation.Current_Sprite_Index <= 1)
 	{
 		return;
 	}
 
-	if (abs(input.Left_stick_x) > 0.9f)
+	if (!player->Animation.Is_flipped && input.Left_stick_x < -0.9f)
+	{
+		player->Locomotion.Can_double_jump = true;
+		player->Locomotion.Can_ledge_grab = false;
+		player->Locomotion.Current_ledge_grab_timer = 0.0f;
+		set_player_state(player, Falling);
+		set_player_state(player, Airborne);
+	}
+	else if (player->Animation.Is_flipped && input.Left_stick_x > 0.9f)
 	{
 		player->Locomotion.Can_double_jump = true;
 		player->Locomotion.Can_ledge_grab = false;

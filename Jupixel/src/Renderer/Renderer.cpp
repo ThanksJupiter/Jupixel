@@ -150,6 +150,47 @@ void quit_renderer()
 	delete flatColorRenderData;
 }
 
+RenderData generate_textured_quad_buffers()
+{
+	RenderData ret_val = RenderData();
+
+	float vertices[] = {
+		// positions        // texture coords
+		 0.5f,  0.5f, 0.0f, 1.0f, 1.0f, // top right
+		 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, // bottom right
+		-0.5f, -0.5f, 0.0f, 0.0f, 0.0f, // bottom left
+		-0.5f,  0.5f, 0.0f, 0.0f, 1.0f  // top left 
+	};
+
+	unsigned int indices[] = {
+		0, 1, 2, // first triangle
+		2, 3, 0  // second triangle
+	};
+
+	glGenVertexArrays(1, &ret_val.VAO);
+	glBindVertexArray(ret_val.VAO);
+
+	glGenBuffers(1, &ret_val.VBO);
+	glBindBuffer(GL_ARRAY_BUFFER, ret_val.VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+	glGenBuffers(1, &ret_val.IBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ret_val.IBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+
+	ret_val.ShaderID = compile_shader_program_from_text_files(
+	   "assets/shaders/texture_vertex.glsl",
+	   "assets/shaders/texture_fragment.glsl");
+
+	return ret_val;
+}
+
 void clear()
 {
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -190,7 +231,21 @@ void update_texture_coordinates(Sprite* sprite)
 		-0.5f,  0.5f, 0.0f, sprite->TopLeft.x,     sprite->TopLeft.y
 	};
 
-	glBindBuffer(GL_ARRAY_BUFFER, textureRenderData->Quad_VB);
+	glBindBuffer(GL_ARRAY_BUFFER, textureRenderData->VBO);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
+}
+
+void update_texture_coordinates(Sprite* sprite, GLuint VBO)
+{
+	float vertices[] = {
+		// positions        // texture coords
+		 0.5f,  0.5f, 0.0f, sprite->TopRight.x,    sprite->TopRight.y,
+		 0.5f, -0.5f, 0.0f, sprite->BottomRight.x, sprite->BottomRight.y,
+		-0.5f, -0.5f, 0.0f, sprite->BottomLeft.x,  sprite->BottomLeft.y,
+		-0.5f,  0.5f, 0.0f, sprite->TopLeft.x,     sprite->TopLeft.y
+	};
+
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
 }
 
@@ -255,7 +310,7 @@ void render_quad_outline(glm::vec3& position /*= glm::vec3(0.0f)*/, glm::vec3& s
 	glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(position.x, position.y, 0.0f)) * glm::scale(glm::mat4(1.0f), scale);
 	glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(transform));
 
-	glBindVertexArray(outlineRenderData->Quad_VA);
+	glBindVertexArray(outlineRenderData->VAO);
 	glDrawElements(GL_LINES, 8, GL_UNSIGNED_INT, nullptr);
 }
 
@@ -271,7 +326,7 @@ void render_quad(glm::vec3& position /*= glm::vec2(0.0f)*/, glm::vec4& color /*=
 	glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(position.x, position.y, 0.0f)) * glm::scale(glm::mat4(1.0f), scale);
 	glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(transform));
 
-	glBindVertexArray(flatColorRenderData->Quad_VA);
+	glBindVertexArray(flatColorRenderData->VAO);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 }
 
@@ -284,7 +339,7 @@ void render_quad(glm::vec2& position /*= glm::vec2(0.0f)*/, glm::vec4& color /*=
 }
 
 void render_quad(Texture2D& texture, glm::vec2& position /*= glm::vec2(0.0f)*/, glm::vec2& scale /*= glm::vec2(1.0f)*/, glm::vec4& color /*= glm::vec4(1.0f)*/)
-{
+{ 
 	glm::vec3 v3Pos = glm::vec3(position.x, position.y, 0.0f);
 	glm::vec3 v3Scale = glm::vec3(scale.x, scale.y, 0.0f);
 
@@ -310,7 +365,31 @@ void render_quad(Texture2D& texture, glm::vec3& position /*= glm::vec3(0.0f)*/, 
 	glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(position.x, position.y, 0.0f)) * glm::scale(glm::mat4(1.0f), scale);
 	glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(transform));
 
-	glBindVertexArray(textureRenderData->Quad_VA);
+	glBindVertexArray(textureRenderData->VAO);
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+}
+
+void render_quad(Texture2D& texture, GLuint vao, glm::vec2& position /*= glm::vec3(0.0f)*/, glm::vec2& scale /*= glm::vec3(1.0f)*/, glm::vec4& color /*= glm::vec4(1.0f)*/)
+{
+	glUseProgram(textureRenderData->ShaderID);
+	currentShaderID = textureRenderData->ShaderID;
+
+	int location = glGetUniformLocation(currentShaderID, "u_Color");
+	/*glUniform4fv(location, 1, glm::value_ptr(color));*/
+	glUniform4fv(location, 1, glm::value_ptr(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
+
+	bind_texture(texture.ID);
+	location = glGetUniformLocation(currentShaderID, "u_Texture");
+	// TODO what is going on with this zero
+	// is it the texture slot that the texture is bound to?
+	glUniform1i(location, 0);
+
+	location = glGetUniformLocation(currentShaderID, "u_Transform");
+	glm::vec3 v3_scale = glm::vec3(scale.x, scale.y, 1.0f);
+	glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(position.x, position.y, 0.0f)) * glm::scale(glm::mat4(1.0f), v3_scale);
+	glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(transform));
+
+	glBindVertexArray(vao);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 }
 

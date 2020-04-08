@@ -23,8 +23,9 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/string_cast.hpp"
 #include "Renderer/Renderer.h"
+#include "VFXSystem.h"
 
-const float knockback_scale_factor = 0.014f;
+const float knockback_scale_factor = 0.03f;
 
 void update_physics_system(Player* player, float dt)
 {
@@ -85,6 +86,11 @@ void update_physics_system(Player* player, float dt)
 		case Ledgegrab:
 			
 			break;
+	}
+
+	if (state.Position_state == PositionState::Special)
+	{
+		special_physics_update(player, dt);
 	}
 }
 
@@ -163,6 +169,17 @@ void airborne_physics_update(Player* player, float dt)
 	ColliderComponent& collider = player->Collider;
 	ActionStateComponent& state = player->ActionState;
 
+	if (state.Action_state != Ledgegrab)
+	{
+		player->Locomotion.Current_ledge_grab_timer += dt;
+
+		if (player->Locomotion.Current_ledge_grab_timer >= player->Locomotion.Ledge_grab_time)
+		{
+			player->Locomotion.Current_ledge_grab_timer = 0.0f;
+			player->Locomotion.Can_ledge_grab = true;
+		}
+	}
+
 	glm::vec2& v = physics.Velocity;
 
 	if (input.Left_stick_x != 0)
@@ -170,7 +187,10 @@ void airborne_physics_update(Player* player, float dt)
 		v.x = input.Left_stick_x * 1.0f;
 	}
 
-	physics_check_grab_ledge(player, dt);
+	if (state.Action_state != Attacking)
+	{
+		physics_check_grab_ledge(player, dt);
+	}
 
 	if (collider.Is_hit)
 	{
@@ -203,11 +223,67 @@ void airborne_physics_update(Player* player, float dt)
 		change_player_animation(player, get_anim(3), LastFrameStick);
 	}
 
-	transform.Position.y += v.y * dt;
-	transform.Position.x += v.x * dt;
+	glm::vec2 origin = glm::vec2(transform.Position.x, transform.Position.y + 16 * 0.02f);
+	glm::vec2 direction = glm::vec2(v.x, 0.0f);
+	float distance = 0.05f;
 
-	// TODO remove magic gravity number
+	//render_quad(origin + (direction * distance), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f), glm::vec2(0.1f, 0.1f));
+	RaycastHit hit = RaycastHit();
+	if (raycast(origin, direction, distance, hit))
+	{
+		transform.Position.x = hit.point.x + (v.x > 0 ? (-2 * 0.02f) : 2 * 0.02f);
+		v.x = 0.0f;
+	}
+	else
+	{
+		transform.Position.x += v.x * dt;
+	}
+
+	glm::vec2 up_dir = glm::vec2(0.0f, 1.0f);
+
+	//render_quad((origin - direction * distance) + (up_dir * distance), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), glm::vec2(0.1f, 0.1f));
+	if (raycast(origin - direction * distance, up_dir, distance, hit))
+	{
+		transform.Position.y = hit.point.y - 42 * 0.02f;
+		v.y = 0.0f;
+	}
+	else
+	{
+		transform.Position.y += v.y * dt;
+	}
+
 	v.y -= 10 * dt;
+}
+
+void special_physics_update(Player* player, float dt)
+{
+	TransformComponent& transform = player->Transform;
+	AnimationComponent& anim = player->Animation;
+	PhysicsComponent& physics = player->Physics;
+	ColliderComponent& collider = player->Collider;
+	ActionStateComponent& state = player->ActionState;
+	CombatComponent& combat = player->Combat;
+
+	glm::vec2& v = physics.Velocity;
+
+	if (collider.Is_hit)
+	{
+		combat.Current_health_percentage += collider.Pending_damage;
+		collider.Pending_damage = 0.0f;
+
+		v = collider.Pending_knockback;
+
+		v += v * combat.Current_health_percentage  * knockback_scale_factor;
+		glm::vec2 printV = v;
+		printf("Knockback: %s\n", glm::to_string(printV).c_str());
+
+		transform.Position.y += 0.01;
+		collider.Is_hit = false;
+		anim.Is_flipped = collider.Flip;
+		set_player_state(player, Airborne);
+		set_player_state(player, Knockback);
+		change_player_animation(player, get_anim(3), LastFrameStick);
+	}
 }
 
 void physics_idle_update(Player* player, float dt)
@@ -583,31 +659,28 @@ void physics_check_grab_ledge(Player* player, float dt)
 
 	glm::vec2& v = physics.Velocity;
 
-	RaycastHit hit = RaycastHit();
-
-	player->Locomotion.Current_ledge_grab_timer += dt;
-
-	if (player->Locomotion.Current_ledge_grab_timer >= player->Locomotion.Ledge_grab_time)
-	{
-		player->Locomotion.Current_ledge_grab_timer = 0.0f;
-		player->Locomotion.Can_ledge_grab = true;
-	}
-
 	if (!player->Locomotion.Can_ledge_grab) { return; }
+	//if (v.y > 0.0f) { return; } // TODO make this work, it currently sets player to be inside of level
+	// probably because of some shit reason
+
+	if (player->Input.Left_stick_y < -0.1f) { return; }
 
 	glm::vec2 origin = glm::vec2(transform.Position.x, transform.Position.y + 16 * 0.02f);
 	glm::vec2 direction = glm::vec2(anim.Is_flipped ? -1.0f : 1.0f, 0.0f);
 	float distance = 0.25f;
 
 	//render_quad(origin + (direction * distance), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f), glm::vec2(0.1f, 0.1f));
+	RaycastHit hit = RaycastHit();
 	if (raycast(origin, direction, distance, hit))
 	{
 		v = glm::vec2(0.0f);
-		transform.Position = glm::vec2(hit.point.x + 4 * 0.02f, hit.point.y - 16 * 0.02f);
-		printf("Ledge pos: %s\n", glm::to_string(transform.Position).c_str());
+		transform.Position = glm::vec2(hit.point.x + (anim.Is_flipped? 4 * 0.02f : -4 * 0.02f), hit.point.y - 16 * 0.02f);
+		//render_quad(hit.point, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(0.01f, 0.01f));
 		player->Locomotion.Can_double_jump = false;
 		player->Locomotion.Can_ledge_grab = false;
 		player->Locomotion.Current_ledge_grab_timer = 0.0f;
+
+		vfx_spawn_effect(get_VFX_anim(0), hit.point, nullptr, nullptr, LastFrameStick);
 
 		set_player_state(player, Ledgegrab);
 		set_player_state(player, Special);

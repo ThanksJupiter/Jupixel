@@ -97,7 +97,7 @@ void run_application()
 	{
 		float time = (float)glfwGetTime();
 		deltaTime = time - lastFrameTime;
-		deltaTime = glm::clamp(deltaTime, 0.01f, 0.1f);
+		//deltaTime = glm::clamp(deltaTime, 0.01f, 0.1f);
 		lastFrameTime = time;
 
 		glfwPollEvents();
