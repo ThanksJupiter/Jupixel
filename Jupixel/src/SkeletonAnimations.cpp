@@ -64,6 +64,9 @@ void load_skeleton_sprites()
 	texture = load_texture("assets/textures/Falling_Sheet.png");
 	anim_sheets.push_back(new Spritesheet(texture, 32, 32, 4, 0.1f));
 
+	texture = load_texture("assets/textures/Get_Up_Sheet.png");
+	anim_sheets.push_back(new Spritesheet(texture, 32, 32, 3, 0.15f));
+
 	//  -------------------------------------------------------------------------------------
 	//  ------------------- SMASH ATTACKS ---------------------------------------------------
 	//  -------------------------------------------------------------------------------------
@@ -104,6 +107,13 @@ void load_skeleton_sprites()
 	texture = load_texture("assets/textures/Utilt_Sheet.png");
 	attack_anim_sheets.push_back(new Spritesheet(texture, 32, 32, 7, 0.05f));
 
+	texture = load_texture("assets/textures/Jab_Sheet.png");
+	attack_anim_sheets.push_back(new Spritesheet(texture, 64, 32, 8, 0.1f));
+
+	// HACK ultra hack, load jab anim twice to have it count for creating two new attacks :(
+	texture = load_texture("assets/textures/Jab_Sheet.png");
+	attack_anim_sheets.push_back(new Spritesheet(texture, 64, 32, 8, 0.1f));
+
 	//  -------------------------------------------------------------------------------------
 	//  ------------------- VFX -------------------------------------------------------------
 	//  -------------------------------------------------------------------------------------
@@ -128,7 +138,7 @@ Spritesheet* get_attack_anim(int index)
 	return attack_anim_sheets[index];
 }
 
-Spritesheet* get_VFX_anim(int index)
+Spritesheet* get_vfx_anim(int index)
 {
 	return vfx_sheets[index];
 }

@@ -21,6 +21,7 @@ void physics_fall_update(Player* player, float dt);
 void physics_crouch_update(Player* player, float dt);
 void physics_knockback_update(Player* player, float dt);
 void physics_knockdown_update(Player* player, float dt);
+void physics_getup_update(Player* player, float dt);
 
 void physics_flip_on_input(Player* player, float dt);
 void physics_set_velocity_to_input(float x_input, float& x_velocity);

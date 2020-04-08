@@ -7,7 +7,7 @@ enum ActionState { Idle, Walking, Running,
 	TurnAround, JumpSquat, Attacking,
 	Jumping, Falling, Crouching, Airdodge,
 	Knockback, Knockdown, Locomotion,
-	Ledgegrab, MAX };
+	Ledgegrab, Getup, MAX };
 
 //enum LocomotionState { Walking, Running, Jumping, Falling, Knockback, Knockdown, Stationary, MAX };
 

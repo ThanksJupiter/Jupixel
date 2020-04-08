@@ -17,7 +17,9 @@ int hitbox_frames[] =
 	8, // dsmash
 	2, // ftilt
 	4, // dtilt
-	5  // utilt
+	5, // utilt
+	2, // first jab
+	4 // second jab
 };
 
 float attack_damage[] = 
@@ -33,7 +35,9 @@ float attack_damage[] =
 	21.0f, // dsmash
 	6.0f,  // ftilt
 	3.0f,  // dtilt
-	4.0f   // utilt
+	4.0f,  // utilt
+	2.0f, // first jab
+	4.0f // second jab
 };
 
 glm::vec2 knockback_vectors[] = 
@@ -49,7 +53,9 @@ glm::vec2 knockback_vectors[] =
 	{ 0.7f, -3.0 },	 // dsmash
 	{ 1.1f, 0.8f },	 // ftilt
 	{ 0.2f, 1.7f },	 // dtilt
-	{ 0.15f, 3.4f}   // utilt
+	{ 0.15f, 3.4f},   // utilt
+	{ 0.05f, 0.8f}, // first jab
+	{ 0.2f, 2.4f} // second jab
 };
 
 glm::vec2 hitbox_offsets[] =
@@ -65,7 +71,9 @@ glm::vec2 hitbox_offsets[] =
 	{ 0.18f, 0.0f },	// dsmash
 	{ 0.18f, 0.1f },	// ftilt
 	{ 0.42f, 0.04f },	// dtilt
-	{ 0.1f, 0.3f}      // utilt
+	{ 0.1f, 0.3f},      // utilt
+	{ 0.15f, 0.2f },    // first jab
+	{ 0.15f, 0.2f }		// second jab
 };
 
 glm::vec2 hitbox_scales[] =
@@ -81,7 +89,9 @@ glm::vec2 hitbox_scales[] =
 	{ 0.1f, 0.1f },	 // dsmash
 	{ 0.15f, 0.15f },// ftilt
 	{ 0.18f, 0.1f }, // dtilt
-	{ 0.2f, 0.45f }   // utilt
+	{ 0.2f, 0.45f },   // utilt
+	{ 0.15f, 0.15f },    // first jab
+	{ 0.15f, 0.15f }		// second jab
 };
 
 void setup_player(Player* player_to_setup, Player* player_opponent, int player_id)

@@ -35,7 +35,8 @@ std::string action_state_names[] =
 	"Knockback",
 	"Knockdown",
 	"Locomotion",
-	"Ledgegrab"
+	"Ledgegrab",
+	"Getup"
 };
 
 void update_action_state_system(Player* player, float dt)
@@ -54,6 +55,7 @@ void update_action_state_system(Player* player, float dt)
 			state_run_update(player, dt);
 			break;
 		case Attacking:
+			state_attack_update(player, dt);
 			break;
 		case Jumping:
 			break;
@@ -195,16 +197,16 @@ void state_grounded_update(Player* player, float dt)
 				change_player_animation(player, get_attack_anim(0), LastFrameStick);
 				return;
 			}
-		}
 
-		// TODO if running dash attack etc
-		if (input.Attack)
-		{
-			player->Physics.Velocity.x = 0.0f;
-			set_player_state(player, Attacking);
-			combat.Current_attack = &combat.Attacks[0];
-			change_player_animation(player, get_attack_anim(0), LastFrameStick);
-			return;
+			// TODO if running dash attack etc
+			if (input.Attack)
+			{
+				player->Physics.Velocity.x = 0.0f;
+				set_player_state(player, Attacking);
+				combat.Current_attack = &combat.Attacks[12];
+				change_player_animation(player, get_attack_anim(12), LastFrameStick);
+				return;
+			}
 		}
 
 		if (state.Action_state != Crouching)
@@ -298,7 +300,7 @@ void state_idle_update(Player* player, float dt)
 {
 	InputComponent input = player->Input;
 	LocomotionComponent& loco = player->Locomotion;
-
+	CombatComponent& combat = player->Combat;
 	AnimationComponent& anim = player->Animation;
 
 	float ls_x = input.Left_stick_x;
@@ -500,7 +502,29 @@ void state_jump_squat_update(Player* player, float dt)
 
 void state_attack_update(Player* player, float dt)
 {
+	CombatComponent& combat = player->Combat;
+	AnimationComponent& anim = player->Animation;
+	InputComponent input = player->Input;
 
+	if (combat.Current_attack == &combat.Attacks[12])
+	{
+		if (anim.Current_Sprite_Index > 1 && anim.Current_Sprite_Index < 3)
+		{
+			if (input.Attack)
+			{
+				CombatComponent& combat = player->Combat;
+				combat.Allow_attacking_movement = true;
+				set_player_state(player, Attacking);
+				change_player_animation(player, get_attack_anim(12), LastFrameStick);
+				anim.Current_Sprite_Index = 3;
+				combat.Current_attack = &combat.Attacks[13];
+			}
+		} else if (anim.Current_Sprite_Index >= 2)
+		{
+			set_player_state(player, Idle);
+			change_player_animation(player, get_anim(0));
+		}
+	}
 }
 
 void state_jump_update(Player* player, float dt)

@@ -25,4 +25,7 @@ struct LocomotionComponent
 	float Full_jump_velocity = 4.0f;
 
 	bool Is_dash_from_walk_allowed = false;
+
+	float Current_get_up_timer = 0.0f;
+	float Auto_get_up = 1.0f;
 };
