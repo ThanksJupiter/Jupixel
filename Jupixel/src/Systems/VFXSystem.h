@@ -12,6 +12,7 @@ struct PhysicsComponent;
 void vfx_spawn_effect(
 	Spritesheet* sheet,
 	glm::vec2 position,
+	glm::vec4 color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
 	TransformComponent* transform = nullptr,
 	PhysicsComponent* physics = nullptr,
 	AnimationState state = AnimationState::LastFrameStick,

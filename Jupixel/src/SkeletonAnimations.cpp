@@ -110,6 +110,12 @@ void load_skeleton_sprites()
 
 	texture = load_texture("assets/textures/Ledgegrab_VFX_Sheet.png");
 	vfx_sheets.push_back(new Spritesheet(texture, 8, 8, 7, 0.02));
+
+	texture = load_texture("assets/textures/Hit_Effect_01_Sheet.png");
+	vfx_sheets.push_back(new Spritesheet(texture, 32, 32, 6, 0.02));
+
+	texture = load_texture("assets/textures/Knockback_Dust_Sheet.png");
+	vfx_sheets.push_back(new Spritesheet(texture, 16, 16, 9, 0.05));
 }
 
 Spritesheet* get_anim(int index)

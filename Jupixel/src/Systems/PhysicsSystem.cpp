@@ -25,7 +25,7 @@
 #include "Renderer/Renderer.h"
 #include "VFXSystem.h"
 
-const float knockback_scale_factor = 0.03f;
+const float knockback_scale_factor = 0.003f;
 
 void update_physics_system(Player* player, float dt)
 {
@@ -139,7 +139,7 @@ void grounded_physics_update(Player* player, float dt)
 		collider.Pending_damage = 0.0f;
 
 		v = state.Action_state == ActionState::Crouching ? collider.Pending_knockback * 0.3f : collider.Pending_knockback;
-
+		vfx_spawn_effect(get_VFX_anim(1), transform.Position + glm::vec2(0.0f, 0.3f));
 		if (v.y < 0.0f)
 		{
 			v.y = -v.y;
@@ -197,7 +197,7 @@ void airborne_physics_update(Player* player, float dt)
 		CombatComponent& combat = player->Combat;
 		combat.Current_health_percentage += collider.Pending_damage;
 		collider.Pending_damage = 0.0f;
-
+		vfx_spawn_effect(get_VFX_anim(1), transform.Position + glm::vec2(0.0f, 0.3f));
 		v.x = collider.Pending_knockback.x;
 
 		if (v.y < 0)
@@ -270,6 +270,8 @@ void special_physics_update(Player* player, float dt)
 	{
 		combat.Current_health_percentage += collider.Pending_damage;
 		collider.Pending_damage = 0.0f;
+
+		vfx_spawn_effect(get_VFX_anim(1), transform.Position + glm::vec2(0.0f, 0.3f));
 
 		v = collider.Pending_knockback;
 
@@ -540,6 +542,14 @@ void physics_knockback_update(Player* player, float dt)
 
 	glm::vec2& v = physics.Velocity;
 
+	anim.Current_dust_timer += dt;
+
+	if (anim.Current_dust_timer >= anim.Dust_time)
+	{
+		anim.Current_dust_timer = 0.0;
+		vfx_spawn_effect(get_VFX_anim(2), transform.Position + glm::vec2(0.0f, 0.3f), glm::vec4(1.0f, 1.0f, 1.0f, 0.5f));
+	}
+
 	switch (state.Position_state)
 	{
 		case Grounded:
@@ -680,7 +690,7 @@ void physics_check_grab_ledge(Player* player, float dt)
 		player->Locomotion.Can_ledge_grab = false;
 		player->Locomotion.Current_ledge_grab_timer = 0.0f;
 
-		vfx_spawn_effect(get_VFX_anim(0), hit.point, nullptr, nullptr, LastFrameStick);
+		vfx_spawn_effect(get_VFX_anim(0), hit.point, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), nullptr, nullptr, LastFrameStick);
 
 		set_player_state(player, Ledgegrab);
 		set_player_state(player, Special);

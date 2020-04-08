@@ -376,7 +376,7 @@ void render_quad(Texture2D& texture, GLuint vao, glm::vec2& position /*= glm::ve
 
 	int location = glGetUniformLocation(currentShaderID, "u_Color");
 	/*glUniform4fv(location, 1, glm::value_ptr(color));*/
-	glUniform4fv(location, 1, glm::value_ptr(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
+	glUniform4fv(location, 1, glm::value_ptr(color));
 
 	bind_texture(texture.ID);
 	location = glGetUniformLocation(currentShaderID, "u_Texture");

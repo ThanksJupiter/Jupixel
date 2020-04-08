@@ -12,7 +12,7 @@
 
 std::vector<VFXComponent> effects = std::vector<VFXComponent>();
 
-void vfx_spawn_effect(Spritesheet* sheet, glm::vec2 position, TransformComponent* transform /*= nullptr*/, PhysicsComponent* physics /*= nullptr*/, AnimationState state /*= AnimationState::Loop*/, int repeat_cycles /*= 0*/)
+void vfx_spawn_effect(Spritesheet* sheet, glm::vec2 position, glm::vec4 color, TransformComponent* transform /*= nullptr*/, PhysicsComponent* physics /*= nullptr*/, AnimationState state /*= AnimationState::Loop*/, int repeat_cycles /*= 0*/)
 {
 	for (int i = 0; i < effects.size(); i++)
 	{
@@ -31,6 +31,7 @@ void vfx_spawn_effect(Spritesheet* sheet, glm::vec2 position, TransformComponent
 			vfx.Anim.Anim_state = state;
 			vfx.Anim.Current_Sprite_Index = 0;
 			vfx.Anim.Has_full_anim_played = false;
+			vfx.Anim.Color = color;
 
 			return;
 		}
@@ -49,6 +50,7 @@ void vfx_spawn_effect(Spritesheet* sheet, glm::vec2 position, TransformComponent
 	vfx.Is_active = true;
 	vfx.Anim.Current_anim = sheet;
 	vfx.Anim.Anim_state = state;
+	vfx.Anim.Color = color;
 
 	effects.push_back(vfx);
 }

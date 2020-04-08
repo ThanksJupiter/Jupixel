@@ -17,4 +17,7 @@ struct AnimationComponent
 	int Current_Sprite_Index = 0;
 	float Current_sprite_time = 0.0f;
 	float Next_sprite_delay = 0.1f;
+
+	float Current_dust_timer = 0.0f;
+	const float Dust_time = 0.08f;
 };

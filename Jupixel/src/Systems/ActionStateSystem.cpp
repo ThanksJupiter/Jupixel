@@ -409,7 +409,7 @@ void state_run_update(Player* player, float dt)
 		CombatComponent& combat = player->Combat;
 		combat.Allow_attacking_movement = true;
 		set_player_state(player, Attacking);
-		change_player_animation(player, get_attack_anim(6));
+		change_player_animation(player, get_attack_anim(6), LastFrameStick);
 		combat.Current_attack = &combat.Attacks[6];
 	}
 
