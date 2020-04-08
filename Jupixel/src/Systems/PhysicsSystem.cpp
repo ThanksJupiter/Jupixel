@@ -92,6 +92,9 @@ void update_physics_system(Player* player, float dt)
 		case LedgeBalance:
 			physics_ledge_balance_update(player, dt);
 			break;
+		case Block:
+			physics_block_update(player, dt);
+			break;
 	}
 
 	if (state.Position_state == PositionState::Special)
@@ -127,27 +130,31 @@ void grounded_physics_update(Player* player, float dt)
 
 	if (collider.Is_hit)
 	{
-		combat.Current_health_percentage += collider.Pending_damage;
-		collider.Pending_damage = 0.0f;
-
-		v = state.Action_state == ActionState::Crouching ? collider.Pending_knockback * 0.3f : collider.Pending_knockback;
-
-		if (v.y < 0.0f)
+		if (state.Action_state != Block)
 		{
-			v.y = -v.y;
+			combat.Current_health_percentage += collider.Pending_damage;
+			collider.Pending_damage = 0.0f;
+
+			v = state.Action_state == ActionState::Crouching ? collider.Pending_knockback * 0.3f : collider.Pending_knockback;
+
+			if (v.y < 0.0f)
+			{
+				v.y = -v.y;
+			}
+
+			loco.Current_get_up_timer = 0.0f;
+			v += v * combat.Current_health_percentage  * knockback_scale_factor;
+			glm::vec2 printV = v;
+			printf("Knockback: %s\n", glm::to_string(printV).c_str());
+
+			transform.Position.y += 0.01;
+			anim.Is_flipped = collider.Flip;
+			set_player_state(player, Airborne);
+			set_player_state(player, Knockback);
+			change_player_animation(player, get_anim(3), LastFrameStick);
 		}
 
-		loco.Current_get_up_timer = 0.0f;
-		v += v * combat.Current_health_percentage  * knockback_scale_factor;
-		glm::vec2 printV = v;
-		printf("Knockback: %s\n", glm::to_string(printV).c_str());
-
-		transform.Position.y += 0.01;
 		collider.Is_hit = false;
-		anim.Is_flipped = collider.Flip;
-		set_player_state(player, Airborne);
-		set_player_state(player, Knockback);
-		change_player_animation(player, get_anim(3), LastFrameStick);
 	}
 
 	RaycastHit hit = RaycastHit();
@@ -627,6 +634,11 @@ void physics_getup_update(Player* player, float dt)
 }
 
 void physics_ledge_balance_update(Player* player, float dt)
+{
+	grounded_physics_update(player, dt);
+}
+
+void physics_block_update(Player* player, float dt)
 {
 	grounded_physics_update(player, dt);
 }

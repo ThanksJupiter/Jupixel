@@ -17,6 +17,7 @@ void state_jump_update(Player* player, float dt);
 void state_fall_update(Player* player, float dt);
 void state_ledgegrab_update(Player* player, float dt);
 void state_ledge_balance_update(Player* player, float dt);
+void state_block_update(Player* player, float dt);
 
 const char* get_position_state_name(int id);
 const char* get_action_state_name(int id);

@@ -98,6 +98,19 @@ float get_right_stick_y(int id)
 	return abs(pair.second) > deadzone ? pair.second : 0;
 }
 
+float get_axis(int id, int axis)
+{
+	GLFWgamepadstate state;
+
+	if (glfwGetGamepadState(GLFW_JOYSTICK_1 + id, &state))
+	{
+		float ret_val = state.axes[axis];
+		return ret_val;
+	}
+
+	return 0;
+}
+
 bool is_button_held(int id, int button)
 {
 	GLFWgamepadstate state;

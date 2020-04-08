@@ -70,6 +70,12 @@ void load_skeleton_sprites()
 	texture = load_texture("assets/textures/Ledge_Balance_Sheet.png");
 	anim_sheets.push_back(new Spritesheet(texture, 32, 32, 8, 0.1f));
 
+	texture = load_texture("assets/textures/High_Block_Sheet.png");
+	anim_sheets.push_back(new Spritesheet(texture, 32, 32, 4, 0.1f));
+
+	texture = load_texture("assets/textures/Low_Block_Sheet.png");
+	anim_sheets.push_back(new Spritesheet(texture, 32, 32, 4, 0.1f));
+
 	//  -------------------------------------------------------------------------------------
 	//  ------------------- SMASH ATTACKS ---------------------------------------------------
 	//  -------------------------------------------------------------------------------------

@@ -12,4 +12,5 @@ struct CombatComponent
 	bool Is_current_attack_resolved = false;
 	float Current_health_percentage = 0.0f;
 	bool Allow_attacking_movement = false;
+	bool High_block = false;
 };

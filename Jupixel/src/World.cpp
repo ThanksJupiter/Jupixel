@@ -56,6 +56,8 @@ void setup_world()
 
 	add_target_collider(&level.Collider);
 	set_world(&world);
+
+	begin_match();
 }
 
 void update_world(float dt)

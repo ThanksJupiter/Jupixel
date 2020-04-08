@@ -9,6 +9,8 @@ struct GamepadButtonState
 	bool Previously_pressed = false;
 };
 
+// TODO always update gamepad state once instead of every time something is queried
+
 bool is_key_pressed(KeyCode key);
 bool is_mouse_button_pressed(MouseCode button);
 
@@ -23,6 +25,8 @@ float get_left_stick_y(int id);
 std::pair<float, float> get_right_stick(int id);
 float get_right_stick_x(int id);
 float get_right_stick_y(int id);
+
+float get_axis(int id, int axis);
 
 bool is_button_held(int id, int button);
 bool is_button_down(int id, int button);

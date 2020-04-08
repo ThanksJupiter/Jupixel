@@ -9,6 +9,7 @@ struct InputComponent
 	bool Jump = false;
 	bool Jump_held = false;
 	bool Attack = false;
+	bool Block = false;
 
 	bool C_down = false;
 	bool C_up = false;

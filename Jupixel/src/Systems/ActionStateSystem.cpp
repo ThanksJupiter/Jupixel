@@ -37,7 +37,8 @@ std::string action_state_names[] =
 	"Locomotion",
 	"Ledgegrab",
 	"Getup",
-	"LedgeBalance"
+	"LedgeBalance",
+	"Block"
 };
 
 void update_action_state_system(Player* player, float dt)
@@ -89,6 +90,9 @@ void update_action_state_system(Player* player, float dt)
 		case LedgeBalance:
 			state_ledge_balance_update(player, dt);
 			break;
+		case Block:
+			state_block_update(player, dt);
+			break;
 	}
 
 	switch (state.Position_state)
@@ -120,6 +124,13 @@ void state_grounded_update(Player* player, float dt)
 	{
 		AnimationComponent& anim = player->Animation;
 		CombatComponent& combat = player->Combat;
+
+		if (input.Block && state.Action_state != Block)
+		{
+			player->Physics.Velocity.x = 0.0f;
+			set_player_state(player, Block);
+			change_player_animation(player, get_anim(11), LastFrameStick);
+		}
 
 		if (state.Action_state != Running)
 		{
@@ -217,7 +228,7 @@ void state_grounded_update(Player* player, float dt)
 
 		if (state.Action_state != Crouching)
 		{
-			if (input.Left_stick_y < -0.8f)
+			if (input.Left_stick_y < -0.8f && state.Action_state != Block)
 			{
 				player->Physics.Velocity.x = 0.0f;
 				set_player_state(player, Crouching);
@@ -651,6 +662,28 @@ void state_ledge_balance_update(Player* player, float dt)
 	{
 		loco.Current_dash_timer = 0.0f;
 		loco.Current_dash_back_timer = 0.0f;
+	}
+}
+
+void state_block_update(Player* player, float dt)
+{
+	InputComponent input = player->Input;
+
+	if (!input.Block)
+	{
+		set_player_state(player, Idle);
+	}
+
+	if (input.Left_stick_y < -0.3f && player->Combat.High_block)
+	{
+		change_player_animation(player, get_anim(12), LastFrameStick);
+		player->Combat.High_block = false;
+	}
+	else if	(input.Left_stick_y == 0.0f && !player->Combat.High_block)
+	{
+		change_player_animation(player, get_anim(11), LastFrameStick);
+		player->Animation.Current_Sprite_Index = 3;
+		player->Combat.High_block = true;
 	}
 }
 
