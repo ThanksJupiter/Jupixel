@@ -76,8 +76,8 @@ void respawn_player(Player& player)
 {
 	player.Combat.Current_health_percentage = 0.0f;
 	player.Transform.Position = glm::vec2(0.0f, 0.0f);
-	player.ActionState.Position_state = Airborne;
-	player.ActionState.Action_state = Falling;
+	player.ActionState.Position_state = PositionState::Airborne;
+	player.ActionState.Action_state = ActionState::Falling;
 	player.Physics.Velocity = glm::vec2(0.0f, 0.0f);
 }
 

@@ -91,14 +91,14 @@ void update_world(float dt, float fixed_dt)
 	ImGui::Begin("Player stats");
 	ImGui::Text("Player: %i\n pos state: %s\n action state: %s\n Health: %f",
 		player_one->ID,
-		get_position_state_name(player_one->ActionState.Position_state),
-		get_action_state_name(player_one->ActionState.Action_state),
+		get_position_state_name((int)player_one->ActionState.Position_state),
+		get_action_state_name((int)player_one->ActionState.Action_state),
 		player_one->Combat.Current_health_percentage);
 
 	ImGui::Text("Player: %i\n pos state: %s\n action state: %s\n Health: %f",
 		player_two->ID,
-		get_position_state_name(player_two->ActionState.Position_state),
-		get_action_state_name(player_two->ActionState.Action_state),
+		get_position_state_name((int)player_two->ActionState.Position_state),
+		get_action_state_name((int)player_two->ActionState.Action_state),
 		player_two->Combat.Current_health_percentage);
 	ImGui::End();
 	end_GUI();
@@ -134,11 +134,11 @@ void debug_functionality()
 		player_one->Transform.Position = glm::vec2(0.0f, 0.0f);
 		player_two->Transform.Position = glm::vec2(0.0f, 0.0f);
 
-		player_one->ActionState.Position_state = Airborne;
-		player_one->ActionState.Action_state = Falling;
+		player_one->ActionState.Position_state = PositionState::Airborne;
+		player_one->ActionState.Action_state = ActionState::Falling;
 
-		player_two->ActionState.Position_state = Airborne;
-		player_two->ActionState.Action_state = Falling;
+		player_two->ActionState.Position_state = PositionState::Airborne;
+		player_two->ActionState.Action_state = ActionState::Falling;
 
 		player_one->Physics.Velocity = glm::vec2(0.0f, 0.0f);
 		player_two->Physics.Velocity = glm::vec2(0.0f, 0.0f);

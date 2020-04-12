@@ -56,60 +56,60 @@ void update_action_state_system(Player* player, float dt)
 
 	switch (state.Action_state)
 	{
-		case Idle:
+		case ActionState::Idle:
 			state_idle_update(player, dt);
 			break;
-		case Walking:
+		case ActionState::Walking:
 			state_walk_update(player, dt);
 			break;
-		case Running:
+		case ActionState::Running:
 			state_run_update(player, dt);
 			break;
-		case Attacking:
+		case ActionState::Attacking:
 			state_attack_update(player, dt);
 			break;
-		case Jumping:
+		case ActionState::Jumping:
 			break;
-		case Falling:
+		case ActionState::Falling:
 			break;
-		case Crouching:
+		case ActionState::Crouching:
 			break;
-		case Airdodge:
+		case ActionState::Airdodge:
 			break;
-		case Knockback:
+		case ActionState::Knockback:
 			break;
-		case Locomotion:
+		case ActionState::Locomotion:
 			break;
-		case None:
+		case ActionState::None:
 			break;
-		case TurnAround:
+		case ActionState::TurnAround:
 			break;
-		case JumpSquat:
+		case ActionState::JumpSquat:
 			state_jump_squat_update(player, dt);
 			break;
 		default:
 			break;
-		case Knockdown:
+		case ActionState::Knockdown:
 			break;
-		case Ledgegrab:
+		case ActionState::Ledgegrab:
 			state_ledgegrab_update(player, dt);
 			break;
-		case Getup:
+		case ActionState::Getup:
 			break;
-		case LedgeBalance:
+		case ActionState::LedgeBalance:
 			state_ledge_balance_update(player, dt);
 			break;
-		case Block:
+		case ActionState::Block:
 			state_block_update(player, dt);
 			break;
 	}
 
 	switch (state.Position_state)
 	{
-		case Grounded:
+		case PositionState::Grounded:
 			state_grounded_update(player, dt);
 			break;
-		case Airborne:
+		case PositionState::Airborne:
 			state_airborne_update(player, dt);
 			break;
 		default:
@@ -129,31 +129,31 @@ void state_grounded_update(Player* player, float dt)
 		// HACK to avoid having button down be true later in same frame when updating airborne state and double jumping instantly
 		// doesn't even work
 		input.Jump = false;
-		set_player_state(player, JumpSquat);
-		set_player_state(player, Special);
+		set_player_state(player, ActionState::JumpSquat);
+		set_player_state(player, PositionState::Special);
 		change_player_animation(player, get_anim(2), LastFrameStick);
 		return;
 	}
 
-	if (state.Action_state != Attacking)
+	if (state.Action_state != ActionState::Attacking)
 	{
 		AnimationComponent& anim = player->Animation;
 		CombatComponent& combat = player->Combat;
 
 		player->Locomotion.Is_turning_allowed = player->Physics.Velocity.x < 0.1f;
 
-		if (input.Block && state.Action_state != Block && state.Action_state != TurnAround && player->Locomotion.Is_turning_allowed)
+		if (input.Block && state.Action_state != ActionState::Block && state.Action_state != ActionState::TurnAround && player->Locomotion.Is_turning_allowed)
 		{
-			set_player_state(player, Block);
+			set_player_state(player, ActionState::Block);
 			change_player_animation(player, get_anim(11), LastFrameStick);
 		}
 
-		if (state.Action_state != Running)
+		if (state.Action_state != ActionState::Running)
 		{
 			if (input.Tilt_up)
 			{
 				player->Physics.Velocity.x = 0.0f;
-				set_player_state(player, Attacking);
+				set_player_state(player, ActionState::Attacking);
 				combat.Current_attack = &combat.Attacks[11];
 				change_player_animation(player, get_attack_anim(11), LastFrameStick);
 				return;
@@ -162,7 +162,7 @@ void state_grounded_update(Player* player, float dt)
 			if (input.Tilt_down)
 			{
 				player->Physics.Velocity.x = 0.0f;
-				set_player_state(player, Attacking);
+				set_player_state(player, ActionState::Attacking);
 				combat.Current_attack = &combat.Attacks[10];
 				change_player_animation(player, get_attack_anim(10), LastFrameStick);
 				return;
@@ -171,7 +171,7 @@ void state_grounded_update(Player* player, float dt)
 			if (input.Tilt_right)
 			{
 				player->Physics.Velocity.x = 0.0f;
-				set_player_state(player, Attacking);
+				set_player_state(player, ActionState::Attacking);
 				combat.Current_attack = &combat.Attacks[9];
 				change_player_animation(player, get_attack_anim(9), LastFrameStick);
 				return;
@@ -181,7 +181,7 @@ void state_grounded_update(Player* player, float dt)
 			{
 				// TODO flip if not facing tilt direction / backtilt :00
 				player->Physics.Velocity.x = 0.0f;
-				set_player_state(player, Attacking);
+				set_player_state(player, ActionState::Attacking);
 				combat.Current_attack = &combat.Attacks[9];
 				change_player_animation(player, get_attack_anim(9), LastFrameStick);
 				return;
@@ -190,7 +190,7 @@ void state_grounded_update(Player* player, float dt)
 			if (input.Smash_up)
 			{
 				player->Physics.Velocity.x = 0.0f;
-				set_player_state(player, Attacking);
+				set_player_state(player, ActionState::Attacking);
 				combat.Current_attack = &combat.Attacks[7];
 				change_player_animation(player, get_attack_anim(7), LastFrameStick);
 				return;
@@ -199,7 +199,7 @@ void state_grounded_update(Player* player, float dt)
 			if (input.Smash_down)
 			{
 				player->Physics.Velocity.x = 0.0f;
-				set_player_state(player, Attacking);
+				set_player_state(player, ActionState::Attacking);
 				combat.Current_attack = &combat.Attacks[8];
 				change_player_animation(player, get_attack_anim(8), LastFrameStick);
 				return;
@@ -212,7 +212,7 @@ void state_grounded_update(Player* player, float dt)
 					anim.Is_flipped = false;
 				}
 				player->Physics.Velocity.x = 0.0f;
-				set_player_state(player, Attacking);
+				set_player_state(player, ActionState::Attacking);
 				combat.Current_attack = &combat.Attacks[0];
 				change_player_animation(player, get_attack_anim(0), LastFrameStick);
 				return;
@@ -225,7 +225,7 @@ void state_grounded_update(Player* player, float dt)
 					anim.Is_flipped = true;
 				}
 				player->Physics.Velocity.x = 0.0f;
-				set_player_state(player, Attacking);
+				set_player_state(player, ActionState::Attacking);
 				combat.Current_attack = &combat.Attacks[0];
 				change_player_animation(player, get_attack_anim(0), LastFrameStick);
 				return;
@@ -235,19 +235,19 @@ void state_grounded_update(Player* player, float dt)
 			if (input.Attack)
 			{
 				player->Physics.Velocity.x = 0.0f;
-				set_player_state(player, Attacking);
+				set_player_state(player, ActionState::Attacking);
 				combat.Current_attack = &combat.Attacks[12];
 				change_player_animation(player, get_attack_anim(12), LastFrameStick);
 				return;
 			}
 		}
 
-		if (state.Action_state != Crouching)
+		if (state.Action_state != ActionState::Crouching)
 		{
-			if (input.Left_stick_y < -0.8f && state.Action_state != Block)
+			if (input.Left_stick_y < -0.8f && state.Action_state != ActionState::Block)
 			{
 				player->Physics.Velocity.x = 0.0f;
-				set_player_state(player, Crouching);
+				set_player_state(player, ActionState::Crouching);
 				change_player_animation(player, get_anim(2), LastFrameStick);
 			}
 		}
@@ -255,7 +255,7 @@ void state_grounded_update(Player* player, float dt)
 		{
 			if (input.Left_stick_y == 0.0f)
 			{
-				set_player_state(player, Idle);
+				set_player_state(player, ActionState::Idle);
 				change_player_animation(player, get_anim(0), Loop);
 			}
 		}
@@ -269,7 +269,7 @@ void state_airborne_update(Player* player, float dt)
 	TransformComponent& transform = player->Transform;
 	PhysicsComponent& physics = player->Physics;
 
-	if (state.Action_state != Attacking)
+	if (state.Action_state != ActionState::Attacking)
 	{
 		AnimationComponent& anim = player->Animation;
 		CombatComponent& combat = player->Combat;
@@ -280,7 +280,7 @@ void state_airborne_update(Player* player, float dt)
 			physics.Velocity = glm::vec2(input.Left_stick_x * 2.0f, input.Left_stick_y * 4.0f);
 			loco.Can_airdodge = false;
 			loco.Has_aerial_control = false;
-			set_player_state(player, Airdodge);
+			set_player_state(player, ActionState::Airdodge);
 			return;
 		}
 
@@ -288,14 +288,14 @@ void state_airborne_update(Player* player, float dt)
 		{
 			loco.Can_double_jump = false;
 			physics.Velocity.y = loco.Full_jump_velocity;
-			set_player_state(player, Airborne);
-			set_player_state(player, Jumping);
+			set_player_state(player, PositionState::Airborne);
+			set_player_state(player, ActionState::Jumping);
 			return;
 		}
 
 		if (input.Attack)
 		{
-			set_player_state(player, Attacking);
+			set_player_state(player, ActionState::Attacking);
 			combat.Current_attack = &combat.Attacks[1];
 			change_player_animation(player, get_attack_anim(1), LastFrameStick);
 			return;
@@ -303,21 +303,21 @@ void state_airborne_update(Player* player, float dt)
 
 		if (input.C_up)
 		{
-			set_player_state(player, Attacking);
+			set_player_state(player, ActionState::Attacking);
 			combat.Current_attack = &combat.Attacks[2];
 			change_player_animation(player, get_attack_anim(2), LastFrameStick);
 		}
 
 		if (input.C_down)
 		{
-			set_player_state(player, Attacking);
+			set_player_state(player, ActionState::Attacking);
 			combat.Current_attack = &combat.Attacks[3];
 			change_player_animation(player, get_attack_anim(3), LastFrameStick);
 		}
 
 		if (input.C_right)
 		{
-			set_player_state(player, Attacking);
+			set_player_state(player, ActionState::Attacking);
 
 			int anim_to_play = anim.Is_flipped ? 5 : 4;
 
@@ -327,7 +327,7 @@ void state_airborne_update(Player* player, float dt)
 
 		if (input.C_left)
 		{
-			set_player_state(player, Attacking);
+			set_player_state(player, ActionState::Attacking);
 
 			int anim_to_play = anim.Is_flipped ? 4 : 5;
 
@@ -351,30 +351,30 @@ void state_special_update(Player* player, float dt)
 		// HACK to avoid having button down be true later in same frame when updating airborne state and double jumping instantly
 		// doesn't even work
 		input.Jump = false;
-		set_player_state(player, JumpSquat);
-		set_player_state(player, Special);
+		set_player_state(player, ActionState::JumpSquat);
+		set_player_state(player, PositionState::Special);
 		change_player_animation(player, get_anim(2), LastFrameStick);
 		return;
 	}
 
-	if (state.Action_state != Attacking)
+	if (state.Action_state != ActionState::Attacking)
 	{
 		AnimationComponent& anim = player->Animation;
 		CombatComponent& combat = player->Combat;
 
 		player->Locomotion.Is_turning_allowed = player->Physics.Velocity.x < 0.1f;
 
-		if (input.Block && state.Action_state != Block && state.Action_state != TurnAround && player->Locomotion.Is_turning_allowed)
+		if (input.Block && state.Action_state != ActionState::Block && state.Action_state != ActionState::TurnAround && player->Locomotion.Is_turning_allowed)
 		{
-			set_player_state(player, Block);
+			set_player_state(player, ActionState::Block);
 			change_player_animation(player, get_anim(11), LastFrameStick);
 		}
 
-		if (state.Action_state != Running)
+		if (state.Action_state != ActionState::Running)
 		{
 			if (input.Tilt_up)
 			{
-				set_player_state(player, Attacking);
+				set_player_state(player, ActionState::Attacking);
 				combat.Current_attack = &combat.Attacks[11];
 				change_player_animation(player, get_attack_anim(11), LastFrameStick);
 				return;
@@ -382,7 +382,7 @@ void state_special_update(Player* player, float dt)
 
 			if (input.Tilt_down)
 			{
-				set_player_state(player, Attacking);
+				set_player_state(player, ActionState::Attacking);
 				combat.Current_attack = &combat.Attacks[10];
 				change_player_animation(player, get_attack_anim(10), LastFrameStick);
 				return;
@@ -390,7 +390,7 @@ void state_special_update(Player* player, float dt)
 
 			if (input.Tilt_right)
 			{
-				set_player_state(player, Attacking);
+				set_player_state(player, ActionState::Attacking);
 				combat.Current_attack = &combat.Attacks[9];
 				change_player_animation(player, get_attack_anim(9), LastFrameStick);
 				return;
@@ -399,7 +399,7 @@ void state_special_update(Player* player, float dt)
 			if (input.Tilt_left)
 			{
 				// TODO flip if not facing tilt direction / backtilt :00
-				set_player_state(player, Attacking);
+				set_player_state(player, ActionState::Attacking);
 				combat.Current_attack = &combat.Attacks[9];
 				change_player_animation(player, get_attack_anim(9), LastFrameStick);
 				return;
@@ -407,7 +407,7 @@ void state_special_update(Player* player, float dt)
 
 			if (input.Smash_up)
 			{
-				set_player_state(player, Attacking);
+				set_player_state(player, ActionState::Attacking);
 				combat.Current_attack = &combat.Attacks[7];
 				change_player_animation(player, get_attack_anim(7), LastFrameStick);
 				return;
@@ -415,7 +415,7 @@ void state_special_update(Player* player, float dt)
 
 			if (input.Smash_down)
 			{
-				set_player_state(player, Attacking);
+				set_player_state(player, ActionState::Attacking);
 				combat.Current_attack = &combat.Attacks[8];
 				change_player_animation(player, get_attack_anim(8), LastFrameStick);
 				return;
@@ -427,7 +427,7 @@ void state_special_update(Player* player, float dt)
 				{
 					anim.Is_flipped = false;
 				}
-				set_player_state(player, Attacking);
+				set_player_state(player, ActionState::Attacking);
 				combat.Current_attack = &combat.Attacks[0];
 				change_player_animation(player, get_attack_anim(0), LastFrameStick);
 				return;
@@ -439,7 +439,7 @@ void state_special_update(Player* player, float dt)
 				{
 					anim.Is_flipped = true;
 				}
-				set_player_state(player, Attacking);
+				set_player_state(player, ActionState::Attacking);
 				combat.Current_attack = &combat.Attacks[0];
 				change_player_animation(player, get_attack_anim(0), LastFrameStick);
 				return;
@@ -448,7 +448,7 @@ void state_special_update(Player* player, float dt)
 			// TODO if running dash attack etc
 			if (input.Attack)
 			{
-				set_player_state(player, Attacking);
+				set_player_state(player, ActionState::Attacking);
 				combat.Current_attack = &combat.Attacks[12];
 				change_player_animation(player, get_attack_anim(12), LastFrameStick);
 				return;
@@ -486,14 +486,14 @@ void state_idle_update(Player* player, float dt)
 		{
 			if (abs(ls_x) == 1)
 			{
-				set_player_state(player, Running);
+				set_player_state(player, ActionState::Running);
 				change_player_animation(player, get_anim(4), Loop);
 				loco.Current_dash_timer = 0.0f;
 				loco.Current_dash_back_timer = 0.0f;
 			}
 			else
 			{
-				set_player_state(player, Walking);
+				set_player_state(player, ActionState::Walking);
 				loco.Is_dash_from_walk_allowed = false;
 			}
 		}
@@ -542,12 +542,12 @@ void state_walk_update(Player* player, float dt)
 
 	if (v.x == 0.0f)
 	{
-		set_player_state(player, Idle);
+		set_player_state(player, ActionState::Idle);
 	}
 
 	if (abs(ls_x) == 1.0f && loco.Is_dash_from_walk_allowed)
 	{
-		set_player_state(player, Running);
+		set_player_state(player, ActionState::Running);
 		change_player_animation(player, get_anim(4), Loop);
 		loco.Current_dash_timer = 0.0f;
 		loco.Current_dash_back_timer = 0.0f;
@@ -575,7 +575,7 @@ void state_run_update(Player* player, float dt)
 	{
 		CombatComponent& combat = player->Combat;
 		combat.Allow_attacking_movement = true;
-		set_player_state(player, Attacking);
+		set_player_state(player, ActionState::Attacking);
 		change_player_animation(player, get_attack_anim(6), LastFrameStick);
 		combat.Current_attack = &combat.Attacks[6];
 	}
@@ -596,7 +596,7 @@ void state_run_update(Player* player, float dt)
 
 		if (v.x == 0.0f && ls_x == 0.0f)
 		{
-			set_player_state(player, Walking);
+			set_player_state(player, ActionState::Walking);
 			loco.Is_dash_from_walk_allowed = false;
 			loco.Current_dash_back_timer = 0.0f;
 			return;
@@ -606,20 +606,20 @@ void state_run_update(Player* player, float dt)
 	{
 		if (ls_x > 0 && anim.Is_flipped)
 		{
-			set_player_state(player, TurnAround);
+			set_player_state(player, ActionState::TurnAround);
 			change_player_animation(player, get_anim(5), LastFrameStick);
 			flipped = true;
 		}
 		else if (ls_x < 0 && !anim.Is_flipped)
 		{
-			set_player_state(player, TurnAround);
+			set_player_state(player, ActionState::TurnAround);
 			change_player_animation(player, get_anim(5), LastFrameStick);
 			flipped = true;
 		}
 
 		if (abs(v.x) < 0.5f && ls_x == 0.0f)
 		{
-			set_player_state(player, Walking);
+			set_player_state(player, ActionState::Walking);
 			loco.Is_dash_from_walk_allowed = false;
 			loco.Current_dash_back_timer = 0.0f;
 		}
@@ -657,8 +657,8 @@ void state_jump_squat_update(Player* player, float dt)
 
 		transform.Position.y += 0.01;
 		loco.Current_short_hop_timer = 0.0f;
-		set_player_state(player, Airborne);
-		set_player_state(player, Jumping);
+		set_player_state(player, PositionState::Airborne);
+		set_player_state(player, ActionState::Jumping);
 		loco.Can_double_jump = true;
 		loco.Can_airdodge = true;
 		loco.Has_aerial_control = true;
@@ -679,7 +679,7 @@ void state_attack_update(Player* player, float dt)
 			{
 				CombatComponent& combat = player->Combat;
 				combat.Allow_attacking_movement = true;
-				set_player_state(player, Attacking);
+				set_player_state(player, ActionState::Attacking);
 				change_player_animation(player, get_attack_anim(12), LastFrameStick);
 				anim.Current_Sprite_Index = 3;
 				combat.Current_attack = &combat.Attacks[13];
@@ -687,7 +687,7 @@ void state_attack_update(Player* player, float dt)
 		}
 		else if (anim.Current_Sprite_Index >= 2)
 		{
-			set_player_state(player, Idle);
+			set_player_state(player, ActionState::Idle);
 			change_player_animation(player, get_anim(0));
 		}
 	}
@@ -717,16 +717,16 @@ void state_ledgegrab_update(Player* player, float dt)
 		player->Locomotion.Can_double_jump = true;
 		player->Locomotion.Can_ledge_grab = false;
 		player->Locomotion.Current_ledge_grab_timer = 0.0f;
-		set_player_state(player, Falling);
-		set_player_state(player, Airborne);
+		set_player_state(player, ActionState::Falling);
+		set_player_state(player, PositionState::Airborne);
 	}
 	else if (player->Animation.Is_flipped && input.Left_stick_x > 0.9f)
 	{
 		player->Locomotion.Can_double_jump = true;
 		player->Locomotion.Can_ledge_grab = false;
 		player->Locomotion.Current_ledge_grab_timer = 0.0f;
-		set_player_state(player, Falling);
-		set_player_state(player, Airborne);
+		set_player_state(player, ActionState::Falling);
+		set_player_state(player, PositionState::Airborne);
 	}
 }
 
@@ -749,13 +749,13 @@ void state_ledge_balance_update(Player* player, float dt)
 			{
 				if (ls_x < -loco.Ledge_balance_threshold) // if input left (walk)
 				{
-					set_player_state(player, Walking);
+					set_player_state(player, ActionState::Walking);
 					loco.Is_dash_from_walk_allowed = false;
 
 				}
 				else if (ls_x == -1.0f) // if input left (run)
 				{
-					set_player_state(player, Running);
+					set_player_state(player, ActionState::Running);
 					change_player_animation(player, get_anim(4), Loop);
 					loco.Current_dash_timer = 0.0f;
 					loco.Current_dash_back_timer = 0.0f;
@@ -763,13 +763,13 @@ void state_ledge_balance_update(Player* player, float dt)
 				else if (ls_x > loco.Ledge_balance_threshold) // if input right (walk)
 				{
 					anim.Is_flipped = false;
-					set_player_state(player, Walking);
+					set_player_state(player, ActionState::Walking);
 					loco.Is_dash_from_walk_allowed = false;
 				}
 				else if (ls_x == 1.0f) // if input right (run)
 				{
 					anim.Is_flipped = false;
-					set_player_state(player, Running);
+					set_player_state(player, ActionState::Running);
 					change_player_animation(player, get_anim(4), Loop);
 					loco.Current_dash_timer = 0.0f;
 					loco.Current_dash_back_timer = 0.0f;
@@ -779,12 +779,12 @@ void state_ledge_balance_update(Player* player, float dt)
 			{
 				if (ls_x > loco.Ledge_balance_threshold && ls_x < 1.0f) // if input right (walk)
 				{
-					set_player_state(player, Walking);
+					set_player_state(player, ActionState::Walking);
 					loco.Is_dash_from_walk_allowed = false;
 				}
 				else if (ls_x == 1.0f) // if input right (run)
 				{
-					set_player_state(player, Running);
+					set_player_state(player, ActionState::Running);
 					change_player_animation(player, get_anim(4), Loop);
 					loco.Current_dash_timer = 0.0f;
 					loco.Current_dash_back_timer = 0.0f;
@@ -792,13 +792,13 @@ void state_ledge_balance_update(Player* player, float dt)
 				else if (ls_x < -loco.Ledge_balance_threshold && ls_x != -1.0f) // if input left (walk)
 				{
 					anim.Is_flipped = true;
-					set_player_state(player, Walking);
+					set_player_state(player, ActionState::Walking);
 					loco.Is_dash_from_walk_allowed = false;
 				}
 				else if (ls_x == -1.0f) // if input left (run)
 				{
 					anim.Is_flipped = true;
-					set_player_state(player, Running);
+					set_player_state(player, ActionState::Running);
 					change_player_animation(player, get_anim(4), Loop);
 					loco.Current_dash_timer = 0.0f;
 					loco.Current_dash_back_timer = 0.0f;
@@ -819,7 +819,7 @@ void state_block_update(Player* player, float dt)
 
 	if (!input.Block)
 	{
-		set_player_state(player, Idle);
+		set_player_state(player, ActionState::Idle);
 	}
 
 	if (input.Left_stick_y < -0.3f && player->Combat.High_block)
@@ -840,7 +840,7 @@ void state_airdodge_update(Player* player, float dt)
 	if (player->Locomotion.Can_airdodge)
 	{
 		player->Locomotion.Has_aerial_control = true;
-		set_player_state(player, Falling);
+		set_player_state(player, ActionState::Falling);
 	}
 }
 

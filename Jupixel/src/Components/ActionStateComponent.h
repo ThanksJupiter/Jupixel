@@ -1,20 +1,20 @@
 #pragma once
 #include <string>
 
-enum PositionState { Grounded, Airborne, Special, None };
+enum class PositionState { Grounded, Airborne, Special, None };
 
-enum ActionState { Idle, Walking, Running,
+enum class ActionState { Idle, Walking, Running,
 	TurnAround, JumpSquat, Attacking,
 	Jumping, Falling, Crouching, Airdodge,
 	Knockback, Knockdown, Locomotion,
 	Ledgegrab, Getup, LedgeBalance,
 	Block, None };
 
-enum LocomotionState { lWalking, lRunning, lJumping, lFalling, lKnockback, lKnockdown, lStationary, None };
+enum class LocomotionState { Walking, Running, Jumping, Falling, Knockback, Knockdown, Stationary, None };
 
 struct ActionStateComponent
 {
-	PositionState Position_state = Airborne;
+	PositionState Position_state = PositionState::Airborne;
 	ActionState Action_state = ActionState::Falling;
 
 	ActionState Previous_action_state = ActionState::None;

@@ -44,58 +44,58 @@ void update_physics_system(Player* player, float dt)
 
 	switch (state.Action_state)
 	{
-		case Idle:
+		case ActionState::Idle:
 			physics_idle_update(player, dt);
 			break;
-		case Walking:
+		case ActionState::Walking:
 			physics_walk_update(player, dt);
 			break;
-		case Running:
+		case ActionState::Running:
 			physics_run_update(player, dt);
 			break;
-		case Attacking:
+		case ActionState::Attacking:
 			physics_attack_update(player, dt);
 			break;
-		case Jumping:
+		case ActionState::Jumping:
 			physics_jump_update(player, dt);
 			break;
-		case Falling:
+		case ActionState::Falling:
 			physics_fall_update(player, dt);
 			break;
-		case Crouching:
+		case ActionState::Crouching:
 			physics_crouch_update(player, dt);
 			break;
-		case Airdodge:
+		case ActionState::Airdodge:
 			physics_airdodge_update(player, dt);
 			break;
-		case Knockback:
+		case ActionState::Knockback:
 			physics_knockback_update(player, dt);
 			break;
-		case None:
+		case ActionState::None:
 			break;
 		default:
 			printf("invalid action state");
 			break;
-		case Locomotion:
+		case ActionState::Locomotion:
 			break;
-		case TurnAround:
+		case ActionState::TurnAround:
 			physics_turn_around_update(player, dt);
 			break;
-		case JumpSquat:
+		case ActionState::JumpSquat:
 			break;
-		case Knockdown:
+		case ActionState::Knockdown:
 			physics_knockdown_update(player, dt);
 			break;
-		case Ledgegrab:
+		case ActionState::Ledgegrab:
 			
 			break;
-		case Getup:
+		case ActionState::Getup:
 			physics_getup_update(player, dt);
 			break;
-		case LedgeBalance:
+		case ActionState::LedgeBalance:
 			physics_ledge_balance_update(player, dt);
 			break;
-		case Block:
+		case ActionState::Block:
 			physics_block_update(player, dt);
 			break;
 	}
@@ -126,14 +126,14 @@ void grounded_physics_update(Player* player, float dt)
 	glm::vec2& v = physics.Velocity;
 
 	// TODO remove no x-velocity hack when attacking on ground
-	if (state.Action_state == Attacking && !combat.Allow_attacking_movement)
+	if (state.Action_state == ActionState::Attacking && !combat.Allow_attacking_movement)
 	{
 		v.x = 0.0f;
 	}
 
 	if (collider.Is_hit)
 	{
-		if (state.Action_state != Block)
+		if (state.Action_state != ActionState::Block)
 		{
 			combat.Current_health_percentage += collider.Pending_damage;
 			collider.Pending_damage = 0.0f;
@@ -152,8 +152,8 @@ void grounded_physics_update(Player* player, float dt)
 
 			transform.Position.y += 0.01;
 			anim.Is_flipped = collider.Flip;
-			set_player_state(player, Airborne);
-			set_player_state(player, Knockback);
+			set_player_state(player, PositionState::Airborne);
+			set_player_state(player, ActionState::Knockback);
 			change_player_animation(player, get_anim(3), LastFrameStick);
 		}
 		else
@@ -178,24 +178,24 @@ void grounded_physics_update(Player* player, float dt)
 				v.x = input.Left_stick_x;
 			}
 
-			set_player_state(player, Airborne);
-			set_player_state(player, Falling);
+			set_player_state(player, PositionState::Airborne);
+			set_player_state(player, ActionState::Falling);
 		}
 
-		if (state.Action_state == Walking && abs(input.Left_stick_x) < loco.Ledge_balance_threshold)
+		if (state.Action_state == ActionState::Walking && abs(input.Left_stick_x) < loco.Ledge_balance_threshold)
 		{
 			transform.Position.x -= v.x * dt;
 			v.x = 0.0f;
 
-			set_player_state(player, LedgeBalance);
+			set_player_state(player, ActionState::LedgeBalance);
 			change_player_animation(player, get_anim(10), Loop);
 			return;
 		}
 
-		if (state.Action_state != Attacking || !loco.Can_airdodge)
+		if (state.Action_state != ActionState::Attacking || !loco.Can_airdodge)
 		{
-			set_player_state(player, Airborne);
-			set_player_state(player, Falling);
+			set_player_state(player, PositionState::Airborne);
+			set_player_state(player, ActionState::Falling);
 			return;
 		}
 		else
@@ -216,7 +216,7 @@ void airborne_physics_update(Player* player, float dt)
 	ColliderComponent& collider = player->Collider;
 	ActionStateComponent& state = player->ActionState;
 
-	if (state.Action_state != Ledgegrab)
+	if (state.Action_state != ActionState::Ledgegrab)
 	{
 		player->Locomotion.Current_ledge_grab_timer += dt;
 
@@ -234,7 +234,7 @@ void airborne_physics_update(Player* player, float dt)
 		v.x = input.Left_stick_x * 1.0f;
 	}
 
-	if (state.Action_state != Attacking)
+	if (state.Action_state != ActionState::Attacking)
 	{
 		physics_check_grab_ledge(player, dt);
 	}
@@ -265,8 +265,8 @@ void airborne_physics_update(Player* player, float dt)
 
 		collider.Is_hit = false;
 		anim.Is_flipped = collider.Flip;
-		set_player_state(player, Airborne);
-		set_player_state(player, Knockback);
+		set_player_state(player, PositionState::Airborne);
+		set_player_state(player, ActionState::Knockback);
 		change_player_animation(player, get_anim(3), LastFrameStick);
 	}
 
@@ -337,12 +337,12 @@ void special_physics_update(Player* player, float dt)
 		transform.Position.y += 0.01;
 		collider.Is_hit = false;
 		anim.Is_flipped = collider.Flip;
-		set_player_state(player, Airborne);
-		set_player_state(player, Knockback);
+		set_player_state(player, PositionState::Airborne);
+		set_player_state(player, ActionState::Knockback);
 		change_player_animation(player, get_anim(3), LastFrameStick);
 	}
 
-	if (state.Action_state == Ledgegrab) { return; }
+	if (state.Action_state == ActionState::Ledgegrab) { return; }
 
 	InputComponent input = player->Input;
 	LocomotionComponent& loco = player->Locomotion;
@@ -354,16 +354,16 @@ void special_physics_update(Player* player, float dt)
 			transform.Position.x -= v.x * dt;
 			v.x = 0.0f;
 
-			set_player_state(player, LedgeBalance);
-			set_player_state(player, Grounded);
+			set_player_state(player, ActionState::LedgeBalance);
+			set_player_state(player, PositionState::Grounded);
 			change_player_animation(player, get_anim(10), Loop);
 			return;
 		}
 		else
 		{
 			v.x = v.x * 0.3f;
-			set_player_state(player, Falling);
-			set_player_state(player, Airborne);
+			set_player_state(player, ActionState::Falling);
+			set_player_state(player, PositionState::Airborne);
 		}
 	}
 
@@ -371,10 +371,10 @@ void special_physics_update(Player* player, float dt)
 	{
 		grounded_physics_update(player, dt);
 	}
-	else if (state.Action_state != JumpSquat)
+	else if (state.Action_state != ActionState::JumpSquat)
 	{
-		set_player_state(player, Grounded);
-		set_player_state(player, Idle);
+		set_player_state(player, PositionState::Grounded);
+		set_player_state(player, ActionState::Idle);
 	}
 }
 
@@ -391,7 +391,7 @@ void physics_idle_update(Player* player, float dt)
 
 	switch (state.Position_state)
 	{
-		case Grounded:
+		case PositionState::Grounded:
 
 			physics_add_input_to_velocity(input.Left_stick_x, v.x, dt);
 			physics_flip_on_input(player, dt);
@@ -399,7 +399,7 @@ void physics_idle_update(Player* player, float dt)
 			grounded_physics_update(player, dt);
 
 			break;
-		case Airborne:
+		case PositionState::Airborne:
 			physics_land_on_touch_ground(player);
 			airborne_physics_update(player, dt);
 			break;
@@ -422,7 +422,7 @@ void physics_walk_update(Player* player, float dt)
 
 	switch (state.Position_state)
 	{
-		case Grounded:
+		case PositionState::Grounded:
 
 			//physics_add_velocity_to_input(input.Left_stick_x * loco.Run_speed, v.x, dt);
 			physics_apply_input_to_velocity(player, dt);
@@ -430,7 +430,7 @@ void physics_walk_update(Player* player, float dt)
 			grounded_physics_update(player, dt);
 
 			break;
-		case Airborne:
+		case PositionState::Airborne:
 			physics_land_on_touch_ground(player);
 			airborne_physics_update(player, dt);
 			break;
@@ -453,7 +453,7 @@ void physics_run_update(Player* player, float dt)
 
 	switch (state.Position_state)
 	{
-		case Grounded:
+		case PositionState::Grounded:
 
 			physics_set_velocity_to_input(input.Left_stick_x * loco.Run_speed, v.x);
 			physics_apply_input_to_velocity(player, dt);
@@ -463,7 +463,7 @@ void physics_run_update(Player* player, float dt)
 			// TODO ground physics update before state updates?
 
 			break;
-		case Airborne:
+		case PositionState::Airborne:
 			physics_land_on_touch_ground(player);
 			airborne_physics_update(player, dt);
 			break;
@@ -483,7 +483,7 @@ void physics_turn_around_update(Player* player, float dt)
 	if (anim.Has_full_anim_played)
 	{
 		anim.Is_flipped = !anim.Is_flipped;
-		set_player_state(player, Idle);
+		set_player_state(player, ActionState::Idle);
 	}
 
 	//physics_add_velocity_to_input(player->Input.Left_stick_x, v.x, dt);
@@ -524,32 +524,32 @@ void physics_attack_update(Player* player, float dt)
 		anim.Anim_state = Loop;
 		combat.Allow_attacking_movement = false;
 
-		if (state.Position_state == Grounded)
+		if (state.Position_state == PositionState::Grounded)
 		{
 			if (player->Locomotion.Ledge_balance_queued && input.Left_stick_x == 0.0f)
 			{
-				set_player_state(player, LedgeBalance);
+				set_player_state(player, ActionState::LedgeBalance);
 				change_player_animation(player, get_anim(10), Loop);
 				player->Locomotion.Ledge_balance_queued = false;
 			}
 			else
 			{
-				set_player_state(player, Idle);
+				set_player_state(player, ActionState::Idle);
 				player->Locomotion.Ledge_balance_queued = false;
 			}
 		}
 		else
 		{
-			set_player_state(player, Falling);
+			set_player_state(player, ActionState::Falling);
 		}
 	}
 
 	switch (state.Position_state)
 	{
-		case Grounded:
+		case PositionState::Grounded:
 			grounded_physics_update(player, dt);
 			break;
-		case Airborne:
+		case PositionState::Airborne:
 			physics_land_on_touch_ground(player);
 			airborne_physics_update(player, dt);
 			break;
@@ -567,10 +567,10 @@ void physics_jump_update(Player* player, float dt)
 
 	switch (state.Position_state)
 	{
-		case Grounded:
+		case PositionState::Grounded:
 			printf("grounded and jumping, this seems wroong :D");
 			break;
-		case Airborne:
+		case PositionState::Airborne:
 
 			if (v.y < 0)
 			{
@@ -596,10 +596,10 @@ void physics_fall_update(Player* player, float dt)
 
 	switch (state.Position_state)
 	{
-		case Grounded:
+		case PositionState::Grounded:
 			printf("grounded and falling, this seems wroong :D");
 			break;
-		case Airborne:
+		case PositionState::Airborne:
 			physics_land_on_touch_ground(player);
 			airborne_physics_update(player, dt);
 			break;
@@ -620,11 +620,11 @@ void physics_crouch_update(Player* player, float dt)
 
 	switch (state.Position_state)
 	{
-		case Grounded:
+		case PositionState::Grounded:
 
 			grounded_physics_update(player, dt);
 			break;
-		case Airborne:
+		case PositionState::Airborne:
 
 			printf("crouching in mid air? hmm ;)");
 			break;
@@ -653,10 +653,10 @@ void physics_knockback_update(Player* player, float dt)
 
 	switch (state.Position_state)
 	{
-		case Grounded:
+		case PositionState::Grounded:
 			grounded_physics_update(player, dt);
 			break;
-		case Airborne:
+		case PositionState::Airborne:
 
 			airborne_physics_update(player, dt);
 			physics_land_on_touch_ground(player);
@@ -675,7 +675,7 @@ void physics_knockdown_update(Player* player, float dt)
 	if (loco.Current_get_up_timer >= loco.Auto_get_up)
 	{
 		loco.Current_get_up_timer = 0.0f;
-		set_player_state(player, Getup);
+		set_player_state(player, ActionState::Getup);
 		change_player_animation(player, get_anim(9), LastFrameStick);
 	}
 
@@ -689,7 +689,7 @@ void physics_getup_update(Player* player, float dt)
 
 	if (anim.Has_full_anim_played)
 	{
-		set_player_state(player, Idle);
+		set_player_state(player, ActionState::Idle);
 		change_player_animation(player, get_anim(0));
 	}
 
@@ -726,12 +726,12 @@ void physics_flip_on_input(Player* player, float dt)
 	{
 		if (x_input > 0 && anim.Is_flipped)
 		{
-			set_player_state(player, TurnAround);
+			set_player_state(player, ActionState::TurnAround);
 			change_player_animation(player, get_anim(5), LastFrameStick);
 		}
 		else if (x_input < 0 && !anim.Is_flipped)
 		{
-			set_player_state(player, TurnAround);
+			set_player_state(player, ActionState::TurnAround);
 			change_player_animation(player, get_anim(5), LastFrameStick);
 		}
 	}
@@ -842,8 +842,8 @@ void physics_check_grab_ledge(Player* player, float dt)
 
 		vfx_spawn_effect(get_vfx_anim(0), hit.point, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), nullptr, nullptr, LastFrameStick);
 
-		set_player_state(player, Ledgegrab);
-		set_player_state(player, Special);
+		set_player_state(player, ActionState::Ledgegrab);
+		set_player_state(player, PositionState::Special);
 		change_player_animation(player, get_anim(7), LastFrameStick);
 	}
 }
@@ -877,21 +877,21 @@ void physics_land_on_touch_ground(Player* player)
 		v.y = 0.0f;
 		transform.Position.y = hit.point.y;
 
-		if (state.Action_state == Airdodge)
+		if (state.Action_state == ActionState::Airdodge)
 		{
-			set_player_state(player, Special);
-			set_player_state(player, Idle);
+			set_player_state(player, PositionState::Special);
+			set_player_state(player, ActionState::Idle);
 			return;
 		}
 
 		player->Locomotion.Can_airdodge = true;
 
-		set_player_state(player, Grounded);
-		set_player_state(player, Idle);
+		set_player_state(player, PositionState::Grounded);
+		set_player_state(player, ActionState::Idle);
 
-		if (state.Action_state == Knockback)
+		if (state.Action_state == ActionState::Knockback)
 		{
-			set_player_state(player, Knockdown);
+			set_player_state(player, ActionState::Knockdown);
 			change_player_animation(player, get_anim(6), LastFrameStick);
 		}
 	}

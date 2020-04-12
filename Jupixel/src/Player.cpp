@@ -137,17 +137,17 @@ void set_player_state(Player* player, PositionState state)
 
 void set_player_state(Player* player, ActionState state)
 {
-	if (state <2)
+	if ((int)state <2)
 	{
-		change_player_animation(player, get_anim(state), Loop);
+		change_player_animation(player, get_anim((int)state), Loop);
 	}
 
-	if (state == Falling)
+	if (state == ActionState::Falling)
 	{
 		change_player_animation(player, get_anim(8), Loop);
 	}
 
-	if (state == Attacking)
+	if (state == ActionState::Attacking)
 	{
 		player->Combat.Is_current_attack_resolved = false;
 	}
