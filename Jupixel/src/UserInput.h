@@ -11,6 +11,8 @@ struct GamepadButtonState
 
 // TODO always update gamepad state once instead of every time something is queried
 
+void update_gamepad_state(int id);
+
 bool is_key_pressed(KeyCode key);
 bool is_mouse_button_pressed(MouseCode button);
 

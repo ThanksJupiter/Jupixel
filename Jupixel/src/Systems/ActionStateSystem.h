@@ -7,6 +7,7 @@ void update_action_state_system(Player* player, float dt);
 
 void state_grounded_update(Player* player, float dt);
 void state_airborne_update(Player* player, float dt);
+void state_special_update(Player* player, float dt);
 
 void state_idle_update(Player* player, float dt);
 void state_walk_update(Player* player, float dt);
@@ -18,6 +19,7 @@ void state_fall_update(Player* player, float dt);
 void state_ledgegrab_update(Player* player, float dt);
 void state_ledge_balance_update(Player* player, float dt);
 void state_block_update(Player* player, float dt);
+void state_airdodge_update(Player* player, float dt);
 
 const char* get_position_state_name(int id);
 const char* get_action_state_name(int id);

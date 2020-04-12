@@ -131,13 +131,13 @@ void load_skeleton_sprites()
 	vfx_sheets.push_back(new Spritesheet(texture, 8, 8, 7, 0.02));
 
 	texture = load_texture("assets/textures/Hit_Effect_01_Sheet.png");
-	vfx_sheets.push_back(new Spritesheet(texture, 32, 32, 6, 0.02));
+	vfx_sheets.push_back(new Spritesheet(texture, 32, 32, 6, 0.06));
 
 	texture = load_texture("assets/textures/Knockback_Dust_Sheet.png");
 	vfx_sheets.push_back(new Spritesheet(texture, 16, 16, 9, 0.05));
 
 	texture = load_texture("assets/textures/Death_effect_Sheet.png");
-	vfx_sheets.push_back(new Spritesheet(texture, 128, 128, 7, 0.1)); // 4
+	vfx_sheets.push_back(new Spritesheet(texture, 128, 128, 7, 0.01)); // 4
 }
 
 Spritesheet* get_anim(int index)

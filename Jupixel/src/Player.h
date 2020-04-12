@@ -12,6 +12,7 @@
 #include "Components/MatchDataComponent.h"
 
 struct Spritesheet;
+struct NetworkComponent;
 
 struct Player
 {
@@ -29,6 +30,11 @@ struct Player
 	CombatComponent Combat = CombatComponent();
 	LocomotionComponent Locomotion = LocomotionComponent();
 	MatchDataComponent MatchData = MatchDataComponent();
+	NetworkComponent* Network = nullptr;
+
+	bool is_facing_travel_direction();
+	bool is_inputting_in_travel_direction();
+	bool is_grounded();
 };
 
 void setup_player(Player* player_to_setup, Player* player_opponent, int player_id);

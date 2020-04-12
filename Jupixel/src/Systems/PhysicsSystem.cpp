@@ -25,7 +25,7 @@
 #include "Renderer/Renderer.h"
 #include "VFXSystem.h"
 
-const float knockback_scale_factor = 0.05f;
+const float knockback_scale_factor = 0.025f;
 
 void update_physics_system(Player* player, float dt)
 {
@@ -33,12 +33,14 @@ void update_physics_system(Player* player, float dt)
 
 	if (get_time_scale() < 1.0f)
 	{
-		set_time_scale(get_time_scale() + 120.0f * dt);
+		set_time_scale(get_time_scale() + 60.0f * dt);
 	}
 	else
 	{
 		reset_time_scale();
 	}
+
+	player->Locomotion.Has_aerial_control = player->Locomotion.Can_airdodge;
 
 	switch (state.Action_state)
 	{
@@ -64,11 +66,12 @@ void update_physics_system(Player* player, float dt)
 			physics_crouch_update(player, dt);
 			break;
 		case Airdodge:
+			physics_airdodge_update(player, dt);
 			break;
 		case Knockback:
 			physics_knockback_update(player, dt);
 			break;
-		case MAX:
+		case None:
 			break;
 		default:
 			printf("invalid action state");
@@ -135,7 +138,7 @@ void grounded_physics_update(Player* player, float dt)
 			combat.Current_health_percentage += collider.Pending_damage;
 			collider.Pending_damage = 0.0f;
 
-			v = state.Action_state == ActionState::Crouching ? collider.Pending_knockback * 0.3f : collider.Pending_knockback;
+			v = state.Action_state == ActionState::Crouching ? collider.Pending_knockback * 0.5f : collider.Pending_knockback;
 
 			if (v.y < 0.0f)
 			{
@@ -153,6 +156,10 @@ void grounded_physics_update(Player* player, float dt)
 			set_player_state(player, Knockback);
 			change_player_animation(player, get_anim(3), LastFrameStick);
 		}
+		else
+		{
+			v.x = collider.Pending_knockback.x * 0.5f;
+		}
 
 		collider.Is_hit = false;
 	}
@@ -164,6 +171,17 @@ void grounded_physics_update(Player* player, float dt)
 	}
 	else // TODO know if *is about* to walk off edge
 	{
+		if (!player->is_facing_travel_direction())
+		{
+			if (player->is_inputting_in_travel_direction())
+			{
+				v.x = input.Left_stick_x;
+			}
+
+			set_player_state(player, Airborne);
+			set_player_state(player, Falling);
+		}
+
 		if (state.Action_state == Walking && abs(input.Left_stick_x) < loco.Ledge_balance_threshold)
 		{
 			transform.Position.x -= v.x * dt;
@@ -174,7 +192,7 @@ void grounded_physics_update(Player* player, float dt)
 			return;
 		}
 
-		if (state.Action_state != Attacking)
+		if (state.Action_state != Attacking || !loco.Can_airdodge)
 		{
 			set_player_state(player, Airborne);
 			set_player_state(player, Falling);
@@ -211,7 +229,7 @@ void airborne_physics_update(Player* player, float dt)
 
 	glm::vec2& v = physics.Velocity;
 
-	if (input.Left_stick_x != 0)
+	if (input.Left_stick_x != 0 && player->Locomotion.Has_aerial_control)
 	{
 		v.x = input.Left_stick_x * 1.0f;
 	}
@@ -281,7 +299,17 @@ void airborne_physics_update(Player* player, float dt)
 		transform.Position.y += v.y * dt;
 	}
 
-	v.y -= 10 * dt;
+	float fall_add;
+	if (v.y < 0.0f && v.y > -1.0f)
+	{
+		fall_add = input.Left_stick_y < 0.0f ? -input.Left_stick_y * 60.0f : 10.0f;
+	}
+	else
+	{
+		fall_add = input.Left_stick_y < 0.0f ? -input.Left_stick_y * 15.0f : 10.0f;
+	}
+
+	v.y -= fall_add * dt;
 }
 
 void special_physics_update(Player* player, float dt)
@@ -312,6 +340,41 @@ void special_physics_update(Player* player, float dt)
 		set_player_state(player, Airborne);
 		set_player_state(player, Knockback);
 		change_player_animation(player, get_anim(3), LastFrameStick);
+	}
+
+	if (state.Action_state == Ledgegrab) { return; }
+
+	InputComponent input = player->Input;
+	LocomotionComponent& loco = player->Locomotion;
+
+	if (!player->is_grounded())
+	{
+		if (player->is_facing_travel_direction())
+		{
+			transform.Position.x -= v.x * dt;
+			v.x = 0.0f;
+
+			set_player_state(player, LedgeBalance);
+			set_player_state(player, Grounded);
+			change_player_animation(player, get_anim(10), Loop);
+			return;
+		}
+		else
+		{
+			v.x = v.x * 0.3f;
+			set_player_state(player, Falling);
+			set_player_state(player, Airborne);
+		}
+	}
+
+	if (!player->Locomotion.Can_airdodge)
+	{
+		grounded_physics_update(player, dt);
+	}
+	else if (state.Action_state != JumpSquat)
+	{
+		set_player_state(player, Grounded);
+		set_player_state(player, Idle);
 	}
 }
 
@@ -640,11 +703,22 @@ void physics_ledge_balance_update(Player* player, float dt)
 
 void physics_block_update(Player* player, float dt)
 {
+	physics_apply_drag(player, dt);
 	grounded_physics_update(player, dt);
+}
+
+void physics_airdodge_update(Player* player, float dt)
+{
+	physics_apply_drag(player, dt);
+
+	airborne_physics_update(player, dt);
+	physics_land_on_touch_ground(player);
 }
 
 void physics_flip_on_input(Player* player, float dt)
 {
+	if (!player->Locomotion.Can_airdodge) { return; }
+
 	AnimationComponent& anim = player->Animation;
 	float x_input = player->Input.Left_stick_x;
 
@@ -707,7 +781,10 @@ void physics_apply_input_to_velocity(Player* player, float dt)
 				v.x = input.Left_stick_x * speed;
 			}
 
-			v.x += input.Left_stick_x * speed * dt;
+			if (state.Action_state != ActionState::JumpSquat)
+			{
+				v.x += input.Left_stick_x * speed * dt;
+			}
 		}
 	}
 
@@ -758,6 +835,7 @@ void physics_check_grab_ledge(Player* player, float dt)
 		v = glm::vec2(0.0f);
 		transform.Position = glm::vec2(hit.point.x + (anim.Is_flipped? 4 * 0.02f : -4 * 0.02f), hit.point.y - 16 * 0.02f);
 		//render_quad(hit.point, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(0.01f, 0.01f));
+		player->Locomotion.Can_airdodge = true;
 		player->Locomotion.Can_double_jump = false;
 		player->Locomotion.Can_ledge_grab = false;
 		player->Locomotion.Current_ledge_grab_timer = 0.0f;
@@ -799,26 +877,22 @@ void physics_land_on_touch_ground(Player* player)
 		v.y = 0.0f;
 		transform.Position.y = hit.point.y;
 
-		if (state.Action_state == Knockback)
+		if (state.Action_state == Airdodge)
 		{
-			set_player_state(player, Grounded);
-			set_player_state(player, Knockdown);
-			change_player_animation(player, get_anim(6), LastFrameStick);
-			return;
-		}
-
-		// TODO special case aerial attack l-cancel or summink
-		if (true)
-		{
-			set_player_state(player, Grounded);
+			set_player_state(player, Special);
 			set_player_state(player, Idle);
 			return;
-
-		} 
-		else
-		{
-			set_player_state(player, Grounded);
 		}
-		// TODO landing lag if landed while attacking
+
+		player->Locomotion.Can_airdodge = true;
+
+		set_player_state(player, Grounded);
+		set_player_state(player, Idle);
+
+		if (state.Action_state == Knockback)
+		{
+			set_player_state(player, Knockdown);
+			change_player_animation(player, get_anim(6), LastFrameStick);
+		}
 	}
 }

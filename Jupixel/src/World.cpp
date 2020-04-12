@@ -9,6 +9,7 @@
 #include "Systems/CollisionSystem.h"
 #include "Systems/CameraController.h"
 #include "Systems/MatchSystem.h"
+#include "Systems/NetworkSystem.h"
 
 #include "SkeletonAnimations.h"
 #include "Renderer/Renderer.h"
@@ -60,22 +61,22 @@ void setup_world()
 	begin_match();
 }
 
-void update_world(float dt)
+void update_world(float dt, float fixed_dt)
 {
 	debug_functionality();
 
 	update_input_system(player_one);
 	update_input_system(player_two);
 
-	update_action_state_system(player_one, dt);
-	update_action_state_system(player_two, dt);
+	update_action_state_system(player_one, dt * get_time_scale());
+	update_action_state_system(player_two, dt * get_time_scale());
 
-	update_physics_system(player_one, player_two, dt);
+	update_physics_system(player_one, player_two, fixed_dt * get_time_scale());
 
 	test_collisions();
 
-	update_animation_system(player_one, dt);
-	update_animation_system(player_two, dt);	
+	update_animation_system(player_one, dt * get_time_scale());
+	update_animation_system(player_two, dt * get_time_scale());
 
 	camera_update(player_one, player_two, dt);
 
@@ -103,6 +104,11 @@ void update_world(float dt)
 	end_GUI();
 }
 
+World* get_world()
+{
+	return &world;
+}
+
 float get_time_scale()
 {
 	return world.current_time_scale;
@@ -120,7 +126,7 @@ void reset_time_scale()
 
 void debug_functionality()
 {
-	if (is_key_pressed(KeyCode::R) || is_button_held(0, GLFW_GAMEPAD_BUTTON_B))
+	if (is_key_pressed(KeyCode::R) || is_button_down(0, GLFW_GAMEPAD_BUTTON_B))
 	{
 		player_one->Combat.Current_health_percentage = 0.0f;
 		player_two->Combat.Current_health_percentage = 0.0f;

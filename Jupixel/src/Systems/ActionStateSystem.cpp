@@ -45,6 +45,15 @@ void update_action_state_system(Player* player, float dt)
 {
 	ActionStateComponent& state = player->ActionState;
 
+	player->Locomotion.Current_airdodge_timer += dt;
+
+	if (player->Locomotion.Current_airdodge_timer >= player->Locomotion.Airdodge_time)
+	{
+		player->Locomotion.Current_airdodge_timer = 0.0f;
+		player->Locomotion.Can_airdodge = true;
+		player->Locomotion.Has_aerial_control = true;
+	}
+
 	switch (state.Action_state)
 	{
 		case Idle:
@@ -71,7 +80,7 @@ void update_action_state_system(Player* player, float dt)
 			break;
 		case Locomotion:
 			break;
-		case MAX:
+		case None:
 			break;
 		case TurnAround:
 			break;
@@ -104,6 +113,7 @@ void update_action_state_system(Player* player, float dt)
 			state_airborne_update(player, dt);
 			break;
 		default:
+			state_special_update(player, dt);
 			break;
 	}
 }
@@ -115,7 +125,12 @@ void state_grounded_update(Player* player, float dt)
 
 	if (input.Jump)
 	{
+		// TODO create function to consume input?
+		// HACK to avoid having button down be true later in same frame when updating airborne state and double jumping instantly
+		// doesn't even work
+		input.Jump = false;
 		set_player_state(player, JumpSquat);
+		set_player_state(player, Special);
 		change_player_animation(player, get_anim(2), LastFrameStick);
 		return;
 	}
@@ -125,9 +140,10 @@ void state_grounded_update(Player* player, float dt)
 		AnimationComponent& anim = player->Animation;
 		CombatComponent& combat = player->Combat;
 
-		if (input.Block && state.Action_state != Block)
+		player->Locomotion.Is_turning_allowed = player->Physics.Velocity.x < 0.1f;
+
+		if (input.Block && state.Action_state != Block && state.Action_state != TurnAround && player->Locomotion.Is_turning_allowed)
 		{
-			player->Physics.Velocity.x = 0.0f;
 			set_player_state(player, Block);
 			change_player_animation(player, get_anim(11), LastFrameStick);
 		}
@@ -259,11 +275,19 @@ void state_airborne_update(Player* player, float dt)
 		CombatComponent& combat = player->Combat;
 		InputComponent input = player->Input;
 
+		if (input.Block && loco.Can_airdodge)
+		{
+			physics.Velocity = glm::vec2(input.Left_stick_x * 2.0f, input.Left_stick_y * 4.0f);
+			loco.Can_airdodge = false;
+			loco.Has_aerial_control = false;
+			set_player_state(player, Airdodge);
+			return;
+		}
+
 		if (input.Jump && loco.Can_double_jump)
 		{
 			loco.Can_double_jump = false;
 			physics.Velocity.y = loco.Full_jump_velocity;
-			transform.Position.y += 0.01;
 			set_player_state(player, Airborne);
 			set_player_state(player, Jumping);
 			return;
@@ -313,6 +337,126 @@ void state_airborne_update(Player* player, float dt)
 	}
 }
 
+void state_special_update(Player* player, float dt)
+{
+	ActionStateComponent& state = player->ActionState;
+
+	//if (state.Action_state == JumpSquat) { return; }
+
+	InputComponent input = player->Input;
+
+	if (input.Jump)
+	{
+		// TODO create function to consume input?
+		// HACK to avoid having button down be true later in same frame when updating airborne state and double jumping instantly
+		// doesn't even work
+		input.Jump = false;
+		set_player_state(player, JumpSquat);
+		set_player_state(player, Special);
+		change_player_animation(player, get_anim(2), LastFrameStick);
+		return;
+	}
+
+	if (state.Action_state != Attacking)
+	{
+		AnimationComponent& anim = player->Animation;
+		CombatComponent& combat = player->Combat;
+
+		player->Locomotion.Is_turning_allowed = player->Physics.Velocity.x < 0.1f;
+
+		if (input.Block && state.Action_state != Block && state.Action_state != TurnAround && player->Locomotion.Is_turning_allowed)
+		{
+			set_player_state(player, Block);
+			change_player_animation(player, get_anim(11), LastFrameStick);
+		}
+
+		if (state.Action_state != Running)
+		{
+			if (input.Tilt_up)
+			{
+				set_player_state(player, Attacking);
+				combat.Current_attack = &combat.Attacks[11];
+				change_player_animation(player, get_attack_anim(11), LastFrameStick);
+				return;
+			}
+
+			if (input.Tilt_down)
+			{
+				set_player_state(player, Attacking);
+				combat.Current_attack = &combat.Attacks[10];
+				change_player_animation(player, get_attack_anim(10), LastFrameStick);
+				return;
+			}
+
+			if (input.Tilt_right)
+			{
+				set_player_state(player, Attacking);
+				combat.Current_attack = &combat.Attacks[9];
+				change_player_animation(player, get_attack_anim(9), LastFrameStick);
+				return;
+			}
+
+			if (input.Tilt_left)
+			{
+				// TODO flip if not facing tilt direction / backtilt :00
+				set_player_state(player, Attacking);
+				combat.Current_attack = &combat.Attacks[9];
+				change_player_animation(player, get_attack_anim(9), LastFrameStick);
+				return;
+			}
+
+			if (input.Smash_up)
+			{
+				set_player_state(player, Attacking);
+				combat.Current_attack = &combat.Attacks[7];
+				change_player_animation(player, get_attack_anim(7), LastFrameStick);
+				return;
+			}
+
+			if (input.Smash_down)
+			{
+				set_player_state(player, Attacking);
+				combat.Current_attack = &combat.Attacks[8];
+				change_player_animation(player, get_attack_anim(8), LastFrameStick);
+				return;
+			}
+
+			if (input.Smash_right)
+			{
+				if (anim.Is_flipped)
+				{
+					anim.Is_flipped = false;
+				}
+				set_player_state(player, Attacking);
+				combat.Current_attack = &combat.Attacks[0];
+				change_player_animation(player, get_attack_anim(0), LastFrameStick);
+				return;
+			}
+
+			if (input.Smash_left)
+			{
+				if (!anim.Is_flipped)
+				{
+					anim.Is_flipped = true;
+				}
+				set_player_state(player, Attacking);
+				combat.Current_attack = &combat.Attacks[0];
+				change_player_animation(player, get_attack_anim(0), LastFrameStick);
+				return;
+			}
+
+			// TODO if running dash attack etc
+			if (input.Attack)
+			{
+				set_player_state(player, Attacking);
+				combat.Current_attack = &combat.Attacks[12];
+				change_player_animation(player, get_attack_anim(12), LastFrameStick);
+				return;
+			}
+		}
+	}
+}
+
 void state_idle_update(Player* player, float dt)
 {
 	InputComponent input = player->Input;
@@ -322,13 +466,16 @@ void state_idle_update(Player* player, float dt)
 
 	float ls_x = input.Left_stick_x;
 
-	if (ls_x > 0 && anim.Is_flipped)
+	if (loco.Can_airdodge)
 	{
-		anim.Is_flipped = false;
-	}
-	else if (ls_x < 0 && !anim.Is_flipped)
-	{
-		anim.Is_flipped = true;
+		if (ls_x > 0 && anim.Is_flipped)
+		{
+			anim.Is_flipped = false;
+		}
+		else if (ls_x < 0 && !anim.Is_flipped)
+		{
+			anim.Is_flipped = true;
+		}
 	}
 
 	if (ls_x != 0)
@@ -381,15 +528,16 @@ void state_walk_update(Player* player, float dt)
 
 	//anim.Current_anim->Frame_delay = 0.1f + 1 - (abs(ls_x) * 2.0f);
 
-	if (ls_x > 0 && anim.Is_flipped)
+	if (loco.Can_airdodge)
 	{
-		anim.Is_flipped = false;
-		loco.Is_dash_from_walk_allowed = false;
-	}
-	else if (ls_x < 0 && !anim.Is_flipped)
-	{
-		anim.Is_flipped = true;
-		loco.Is_dash_from_walk_allowed = false;
+		if (ls_x > 0 && anim.Is_flipped)
+		{
+			anim.Is_flipped = false;
+		}
+		else if (ls_x < 0 && !anim.Is_flipped)
+		{
+			anim.Is_flipped = true;
+		}
 	}
 
 	if (v.x == 0.0f)
@@ -488,32 +636,32 @@ void state_run_update(Player* player, float dt)
 void state_jump_squat_update(Player* player, float dt)
 {
 	LocomotionComponent& loco = player->Locomotion;
-	InputComponent input = player->Input;
+	InputComponent& input = player->Input;
 	TransformComponent& transform = player->Transform;
 	PhysicsComponent& physics = player->Physics;
 
 	glm::vec2& v = physics.Velocity;
-	v.x = 0.0f;
 
 	loco.Current_short_hop_timer += dt;
 
-	if (!input.Jump_held)
-	{
-		v.y += loco.Short_hop_velocity;
-		transform.Position.y += 0.01;
-		loco.Current_short_hop_timer = 0.0f;
-		set_player_state(player, Airborne);
-		set_player_state(player, Jumping);
-		return;
-	}
-
 	if (loco.Current_short_hop_timer >= loco.Short_hop_time)
 	{
-		v.y += loco.Full_jump_velocity;
+		if (!input.Jump_held)
+		{
+			v.y += loco.Short_hop_velocity;
+		}
+		else
+		{
+			v.y += loco.Full_jump_velocity;
+		}
+
 		transform.Position.y += 0.01;
 		loco.Current_short_hop_timer = 0.0f;
 		set_player_state(player, Airborne);
 		set_player_state(player, Jumping);
+		loco.Can_double_jump = true;
+		loco.Can_airdodge = true;
+		loco.Has_aerial_control = true;
 	}
 }
 
@@ -679,11 +827,20 @@ void state_block_update(Player* player, float dt)
 		change_player_animation(player, get_anim(12), LastFrameStick);
 		player->Combat.High_block = false;
 	}
-	else if	(input.Left_stick_y == 0.0f && !player->Combat.High_block)
+	else if (input.Left_stick_y == 0.0f && !player->Combat.High_block)
 	{
 		change_player_animation(player, get_anim(11), LastFrameStick);
 		player->Animation.Current_Sprite_Index = 3;
 		player->Combat.High_block = true;
+	}
+}
+
+void state_airdodge_update(Player* player, float dt)
+{
+	if (player->Locomotion.Can_airdodge)
+	{
+		player->Locomotion.Has_aerial_control = true;
+		set_player_state(player, Falling);
 	}
 }
 

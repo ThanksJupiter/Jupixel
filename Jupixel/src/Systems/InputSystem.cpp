@@ -11,6 +11,8 @@ const float smash_threshold = 0.9f;
 
 void update_input_system(Player* player)
 {
+	update_gamepad_state(player->ID);
+
 	InputComponent& input = player->Input;
 
 	// TODO can probably make beautiful with gamepads implemented
@@ -26,8 +28,8 @@ void update_input_system(Player* player)
 
 		input.Jump = is_key_pressed(KeyCode::Q) ||
 			is_button_down(player->ID, GLFW_GAMEPAD_BUTTON_RIGHT_BUMPER) ||
-			is_button_down(player->ID, GLFW_GAMEPAD_BUTTON_A);
-		input.Attack = is_key_pressed(KeyCode::E) || is_button_down(player->ID, GLFW_GAMEPAD_BUTTON_X);
+			is_button_down(player->ID, GLFW_GAMEPAD_BUTTON_Y);
+		input.Attack = is_key_pressed(KeyCode::E) || is_button_down(player->ID, GLFW_GAMEPAD_BUTTON_A);
 		input.Block = is_key_pressed(KeyCode::R) || get_axis(player->ID, GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER) > 0.1f;
 	}
 	else
@@ -42,13 +44,16 @@ void update_input_system(Player* player)
 
 		input.Jump = is_key_pressed(KeyCode::U) || 
 			is_button_down(player->ID, GLFW_GAMEPAD_BUTTON_RIGHT_BUMPER) ||
-			is_button_down(player->ID, GLFW_GAMEPAD_BUTTON_A);
-		input.Attack = is_key_pressed(KeyCode::O) || is_button_down(player->ID, GLFW_GAMEPAD_BUTTON_X);
+			is_button_down(player->ID, GLFW_GAMEPAD_BUTTON_Y);
+		input.Attack = is_key_pressed(KeyCode::O) || is_button_down(player->ID, GLFW_GAMEPAD_BUTTON_A);
 		input.Block = is_key_pressed(KeyCode::Y) || get_axis(player->ID, GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER) > 0.1f;
 	}
 
 	input.Jump_held = is_button_held(player->ID, GLFW_GAMEPAD_BUTTON_RIGHT_BUMPER) ||
-		is_button_held(player->ID, GLFW_GAMEPAD_BUTTON_A);
+		is_button_held(player->ID, GLFW_GAMEPAD_BUTTON_Y);
+
+	input.Right_trigger = get_axis(player->ID, GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER);
+	input.Left_trigger = get_axis(player->ID, GLFW_GAMEPAD_AXIS_LEFT_TRIGGER);
 
 	float rs_x = get_right_stick_x(player->ID);
 	float rs_y = get_right_stick_y(player->ID);

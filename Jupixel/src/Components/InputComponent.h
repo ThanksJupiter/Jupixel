@@ -6,6 +6,9 @@ struct InputComponent
 	float Left_stick_x = 0;
 	float Left_stick_y = 0;
 
+	float Right_trigger = 0.0f;
+	float Left_trigger = 0.0f;
+
 	bool Jump = false;
 	bool Jump_held = false;
 	bool Attack = false;

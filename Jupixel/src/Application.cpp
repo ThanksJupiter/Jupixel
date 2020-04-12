@@ -9,10 +9,13 @@
 #include "World.h"
 #include "SkeletonAnimations.h"
 #include "UserInput.h"
+#include "Systems/NetworkSystem.h"
 
 #include "ImGui/GUILayer.h"
+#include "Player.h"
 
 bool isRunning = true;
+bool is_setup = true;
 float lastFrameTime = 0.0f;
 float deltaTime = 0.0f;
 
@@ -40,7 +43,7 @@ bool init_application()
 	}
 	glfwSetErrorCallback(error_callback);
 
-	window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Calcium Clash", NULL, NULL);
+	window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Hellskel", NULL, NULL);
 	if (!window)
 	{
 		printf("Unable to create window");
@@ -72,9 +75,14 @@ bool init_application()
 		isRunning = false;
 	});
 
+	net_init();
+
 	init_renderer();
 	on_window_resize(SCREEN_WIDTH, SCREEN_HEIGHT);
 	init_GUI();
+
+	load_skeleton_sprites();
+	setup_world();
 
 	return success;
 }
@@ -82,6 +90,7 @@ bool init_application()
 void quit_application()
 {
 	quit_GUI();
+	net_quit();
 	quit_renderer();
 	glfwDestroyWindow(window);
 	glfwTerminate();
@@ -89,9 +98,38 @@ void quit_application()
 
 void run_application()
 {
-	load_skeleton_sprites();
+	while (is_setup && isRunning)
+	{
+		update_gamepad_state(0);
 
-	setup_world();
+		if (is_key_pressed(KeyCode::V) || is_button_down(0, GLFW_GAMEPAD_BUTTON_X))
+		{
+			printf("Server setup...");
+			get_world()->player_one->Network = new NetworkComponent();
+			net_init_server_component(*get_world()->player_one->Network);
+			is_setup = false;
+		}
+
+		if (is_key_pressed(KeyCode::C) || is_button_down(0, GLFW_GAMEPAD_BUTTON_Y))
+		{
+			printf("Client setup...");
+			get_world()->player_one->Network = new NetworkComponent();
+			net_init_client_component(*get_world()->player_one->Network);
+			is_setup = false;
+		}
+		if (is_key_pressed(KeyCode::B) || is_button_down(0, GLFW_GAMEPAD_BUTTON_A))
+		{
+			printf("No network");
+			is_setup = false;
+		}
+
+		glfwPollEvents();
+
+		clear();
+		render();
+
+		glfwSwapBuffers(window);
+	}
 
 	while (isRunning)
 	{
@@ -100,10 +138,12 @@ void run_application()
 		//deltaTime = glm::clamp(deltaTime, 0.01f, 0.1f);
 		lastFrameTime = time;
 
+		float fixed_dt = 1/60.0f;
+
 		glfwPollEvents();
 		clear();
 		
-		update_world(deltaTime * get_time_scale());
+		update_world(deltaTime, fixed_dt);
 		render();
 
 		glfwSwapBuffers(window);

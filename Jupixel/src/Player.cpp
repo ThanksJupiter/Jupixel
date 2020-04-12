@@ -3,6 +3,7 @@
 #include "SkeletonAnimations.h"
 #include <stdio.h>
 #include "Attack.h"
+#include "Physics/Raycaster.h"
 
 int hitbox_frames[] = 
 { 
@@ -24,15 +25,15 @@ int hitbox_frames[] =
 
 float attack_damage[] = 
 {
-	16.0f, // fsmash
+	11.0f, // fsmash
 	4.0f,  // nair
 	6.0f,  // uair
-	11.0f, // dair
-	13.0f, // fair
+	9.0f, // dair
+	10.0f, // fair
 	7.0f,  // bair
 	6.0f,  // dash tackle
-	18.0f, // usmash
-	21.0f, // dsmash
+	13.0f, // usmash
+	14.0f, // dsmash
 	6.0f,  // ftilt
 	3.0f,  // dtilt
 	4.0f,  // utilt
@@ -45,12 +46,12 @@ glm::vec2 knockback_vectors[] =
 	{ 2.0f, 1.6f },  // fsmash
 	{ 1.2f, 1.2f },	 // nair
 	{ 0.1f, 2.0f },	 // uair
-	{ 0.0f, -2.0f }, // dair
+	{ 0.0f, -1.5f }, // dair
 	{ 1.3f, 1.5f },	 // fair
 	{ 1.6f, 1.7 },	 // bair
 	{ 1.8f, 1.0f },	 // dash tackle
 	{ 0.3f, 3.0f },	 // usmash
-	{ 0.7f, -3.0 },	 // dsmash
+	{ 0.7f, -2.0 },	 // dsmash
 	{ 1.1f, 0.8f },	 // ftilt
 	{ 0.2f, 1.7f },	 // dtilt
 	{ 0.15f, 3.4f},   // utilt
@@ -154,4 +155,44 @@ void set_player_state(Player* player, ActionState state)
 	player->ActionState.Previous_action_state = player->ActionState.Action_state;
 	player->ActionState.Action_state = state;
 	//printf("Player: %i entered state: %i\n", player->ID, state);
+}
+
+bool Player::is_facing_travel_direction()
+{
+	if (Physics.Velocity.x == 0.0f)
+	{
+		return false;
+	} else if (Physics.Velocity.x > 0.0f && !Animation.Is_flipped)
+	{
+		return true;
+	} else if (Physics.Velocity.x < 0.0f && Animation.Is_flipped)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+bool Player::is_inputting_in_travel_direction()
+{
+	if (Input.Left_stick_x == 0.0f)
+	{
+		return false;
+	}
+	else if (Physics.Velocity.x > 0.0f && Input.Left_stick_x > 0.0f)
+	{
+		return true;
+	}
+	else if (Physics.Velocity.x < 0.0f && Input.Left_stick_x < 0.0f)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+bool Player::is_grounded()
+{
+	RaycastHit hit = RaycastHit();
+	return raycast(Transform.Position, glm::vec2(0.0f, -1.0f), 0.1f, hit);
 }

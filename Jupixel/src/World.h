@@ -11,7 +11,9 @@ struct World
 };
 
 void setup_world();
-void update_world(float dt);
+void update_world(float dt, float fixed_dt);
+
+World* get_world();
 
 float get_time_scale();
 void set_time_scale(float value);
