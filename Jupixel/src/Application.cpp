@@ -138,6 +138,8 @@ void run_application()
 		//deltaTime = glm::clamp(deltaTime, 0.01f, 0.1f);
 		lastFrameTime = time;
 
+		// TODO figure out delta times
+		// only update with fixed timestep every so often based on how fast program is updated
 		float fixed_dt = 1/60.0f;
 
 		glfwPollEvents();

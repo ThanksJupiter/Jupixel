@@ -13,4 +13,5 @@ struct CombatComponent
 	float Current_health_percentage = 0.0f;
 	bool Allow_attacking_movement = false;
 	bool High_block = false;
+	const float Knockback_scale_factor = 0.025f;
 };

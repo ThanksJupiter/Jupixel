@@ -13,11 +13,14 @@
 #include "Attack.h"
 #include "Components/LocomotionComponent.h"
 
+#include "States/State.h"
+
 std::string position_state_names[] =
 {
 	"Grounded",
 	"Airborne",
-	"Special"
+	"Special",
+	"None"
 };
 
 std::string action_state_names[] =
@@ -38,12 +41,26 @@ std::string action_state_names[] =
 	"Ledgegrab",
 	"Getup",
 	"LedgeBalance",
-	"Block"
+	"Block",
+	"None"
 };
+
+State big_state;
+
+void init_xd()
+{
+	/*big_state.enter_state = [](State* s)
+	{
+		s->exit_state(big_state.Previous_state);
+	};*/
+}
 
 void update_action_state_system(Player* player, float dt)
 {
 	ActionStateComponent& state = player->ActionState;
+
+	//init_xd();
+	//big_state.enter_state(&big_state);
 
 	player->Locomotion.Current_airdodge_timer += dt;
 

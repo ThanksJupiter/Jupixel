@@ -4,15 +4,16 @@
 #include <stdio.h>
 #include "Attack.h"
 #include "Physics/Raycaster.h"
-
-int hitbox_frames[] = 
+ 
+// TODO load attacks like states
+int hitbox_start_frames[] = 
 { 
 	6, // fsmash
 	2, // nair
 	3, // uair
 	4, // dair
 	4, // fair
-	3, // bair
+	2, // bair
 	2, // dash tackle
 	5, // usmash
 	8, // dsmash
@@ -21,6 +22,24 @@ int hitbox_frames[] =
 	5, // utilt
 	2, // first jab
 	4 // second jab
+};
+
+int hitbox_stop_frames[] =
+{
+	7, // fsmash
+	4, // nair
+	6, // uair
+	6, // dair
+	6, // fair
+	6, // bair
+	4, // dash tackle
+	7, // usmash
+	9, // dsmash
+	3, // ftilt
+	5, // dtilt
+	6, // utilt
+	3, // first jab
+	5 // second jab
 };
 
 float attack_damage[] = 
@@ -49,14 +68,14 @@ glm::vec2 knockback_vectors[] =
 	{ 0.0f, -1.5f }, // dair
 	{ 1.3f, 1.5f },	 // fair
 	{ 1.6f, 1.7 },	 // bair
-	{ 1.8f, 1.0f },	 // dash tackle
-	{ 0.3f, 3.0f },	 // usmash
+	{ 1.1f, 1.0f },	 // dash tackle
+	{ 0.3f, 2.5f },	 // usmash
 	{ 0.7f, -2.0 },	 // dsmash
 	{ 1.1f, 0.8f },	 // ftilt
 	{ 0.2f, 1.7f },	 // dtilt
-	{ 0.15f, 3.4f},   // utilt
+	{ 0.15f, 2.4f},   // utilt
 	{ 0.05f, 0.8f}, // first jab
-	{ 0.2f, 2.4f} // second jab
+	{ 0.2f, 1.0f} // second jab
 };
 
 glm::vec2 hitbox_offsets[] =
@@ -107,7 +126,8 @@ void setup_player(Player* player_to_setup, Player* player_opponent, int player_i
 
 		player_to_setup->Combat.Attacks.push_back(Attack(
 			&sheet,
-			hitbox_frames[i],
+			hitbox_start_frames[i],
+			hitbox_stop_frames[i],
 			knockback_vectors[i],
 			hitbox_offsets[i],
 			hitbox_scales[i],
@@ -155,6 +175,46 @@ void set_player_state(Player* player, ActionState state)
 	player->ActionState.Previous_action_state = player->ActionState.Action_state;
 	player->ActionState.Action_state = state;
 	//printf("Player: %i entered state: %i\n", player->ID, state);
+}
+
+void Player::set_position_state(State state)
+{
+	StateC.Previous_position_state = StateC.Current_position_state;
+	StateC.Time_in_position_state = 0.0f;
+
+	StateC.Current_position_state.exit(*this);
+	StateC.Current_position_state = state;
+	StateC.Current_position_state.enter(*this);
+}
+
+void Player::set_action_state(State state)
+{
+	StateC.Previous_action_state = StateC.Current_action_state;
+	StateC.Time_in_action_state = 0.0f;
+
+	StateC.Current_action_state.exit(*this);
+	StateC.Current_action_state = state;
+	StateC.Current_action_state.enter(*this);
+}
+
+void Player::set_locomotion_state(State state)
+{
+	StateC.Previous_locomotion_state = StateC.Current_locomotion_state;
+	StateC.Time_in_locomotion_state = 0.0f;
+
+	StateC.Current_locomotion_state.exit(*this);
+	StateC.Current_locomotion_state = state;
+	StateC.Current_locomotion_state.enter(*this);
+}
+
+void Player::perform_grounded_attack(Attack attack)
+{
+	set_action_state(get_states().Grounded_attack);
+}
+
+void Player::perform_aerial_attack(Attack attack)
+{
+	set_action_state(get_states().Airborne_attack);
 }
 
 bool Player::is_facing_travel_direction()

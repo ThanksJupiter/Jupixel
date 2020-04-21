@@ -25,7 +25,7 @@
 #include "Renderer/Renderer.h"
 #include "VFXSystem.h"
 
-const float knockback_scale_factor = 0.025f;
+const float knockback_scale_factor = 0.015f;
 
 void update_physics_system(Player* player, float dt)
 {
@@ -231,7 +231,18 @@ void airborne_physics_update(Player* player, float dt)
 
 	if (input.Left_stick_x != 0 && player->Locomotion.Has_aerial_control)
 	{
-		v.x = input.Left_stick_x * 1.0f;
+		if (player->is_inputting_in_travel_direction())
+		{
+			if (abs(v.x) < 1.5f)
+			{
+				physics_add_input_to_velocity(input.Left_stick_x * 6.0f, v.x, dt);
+			}
+		}
+		else
+		{
+			physics_add_input_to_velocity(input.Left_stick_x * 7.0f, v.x, dt);
+		}
+		//v.x = input.Left_stick_x * 1.0f;
 	}
 
 	if (state.Action_state != ActionState::Attacking)
@@ -299,14 +310,17 @@ void airborne_physics_update(Player* player, float dt)
 		transform.Position.y += v.y * dt;
 	}
 
-	float fall_add;
-	if (v.y < 0.0f && v.y > -1.0f)
+	float fall_add = 10.0f;
+	if (v.y < 1.0f)
 	{
-		fall_add = input.Left_stick_y < 0.0f ? -input.Left_stick_y * 60.0f : 10.0f;
-	}
-	else
-	{
-		fall_add = input.Left_stick_y < 0.0f ? -input.Left_stick_y * 15.0f : 10.0f;
+		if (v.y < 0.0f && v.y > -1.0f)
+		{
+			fall_add = input.Left_stick_y < 0.0f ? -input.Left_stick_y * 60.0f : 10.0f;
+		}
+		else
+		{
+			fall_add = input.Left_stick_y < 0.0f ? -input.Left_stick_y * 15.0f : 10.0f;
+		}
 	}
 
 	v.y -= fall_add * dt;
@@ -491,28 +505,30 @@ void physics_turn_around_update(Player* player, float dt)
 	grounded_physics_update(player, dt);
 }
 
-void physics_attack_update(Player* player, float dt)
+void physics_attack_update(Player* p, float dt)
 {
-	ActionStateComponent& state = player->ActionState;
-	CombatComponent& combat = player->Combat;
-	AnimationComponent& anim = player->Animation;
-	InputComponent input = player->Input;
+	ActionStateComponent& state = p->ActionState;
+	CombatComponent& combat = p->Combat;
+	AnimationComponent& anim = p->Animation;
+	InputComponent input = p->Input;
 
 	combat.Current_timer += dt;
 
-	if (anim.Current_Sprite_Index == combat.Current_attack->Hitbox_frame && !combat.Is_current_attack_resolved)
+	if (anim.Current_Sprite_Index >= combat.Current_attack->Hitbox_start_frame &&
+		anim.Current_Sprite_Index <= combat.Current_attack->Hitbox_stop_frame &&
+		!combat.Is_current_attack_resolved)
 	{
 		CollisionTestRequest request = CollisionTestRequest();
-		AnimationComponent anim = player->Animation;
+		AnimationComponent anim = p->Animation;
 
-		request.Instigator = player;
-		request.Target = player->Opponent;
+		request.Instigator = p;
+		request.Target = p->Opponent;
 
-		ColliderComponent col_comp = player->Combat.Current_attack->Hitbox;
+		ColliderComponent col_comp = p->Combat.Current_attack->Hitbox;
 		request.Collider = col_comp;
 
-		request.Collider.Position = player->Transform.Position;
-		request.Collider.Offset.x = col_comp.Offset.x * (player->Animation.Is_flipped ? -1 : 1);
+		request.Collider.Position = p->Transform.Position;
+		request.Collider.Offset.x = col_comp.Offset.x * (p->Animation.Is_flipped ? -1 : 1);
 
 		queue_collision(request);
 	}
@@ -526,32 +542,32 @@ void physics_attack_update(Player* player, float dt)
 
 		if (state.Position_state == PositionState::Grounded)
 		{
-			if (player->Locomotion.Ledge_balance_queued && input.Left_stick_x == 0.0f)
+			if (p->Locomotion.Ledge_balance_queued && input.Left_stick_x == 0.0f)
 			{
-				set_player_state(player, ActionState::LedgeBalance);
-				change_player_animation(player, get_anim(10), Loop);
-				player->Locomotion.Ledge_balance_queued = false;
+				set_player_state(p, ActionState::LedgeBalance);
+				change_player_animation(p, get_anim(10), Loop);
+				p->Locomotion.Ledge_balance_queued = false;
 			}
 			else
 			{
-				set_player_state(player, ActionState::Idle);
-				player->Locomotion.Ledge_balance_queued = false;
+				set_player_state(p, ActionState::Idle);
+				p->Locomotion.Ledge_balance_queued = false;
 			}
 		}
 		else
 		{
-			set_player_state(player, ActionState::Falling);
+			set_player_state(p, ActionState::Falling);
 		}
 	}
 
 	switch (state.Position_state)
 	{
 		case PositionState::Grounded:
-			grounded_physics_update(player, dt);
+			grounded_physics_update(p, dt);
 			break;
 		case PositionState::Airborne:
-			physics_land_on_touch_ground(player);
-			airborne_physics_update(player, dt);
+			physics_land_on_touch_ground(p);
+			airborne_physics_update(p, dt);
 			break;
 		default:
 			break;

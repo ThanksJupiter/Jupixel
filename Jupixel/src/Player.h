@@ -10,6 +10,7 @@
 #include "Components/CombatComponent.h"
 #include "Components/LocomotionComponent.h"
 #include "Components/MatchDataComponent.h"
+#include "Components/StateComponent.h"
 
 struct Spritesheet;
 struct NetworkComponent;
@@ -30,7 +31,15 @@ struct Player
 	CombatComponent Combat = CombatComponent();
 	LocomotionComponent Locomotion = LocomotionComponent();
 	MatchDataComponent MatchData = MatchDataComponent();
+	StateComponent StateC = StateComponent();
 	NetworkComponent* Network = nullptr;
+
+	void set_position_state(State state);
+	void set_action_state(State state);
+	void set_locomotion_state(State state);
+
+	void perform_grounded_attack(Attack attack);
+	void perform_aerial_attack(Attack attack);
 
 	bool is_facing_travel_direction();
 	bool is_inputting_in_travel_direction();

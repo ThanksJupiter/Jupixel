@@ -8,27 +8,30 @@
 struct Attack
 {
 	Attack(Spritesheet* _sheet,
-		int _hitbox_frame,
-		glm::vec2 _knockback,
-		glm::vec2 _hb_offset,
-		glm::vec2 _hb_size,
+		int hitbox_start_frame,
+		int hitbox_stop_frame,
+		glm::vec2 knockback,
+		glm::vec2 hb_offset,
+		glm::vec2 hb_size,
 		float frame_delay,
 		float damage)
 	{
 		Anim = _sheet;
-		Hitbox_frame = _hitbox_frame;
+		Hitbox_start_frame = hitbox_start_frame;
+		Hitbox_stop_frame = hitbox_stop_frame;
 		Damage = damage;
 
 		Duration = frame_delay * Anim->Sprites.size();
 
-		Knockback_direction = _knockback;
+		Knockback_direction = knockback;
 		Hitbox = ColliderComponent();
-		Hitbox.Offset = _hb_offset;
-		Hitbox.Scale = _hb_size;
+		Hitbox.Offset = hb_offset;
+		Hitbox.Scale = hb_size;
 	}
 
 	Spritesheet* Anim = nullptr;
-	int Hitbox_frame = 0;
+	int Hitbox_start_frame = 0;
+	int Hitbox_stop_frame = 0;
 	float Duration = 0.0f;
 	float Damage = 0.0f;
 
