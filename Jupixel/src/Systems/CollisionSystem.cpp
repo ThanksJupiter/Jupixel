@@ -144,9 +144,9 @@ void resolve_collisions(Player& player)
 			
 			//player.set
 
-			//set_player_state(player, PositionState::Airborne);
-			//set_player_state(player, ActionState::Knockback);
-			//change_player_animation(player, get_anim(3), LastFrameStick);
+			set_player_state(&player, PositionState::Airborne);
+			set_player_state(&player, ActionState::Knockback);
+			change_player_animation(&player, get_anim(3), LastFrameStick);
 		}
 		else
 		{

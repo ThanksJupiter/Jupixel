@@ -71,14 +71,14 @@ void update_world(float dt, float fixed_dt)
 	update_input_system(player_one);
 	update_input_system(player_two);
 
-	//update_action_state_system(player_one, dt * get_time_scale());
-	//update_action_state_system(player_two, dt * get_time_scale());
+	update_action_state_system(player_one, dt * get_time_scale());
+	update_action_state_system(player_two, dt * get_time_scale());
 
 	// TODO don't store player as a pointer maybe
-	state_update(*player_one, dt * get_time_scale());
-	state_update(*player_two, dt * get_time_scale());
+	//state_update(*player_one, dt * get_time_scale());
+	//state_update(*player_two, dt * get_time_scale());
 
-	//update_physics_system(player_one, player_two, fixed_dt * get_time_scale());
+	update_physics_system(player_one, player_two, dt * get_time_scale());
 
 	test_collisions();
 	resolve_collisions(*player_one);
