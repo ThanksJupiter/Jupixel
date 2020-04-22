@@ -12,3 +12,5 @@ bin-int/
 **.vcxproj
 **.vcxproj.filters
 **.vcxproj.user
+Jupixel/vendor/json-c/
+Jupixel/vendor/vcpkg/
