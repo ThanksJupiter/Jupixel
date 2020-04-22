@@ -107,4 +107,3 @@ void combat_perform_attack(Player& p, float dt)
 		}
 	}
 }
-

@@ -71,6 +71,11 @@ void update_action_state_system(Player* player, float dt)
 		player->Locomotion.Has_aerial_control = true;
 	}
 
+	if (state.Position_state == PositionState::Grounded)
+	{
+		player->Locomotion.Can_airdodge = true;
+	}
+
 	switch (state.Action_state)
 	{
 		case ActionState::Idle:
@@ -157,12 +162,15 @@ void state_grounded_update(Player* player, float dt)
 		AnimationComponent& anim = player->Animation;
 		CombatComponent& combat = player->Combat;
 
-		player->Locomotion.Is_turning_allowed = player->Physics.Velocity.x < 0.1f;
+		player->Locomotion.Is_turning_allowed = abs(player->Physics.Velocity.x) < 0.1f;
 
-		if (input.Block && state.Action_state != ActionState::Block && state.Action_state != ActionState::TurnAround && player->Locomotion.Is_turning_allowed)
+		if (input.Block)
 		{
-			set_player_state(player, ActionState::Block);
-			change_player_animation(player, get_anim(11), LastFrameStick);
+			if (state.Action_state != ActionState::Block && state.Action_state != ActionState::TurnAround)
+			{
+				set_player_state(player, ActionState::Block);
+				change_player_animation(player, get_anim(11), LastFrameStick);
+			}
 		}
 
 		if (state.Action_state != ActionState::Running)
@@ -292,14 +300,14 @@ void state_airborne_update(Player* player, float dt)
 		CombatComponent& combat = player->Combat;
 		InputComponent input = player->Input;
 
-		if (input.Block && loco.Can_airdodge)
+		/*if (input.Block && loco.Can_airdodge)
 		{
 			physics.Velocity = glm::vec2(input.Left_stick_x * 2.0f, input.Left_stick_y * 4.0f);
 			loco.Can_airdodge = false;
 			loco.Has_aerial_control = false;
 			set_player_state(player, ActionState::Airdodge);
 			return;
-		}
+		}*/
 
 		if (input.Jump && loco.Can_double_jump)
 		{
@@ -379,7 +387,7 @@ void state_special_update(Player* player, float dt)
 		AnimationComponent& anim = player->Animation;
 		CombatComponent& combat = player->Combat;
 
-		player->Locomotion.Is_turning_allowed = player->Physics.Velocity.x < 0.1f;
+		player->Locomotion.Is_turning_allowed = abs(player->Physics.Velocity.x < 0.1f);
 
 		if (input.Block && state.Action_state != ActionState::Block && state.Action_state != ActionState::TurnAround && player->Locomotion.Is_turning_allowed)
 		{
@@ -483,25 +491,25 @@ void state_idle_update(Player* player, float dt)
 
 	float ls_x = input.Left_stick_x;
 
-	if (loco.Can_airdodge)
+	if (loco.Can_airdodge && !input.Block)
 	{
-		if (ls_x > 0 && anim.Is_flipped)
+		if (ls_x > 0.0f && anim.Is_flipped)
 		{
 			anim.Is_flipped = false;
 		}
-		else if (ls_x < 0 && !anim.Is_flipped)
+		else if (ls_x < 0.0f && !anim.Is_flipped)
 		{
 			anim.Is_flipped = true;
 		}
 	}
 
-	if (ls_x != 0)
+	if (ls_x != 0.0f)
 	{
 		loco.Current_dash_timer += dt;
 
 		if (loco.Current_dash_timer >= loco.Dash_time)
 		{
-			if (abs(ls_x) == 1)
+			if (abs(ls_x) > 0.9f)
 			{
 				set_player_state(player, ActionState::Running);
 				change_player_animation(player, get_anim(4), Loop);
@@ -545,13 +553,13 @@ void state_walk_update(Player* player, float dt)
 
 	//anim.Current_anim->Frame_delay = 0.1f + 1 - (abs(ls_x) * 2.0f);
 
-	if (loco.Can_airdodge)
+	if (loco.Can_airdodge && !input.Block)
 	{
-		if (ls_x > 0 && anim.Is_flipped)
+		if (ls_x > 0.0f && anim.Is_flipped)
 		{
 			anim.Is_flipped = false;
 		}
-		else if (ls_x < 0 && !anim.Is_flipped)
+		else if (ls_x < 0.0f && !anim.Is_flipped)
 		{
 			anim.Is_flipped = true;
 		}
@@ -562,7 +570,7 @@ void state_walk_update(Player* player, float dt)
 		set_player_state(player, ActionState::Idle);
 	}
 
-	if (abs(ls_x) == 1.0f && loco.Is_dash_from_walk_allowed)
+	if (abs(ls_x) > 0.9f && loco.Is_dash_from_walk_allowed)
 	{
 		set_player_state(player, ActionState::Running);
 		change_player_animation(player, get_anim(4), Loop);
@@ -598,14 +606,14 @@ void state_run_update(Player* player, float dt)
 	}
 
 	bool flipped = false;
-	if (loco.Current_dash_back_timer <= loco.Dash_back_time)
+	if (loco.Current_dash_back_timer <= loco.Dash_back_time && !input.Block)
 	{
-		if (ls_x > 0 && anim.Is_flipped)
+		if (ls_x > 0.0f && anim.Is_flipped)
 		{
 			anim.Is_flipped = false;
 			flipped = true;
 		}
-		else if (ls_x < 0 && !anim.Is_flipped)
+		else if (ls_x < 0.0f && !anim.Is_flipped)
 		{
 			anim.Is_flipped = true;
 			flipped = true;
@@ -621,13 +629,13 @@ void state_run_update(Player* player, float dt)
 	}
 	else
 	{
-		if (ls_x > 0 && anim.Is_flipped)
+		if (ls_x > 0.0f && anim.Is_flipped)
 		{
 			set_player_state(player, ActionState::TurnAround);
 			change_player_animation(player, get_anim(5), LastFrameStick);
 			flipped = true;
 		}
-		else if (ls_x < 0 && !anim.Is_flipped)
+		else if (ls_x < 0.0f && !anim.Is_flipped)
 		{
 			set_player_state(player, ActionState::TurnAround);
 			change_player_animation(player, get_anim(5), LastFrameStick);
@@ -663,6 +671,18 @@ void state_jump_squat_update(Player* player, float dt)
 
 	if (loco.Current_short_hop_timer >= loco.Short_hop_time)
 	{
+		if (input.Block)
+		{
+			if (input.Left_stick_x != 0.0f)
+			{
+				physics.Velocity.x = input.Left_stick_x * 3.0f;
+				set_player_state(player, ActionState::Idle);
+				loco.Current_dash_timer = 0.0f;
+				loco.Current_dash_back_timer = 0.0f;
+				return;
+			}
+		}
+
 		if (!input.Jump_held)
 		{
 			v.y += loco.Short_hop_velocity;

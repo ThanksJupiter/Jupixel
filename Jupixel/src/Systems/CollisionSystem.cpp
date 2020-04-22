@@ -129,9 +129,12 @@ void resolve_collisions(Player& player)
 
 			v = state.Action_state == ActionState::Crouching ? collider.Pending_knockback * 0.5f : collider.Pending_knockback;
 
-			if (v.y < 0.0f)
+			if (state.Position_state == PositionState::Grounded)
 			{
-				v.y = -v.y;
+				if (v.y < 0.0f)
+				{
+					v.y = -v.y;
+				}
 			}
 
 			loco.Current_get_up_timer = 0.0f;

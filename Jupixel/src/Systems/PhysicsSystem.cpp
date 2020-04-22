@@ -131,7 +131,7 @@ void grounded_physics_update(Player* player, float dt)
 		v.x = 0.0f;
 	}
 
-	if (collider.Is_hit)
+	/*if (collider.Is_hit)
 	{
 		if (state.Action_state != ActionState::Block)
 		{
@@ -162,7 +162,7 @@ void grounded_physics_update(Player* player, float dt)
 		}
 
 		collider.Is_hit = false;
-	}
+	}*/
 
 	RaycastHit hit = RaycastHit();
 	if (raycast(transform.Position, glm::vec2(0.0f, -1.0f), 0.1f, hit))
@@ -250,37 +250,6 @@ void airborne_physics_update(Player* player, float dt)
 		physics_check_grab_ledge(player, dt);
 	}
 
-	if (collider.Is_hit)
-	{
-		CombatComponent& combat = player->Combat;
-		combat.Current_health_percentage += collider.Pending_damage;
-		collider.Pending_damage = 0.0f;
-
-		v.x = collider.Pending_knockback.x;
-
-		if (v.y < 0)
-		{
-			if (collider.Pending_knockback.y < 0)
-			{
-				v.y += collider.Pending_knockback.y;
-			}
-			else
-			{
-				v.y = collider.Pending_knockback.y;
-			}
-		}
-
-		v += v * combat.Current_health_percentage * knockback_scale_factor;
-		glm::vec2 printV = v;
-		printf("Knockback: %s\n", glm::to_string(printV).c_str());
-
-		collider.Is_hit = false;
-		anim.Is_flipped = collider.Flip;
-		set_player_state(player, PositionState::Airborne);
-		set_player_state(player, ActionState::Knockback);
-		change_player_animation(player, get_anim(3), LastFrameStick);
-	}
-
 	glm::vec2 origin = glm::vec2(transform.Position.x, transform.Position.y + 16 * 0.02f);
 	glm::vec2 direction = glm::vec2(v.x, 0.0f);
 	float distance = 0.05f;
@@ -336,25 +305,6 @@ void special_physics_update(Player* player, float dt)
 	CombatComponent& combat = player->Combat;
 
 	glm::vec2& v = physics.Velocity;
-
-	if (collider.Is_hit)
-	{
-		combat.Current_health_percentage += collider.Pending_damage;
-		collider.Pending_damage = 0.0f;
-
-		v = collider.Pending_knockback;
-
-		v += v * combat.Current_health_percentage  * knockback_scale_factor;
-		glm::vec2 printV = v;
-		printf("Knockback: %s\n", glm::to_string(printV).c_str());
-
-		transform.Position.y += 0.01;
-		collider.Is_hit = false;
-		anim.Is_flipped = collider.Flip;
-		set_player_state(player, PositionState::Airborne);
-		set_player_state(player, ActionState::Knockback);
-		change_player_animation(player, get_anim(3), LastFrameStick);
-	}
 
 	if (state.Action_state == ActionState::Ledgegrab) { return; }
 

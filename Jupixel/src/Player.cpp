@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include "Attack.h"
 #include "Physics/Raycaster.h"
+#include "Systems/ActionStateSystem.h"
  
 // TODO load attacks like states
 int hitbox_start_frames[] = 
@@ -170,6 +171,16 @@ void set_player_state(Player* player, ActionState state)
 	if (state == ActionState::Attacking)
 	{
 		player->Combat.Is_current_attack_resolved = false;
+	}
+
+	if (state == ActionState::Running)
+	{
+		printf("previous state: %s\n", get_action_state_name((int)player->ActionState.Action_state));
+	}
+
+	if (state == ActionState::Block)
+	{
+		printf("previous state: %s\n", get_action_state_name((int)player->ActionState.Action_state));
 	}
 
 	player->ActionState.Previous_action_state = player->ActionState.Action_state;

@@ -99,6 +99,17 @@ void update_world(float dt, float fixed_dt)
 	update_match(dt);
 	ImGui::Begin("Player stats");
 	ImGui::Text("Player: %i\n pos state: %s\n action state: %s\n Health: %f",
+				player_one->ID,
+				get_position_state_name((int)player_one->ActionState.Position_state),
+				get_action_state_name((int)player_one->ActionState.Action_state),
+				player_one->Combat.Current_health_percentage);
+
+	ImGui::Text("Player: %i\n pos state: %s\n action state: %s\n Health: %f",
+				player_two->ID,
+				get_position_state_name((int)player_two->ActionState.Position_state),
+				get_action_state_name((int)player_two->ActionState.Action_state),
+				player_two->Combat.Current_health_percentage);
+	/*ImGui::Text("Player: %i\n pos state: %s\n action state: %s\n Health: %f",
 		player_one->ID,
 		player_one->StateC.Current_position_state.Name.c_str(),
 		player_one->StateC.Current_action_state.Name.c_str(),
@@ -108,7 +119,7 @@ void update_world(float dt, float fixed_dt)
 		player_two->ID,
 		player_two->StateC.Current_position_state.Name.c_str(),
 		player_two->StateC.Current_action_state.Name.c_str(),
-		player_two->Combat.Current_health_percentage);
+		player_two->Combat.Current_health_percentage);*/ // new state debug texts
 	ImGui::End();
 	end_GUI();
 }
