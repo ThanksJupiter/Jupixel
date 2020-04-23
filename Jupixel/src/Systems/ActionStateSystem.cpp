@@ -95,6 +95,7 @@ void update_action_state_system(Player* player, float dt)
 		case ActionState::Falling:
 			break;
 		case ActionState::Crouching:
+			state_crouch_update(player, dt);
 			break;
 		case ActionState::Airdodge:
 			break;
@@ -164,12 +165,12 @@ void state_grounded_update(Player* player, float dt)
 
 		player->Locomotion.Is_turning_allowed = abs(player->Physics.Velocity.x) < 0.1f;
 
-		if (input.Block)
+		if (input.Block && state.Action_state != ActionState::JumpSquat)
 		{
 			if (state.Action_state != ActionState::Block && state.Action_state != ActionState::TurnAround)
 			{
 				set_player_state(player, ActionState::Block);
-				change_player_animation(player, get_anim(11), LastFrameStick);
+				change_player_animation(player, get_anim(11), Custom);
 			}
 		}
 
@@ -389,7 +390,10 @@ void state_special_update(Player* player, float dt)
 
 		player->Locomotion.Is_turning_allowed = abs(player->Physics.Velocity.x < 0.1f);
 
-		if (input.Block && state.Action_state != ActionState::Block && state.Action_state != ActionState::TurnAround && player->Locomotion.Is_turning_allowed)
+		if (input.Block && state.Action_state != ActionState::Block &&
+			state.Action_state != ActionState::TurnAround &&
+			state.Action_state != ActionState::JumpSquat &&
+			player->Locomotion.Is_turning_allowed)
 		{
 			set_player_state(player, ActionState::Block);
 			change_player_animation(player, get_anim(11), LastFrameStick);
@@ -730,6 +734,14 @@ void state_attack_update(Player* player, float dt)
 	}
 }
 
+void state_crouch_update(Player* player, float dt)
+{
+	if (player->Input.Left_stick_y > -0.1f)
+	{
+		set_player_state(player, ActionState::Idle);
+	}
+}
+
 void state_jump_update(Player* player, float dt)
 {
 
@@ -859,16 +871,32 @@ void state_block_update(Player* player, float dt)
 		set_player_state(player, ActionState::Idle);
 	}
 
-	if (input.Left_stick_y < -0.3f && player->Combat.High_block)
+	if (player->Combat.Block_type == BlockType::High)
 	{
-		change_player_animation(player, get_anim(12), LastFrameStick);
-		player->Combat.High_block = false;
+		if (input.Right_trigger < 0.4f)
+		{
+			player->Animation.Current_Sprite_Index = 0;
+		} 
+		else if (input.Right_trigger < 0.7f)
+		{
+			player->Animation.Current_Sprite_Index = 1;
+		}
+		else
+		{
+			player->Animation.Current_Sprite_Index = 2;
+		}
 	}
-	else if (input.Left_stick_y == 0.0f && !player->Combat.High_block)
+
+	if (input.Left_stick_y < -0.3f && player->Combat.Block_type == BlockType::High)
 	{
-		change_player_animation(player, get_anim(11), LastFrameStick);
-		player->Animation.Current_Sprite_Index = 3;
-		player->Combat.High_block = true;
+		change_player_animation(player, get_anim(12), Custom);
+		player->Combat.Block_type = BlockType::Low;
+	}
+	else if (input.Left_stick_y == 0.0f && player->Combat.Block_type == BlockType::Low)
+	{
+		change_player_animation(player, get_anim(11), Custom);
+		player->Animation.Current_Sprite_Index = 2;
+		player->Combat.Block_type = BlockType::High;
 	}
 }
 

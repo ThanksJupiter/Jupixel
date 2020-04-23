@@ -4,7 +4,7 @@
 
 struct Spritesheet;
 
-enum AnimationState { Loop, LastFrameStick };
+enum AnimationState { Loop, LastFrameStick, Custom };
 
 struct AnimationComponent
 {

@@ -123,6 +123,9 @@ void run_application()
 			is_setup = false;
 		}
 
+		// so no need to press b to begin
+		is_setup = false;
+
 		glfwPollEvents();
 
 		clear();
@@ -149,6 +152,11 @@ void run_application()
 		render();
 
 		glfwSwapBuffers(window);
+
+		if (is_key_pressed(KeyCode::Escape))
+		{
+			isRunning = false;
+		}
 	}
 }
 

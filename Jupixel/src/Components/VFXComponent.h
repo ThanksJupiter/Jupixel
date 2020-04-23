@@ -16,6 +16,8 @@ struct VFXComponent
 	glm::vec2 Position = glm::vec2(0.0f);
 	TransformComponent* Transform = nullptr;
 	PhysicsComponent* physics = nullptr;
+	
+	glm::vec2 Pending_VFX_position = glm::vec2(0.0f);
 
 	AnimationComponent Anim;
 

@@ -20,44 +20,50 @@ void update_animation_system(Player* player, float dt)
 
 	anim.Current_sprite_time += dt;
 
-	if (anim.Anim_state == Loop)
+	switch (anim.Anim_state)
 	{
-		if (anim.Current_sprite_time >= anim.Current_anim->Frame_delay)
-		{
-			anim.Current_Sprite_Index++;
-
-			if (anim.Current_Sprite_Index == anim.Current_anim->Sprites.size())
-			{
-				anim.Current_Sprite_Index = 0;
-			}
-
-			anim.Current_sprite_time = 0.0f;
-
-			update_player_animation(player, anim.Current_anim->Sprites[anim.Current_Sprite_Index]);
-		}
-	}
-	else if (anim.Anim_state == LastFrameStick)
-	{
-		if (!anim.Has_full_anim_played && anim.Current_sprite_time >= anim.Current_anim->Frame_delay)
-		{
-			if (anim.Current_Sprite_Index == anim.Current_anim->Sprites.size() - 1)
-			{
-				anim.Has_full_anim_played = true;
-			}
-			else
+		case Loop:
+			if (anim.Current_sprite_time >= anim.Current_anim->Frame_delay)
 			{
 				anim.Current_Sprite_Index++;
-			}
 
-			if (anim.Current_Sprite_Index == anim.Current_anim->Sprites.size())
+				if (anim.Current_Sprite_Index == anim.Current_anim->Sprites.size())
+				{
+					anim.Current_Sprite_Index = 0;
+				}
+
+				anim.Current_sprite_time = 0.0f;
+
+				update_player_animation(player, anim.Current_anim->Sprites[anim.Current_Sprite_Index]);
+			}
+			break;
+		case LastFrameStick:
+			if (!anim.Has_full_anim_played && anim.Current_sprite_time >= anim.Current_anim->Frame_delay)
 			{
-				anim.Current_Sprite_Index = anim.Current_anim->Sprites.size() - 1;
+				if (anim.Current_Sprite_Index == anim.Current_anim->Sprites.size() - 1)
+				{
+					anim.Has_full_anim_played = true;
+				}
+				else
+				{
+					anim.Current_Sprite_Index++;
+				}
+
+				if (anim.Current_Sprite_Index == anim.Current_anim->Sprites.size())
+				{
+					anim.Current_Sprite_Index = anim.Current_anim->Sprites.size() - 1;
+				}
+
+				anim.Current_sprite_time = 0.0f;
 			}
 
-			anim.Current_sprite_time = 0.0f;
-		}
-
-		update_player_animation(player, anim.Current_anim->Sprites[anim.Current_Sprite_Index]);
+			update_player_animation(player, anim.Current_anim->Sprites[anim.Current_Sprite_Index]);
+			break;
+		case Custom:
+			update_player_animation(player, anim.Current_anim->Sprites[anim.Current_Sprite_Index]);
+			break;
+		default:
+			break;
 	}
 
 	// HACK call every update because players share VBO and will update each others

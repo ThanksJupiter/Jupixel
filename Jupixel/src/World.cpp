@@ -25,6 +25,7 @@
 #include "Physics/Raycaster.h"
 #include "Components/LevelComponent.h"
 #include "Systems/VFXSystem.h"
+#include "Systems/AISystem.h"
 
 World world = World();
 
@@ -32,6 +33,8 @@ Player* player_one = nullptr;
 Player* player_two = nullptr;
 
 Level level = Level();
+
+bool is_ai_active = false;
 
 void setup_world()
 {
@@ -69,7 +72,12 @@ void update_world(float dt, float fixed_dt)
 	debug_functionality();
 
 	update_input_system(player_one);
-	update_input_system(player_two);
+	//update_input_system(player_two);
+
+	if (is_ai_active)
+	{
+		update_ai_system(*player_two, dt);
+	}
 
 	update_action_state_system(player_one, dt * get_time_scale());
 	update_action_state_system(player_two, dt * get_time_scale());
@@ -176,5 +184,10 @@ void debug_functionality()
 		{
 			set_time_scale(0.3f);
 		}
+	}
+
+	if (is_button_down(0, GLFW_GAMEPAD_BUTTON_BACK))
+	{
+		is_ai_active = !is_ai_active;
 	}
 }

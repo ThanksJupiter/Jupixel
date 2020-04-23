@@ -173,15 +173,15 @@ void set_player_state(Player* player, ActionState state)
 		player->Combat.Is_current_attack_resolved = false;
 	}
 
-	if (state == ActionState::Running)
+	/*if (state == ActionState::Running)
 	{
 		printf("previous state: %s\n", get_action_state_name((int)player->ActionState.Action_state));
 	}
 
-	if (state == ActionState::Block)
+	if (player->ActionState.Action_state == ActionState::JumpSquat)
 	{
-		printf("previous state: %s\n", get_action_state_name((int)player->ActionState.Action_state));
-	}
+		printf("new state: %s\n", get_action_state_name((int)state));
+	}*/
 
 	player->ActionState.Previous_action_state = player->ActionState.Action_state;
 	player->ActionState.Action_state = state;

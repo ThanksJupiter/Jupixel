@@ -73,8 +73,9 @@ void test_collisions()
 			set_time_scale(0.0001f);
 			request.Target->Reset_time_scale_on_land = true;
 
+			// VFX position
 			glm::vec2 vfx_position = hitbox_pos + ((b_pos - hitbox_pos) * 0.5f);
-			vfx_spawn_effect(get_vfx_anim(1), vfx_position, glm::vec4(1.0f, 1.0f, 1.0f, 0.85f));
+			otherP->VFX_Component.Pending_VFX_position = vfx_position;
 
 			request.Is_resolved = true;
 			otherC->Is_colliding = true;
@@ -119,9 +120,12 @@ void resolve_collisions(Player& player)
 
 	glm::vec2& v = physics.Velocity;
 
+
 	// TODO change depending on grounded or airborne?
 	if (collider.Is_hit)
 	{
+		float vfx_alpha = (state.Action_state != ActionState::Block ? 0.85f : 0.3f);
+
 		if (state.Action_state != ActionState::Block)
 		{
 			combat.Current_health_percentage += collider.Pending_damage;
@@ -156,6 +160,7 @@ void resolve_collisions(Player& player)
 			v.x = collider.Pending_knockback.x * 0.5f;
 		}
 
+		vfx_spawn_effect(get_vfx_anim(1), player.VFX_Component.Pending_VFX_position, glm::vec4(1.0f, 1.0f, 1.0f, vfx_alpha));
 		collider.Is_hit = false;
 	}
 }

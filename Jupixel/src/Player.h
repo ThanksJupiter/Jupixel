@@ -11,6 +11,7 @@
 #include "Components/LocomotionComponent.h"
 #include "Components/MatchDataComponent.h"
 #include "Components/StateComponent.h"
+#include "Components/VFXComponent.h"
 
 struct Spritesheet;
 struct NetworkComponent;
@@ -32,6 +33,7 @@ struct Player
 	LocomotionComponent Locomotion = LocomotionComponent();
 	MatchDataComponent MatchData = MatchDataComponent();
 	StateComponent StateC = StateComponent();
+	VFXComponent VFX_Component = VFXComponent();
 	NetworkComponent* Network = nullptr;
 
 	void set_position_state(State state);
