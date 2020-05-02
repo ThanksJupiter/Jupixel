@@ -30,7 +30,7 @@ void update_input_system(Player* player)
 			is_button_down(player->ID, GLFW_GAMEPAD_BUTTON_RIGHT_BUMPER) ||
 			is_button_down(player->ID, GLFW_GAMEPAD_BUTTON_Y);
 		input.Attack = is_key_pressed(KeyCode::E) || is_button_down(player->ID, GLFW_GAMEPAD_BUTTON_A);
-		input.Block = is_key_pressed(KeyCode::R) || get_axis(player->ID, GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER) > 0.1f;
+		input.Block = is_key_pressed(KeyCode::R) || get_axis(player->ID, GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER) != -1.0f;
 	}
 	else
 	{
@@ -46,14 +46,17 @@ void update_input_system(Player* player)
 			is_button_down(player->ID, GLFW_GAMEPAD_BUTTON_RIGHT_BUMPER) ||
 			is_button_down(player->ID, GLFW_GAMEPAD_BUTTON_Y);
 		input.Attack = is_key_pressed(KeyCode::O) || is_button_down(player->ID, GLFW_GAMEPAD_BUTTON_A);
-		input.Block = is_key_pressed(KeyCode::Y) || get_axis(player->ID, GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER) > 0.1f;
+		input.Block = is_key_pressed(KeyCode::Y) || get_axis(player->ID, GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER) != -1.0f;
 	}
 
 	input.Jump_held = is_button_held(player->ID, GLFW_GAMEPAD_BUTTON_RIGHT_BUMPER) ||
 		is_button_held(player->ID, GLFW_GAMEPAD_BUTTON_Y);
 
-	input.Right_trigger = get_axis(player->ID, GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER);
-	input.Left_trigger = get_axis(player->ID, GLFW_GAMEPAD_AXIS_LEFT_TRIGGER);
+	float convert_axis_r = get_axis(player->ID, GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER) * 0.5f;
+	input.Right_trigger = convert_axis_r + 0.5f;
+
+	float convert_axis_l = get_axis(player->ID, GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER) * 0.5f;
+	input.Left_trigger = convert_axis_l + 0.5f;
 
 	float rs_x = get_right_stick_x(player->ID);
 	float rs_y = get_right_stick_y(player->ID);

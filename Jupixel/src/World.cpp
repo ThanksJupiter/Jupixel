@@ -71,12 +71,16 @@ void update_world(float dt, float fixed_dt)
 {
 	debug_functionality();
 
+	//update_ai_system(*player_one, dt);
 	update_input_system(player_one);
-	//update_input_system(player_two);
-
+	
 	if (is_ai_active)
 	{
 		update_ai_system(*player_two, dt);
+	}
+	else
+	{
+		update_input_system(player_two);
 	}
 
 	update_action_state_system(player_one, dt * get_time_scale());

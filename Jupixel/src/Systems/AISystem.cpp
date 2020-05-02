@@ -81,7 +81,6 @@ void update_ai_system(Player& player, float dt)
 			break;
 		default:
 			break;
-		
 	}
 }
 
@@ -109,7 +108,7 @@ void approach_player(Player& player, float dt)
 		input.Attack = false;
 	}
 
-	if (opponent_state.Action_state == ActionState::Block)
+	/*if (opponent_state.Action_state == ActionState::Block)
 	{
 		input.Left_stick_x = 0.0f;
 		input.Left_stick_y = -1.0f;
@@ -118,7 +117,7 @@ void approach_player(Player& player, float dt)
 	else
 	{
 		input.Left_stick_y = 0.0f;
-	}
+	}*/
 
 	input.Smash_left = false;
 	input.Smash_right = false;

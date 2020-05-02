@@ -8,7 +8,7 @@ enum class ActionState { Idle, Walking, Running,
 	Jumping, Falling, Crouching, Airdodge,
 	Knockback, Knockdown, Locomotion,
 	Ledgegrab, Getup, LedgeBalance,
-	Block, Locomoting, None };
+	Block, Locomoting, Reaching, None };
 
 enum class LocomotionState { Walking, Running, Jumping, Falling, Knockback, Knockdown, Stationary, None };
 

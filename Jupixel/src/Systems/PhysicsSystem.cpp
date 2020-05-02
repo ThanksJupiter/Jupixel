@@ -98,6 +98,11 @@ void update_physics_system(Player* player, float dt)
 		case ActionState::Block:
 			physics_block_update(player, dt);
 			break;
+		case ActionState::Locomoting:
+			break;
+		case ActionState::Reaching:
+			physics_reach_update(player, dt);
+			break;
 	}
 
 	if (state.Position_state == PositionState::Special)
@@ -130,39 +135,6 @@ void grounded_physics_update(Player* player, float dt)
 	{
 		v.x = 0.0f;
 	}
-
-	/*if (collider.Is_hit)
-	{
-		if (state.Action_state != ActionState::Block)
-		{
-			combat.Current_health_percentage += collider.Pending_damage;
-			collider.Pending_damage = 0.0f;
-
-			v = state.Action_state == ActionState::Crouching ? collider.Pending_knockback * 0.5f : collider.Pending_knockback;
-
-			if (v.y < 0.0f)
-			{
-				v.y = -v.y;
-			}
-
-			loco.Current_get_up_timer = 0.0f;
-			v += v * combat.Current_health_percentage  * knockback_scale_factor;
-			glm::vec2 printV = v;
-			printf("Knockback: %s\n", glm::to_string(printV).c_str());
-
-			transform.Position.y += 0.01;
-			anim.Is_flipped = collider.Flip;
-			set_player_state(player, PositionState::Airborne);
-			set_player_state(player, ActionState::Knockback);
-			change_player_animation(player, get_anim(3), LastFrameStick);
-		}
-		else
-		{
-			v.x = collider.Pending_knockback.x * 0.5f;
-		}
-
-		collider.Is_hit = false;
-	}*/
 
 	RaycastHit hit = RaycastHit();
 	if (raycast(transform.Position, glm::vec2(0.0f, -1.0f), 0.1f, hit))
@@ -679,6 +651,11 @@ void physics_airdodge_update(Player* player, float dt)
 
 	airborne_physics_update(player, dt);
 	physics_land_on_touch_ground(player);
+}
+
+void physics_reach_update(Player* player, float dt)
+{
+	grounded_physics_update(player, dt);
 }
 
 void physics_flip_on_input(Player* player, float dt)

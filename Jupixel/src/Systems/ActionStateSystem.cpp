@@ -125,6 +125,11 @@ void update_action_state_system(Player* player, float dt)
 		case ActionState::Block:
 			state_block_update(player, dt);
 			break;
+		case ActionState::Locomoting:
+			break;
+		case ActionState::Reaching:
+			state_reach_update(player, dt);
+			break;
 	}
 
 	switch (state.Position_state)
@@ -285,6 +290,24 @@ void state_grounded_update(Player* player, float dt)
 				change_player_animation(player, get_anim(0), Loop);
 			}
 		}
+
+		if (state.Action_state != ActionState::Reaching)
+		{
+			if (input.Left_stick_y > 0.8f && state.Action_state != ActionState::Block)
+			{
+				player->Physics.Velocity.x = 0.0f;
+				set_player_state(player, ActionState::Reaching);
+				change_player_animation(player, get_anim(13), LastFrameStick);
+			}
+		}
+		else
+		{
+			if (input.Left_stick_y == 0.0f)
+			{
+				set_player_state(player, ActionState::Idle);
+				change_player_animation(player, get_anim(0), Loop);
+			}
+		}
 	}
 }
 
@@ -374,9 +397,6 @@ void state_special_update(Player* player, float dt)
 	if (input.Jump)
 	{
 		// TODO create function to consume input?
-		// HACK to avoid having button down be true later in same frame when updating airborne state and double jumping instantly
-		// doesn't even work
-		input.Jump = false;
 		set_player_state(player, ActionState::JumpSquat);
 		set_player_state(player, PositionState::Special);
 		change_player_animation(player, get_anim(2), LastFrameStick);
@@ -906,6 +926,14 @@ void state_airdodge_update(Player* player, float dt)
 	{
 		player->Locomotion.Has_aerial_control = true;
 		set_player_state(player, ActionState::Falling);
+	}
+}
+
+void state_reach_update(Player* player, float dt)
+{
+	if (player->Input.Left_stick_y < 0.1f)
+	{
+		set_player_state(player, ActionState::Idle);
 	}
 }
 
