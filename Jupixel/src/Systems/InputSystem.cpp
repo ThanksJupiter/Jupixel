@@ -46,7 +46,9 @@ void update_input_system(Player* player)
 			is_button_down(player->ID, GLFW_GAMEPAD_BUTTON_RIGHT_BUMPER) ||
 			is_button_down(player->ID, GLFW_GAMEPAD_BUTTON_Y);
 		input.Attack = is_key_pressed(KeyCode::O) || is_button_down(player->ID, GLFW_GAMEPAD_BUTTON_A);
-		input.Block = is_key_pressed(KeyCode::Y) || get_axis(player->ID, GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER) != -1.0f;
+		// HACK is 0 when no controller?
+		float axis = get_axis(player->ID, GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER);
+		input.Block = is_key_pressed(KeyCode::Y) || axis != -0.0f;
 	}
 
 	input.Jump_held = is_button_held(player->ID, GLFW_GAMEPAD_BUTTON_RIGHT_BUMPER) ||

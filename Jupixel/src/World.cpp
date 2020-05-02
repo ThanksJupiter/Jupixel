@@ -193,5 +193,6 @@ void debug_functionality()
 	if (is_button_down(0, GLFW_GAMEPAD_BUTTON_BACK))
 	{
 		is_ai_active = !is_ai_active;
+		player_two->Input.Block = false;
 	}
 }
