@@ -1,6 +1,7 @@
+#include "jppch.h"
+
 #include "AISystem.h"
 
-#include "glm/glm.hpp"
 #include "Player.h"
 #include "World.h"
 

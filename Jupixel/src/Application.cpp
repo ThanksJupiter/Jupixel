@@ -1,10 +1,10 @@
+#include "jppch.h"
+
 #include "Application.h"
 #include "Renderer/Renderer.h"
 #include "Camera.h"
 
 #include "Key.h"
-
-#include <stdio.h>
 
 #include "World.h"
 #include "SkeletonAnimations.h"

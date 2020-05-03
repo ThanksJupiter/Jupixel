@@ -1,7 +1,8 @@
+#include "jppch.h"
+
 #include "Shader.h"
 
 #include <fstream>
-#include <vector>
 
 std::string read_file_as_string(const std::string& filepath)
 {

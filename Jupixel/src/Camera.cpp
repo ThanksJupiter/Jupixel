@@ -1,7 +1,6 @@
-#include "Camera.h"
+#include "jppch.h"
 
-#include <glm/gtc/matrix_transform.hpp>
-#include <algorithm>
+#include "Camera.h"
 
 Camera* camera = new Camera();
 

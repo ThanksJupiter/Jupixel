@@ -1,9 +1,8 @@
+#include "jppch.h"
+
 #include "Renderer.h"
 #include "Shader.h"
 
-#include "glm/glm.hpp"
-#include "glm/gtc/type_ptr.hpp"
-#include <glm/gtc/matrix_transform.hpp>
 #include "glad/glad.h"
 #include "Camera.h"
 #include "Texture2D.h"

@@ -1,6 +1,6 @@
-#include "VFXSystem.h"
+#include "jppch.h"
 
-#include <vector>
+#include "VFXSystem.h"
 
 #include "Renderer/Renderer.h"
 

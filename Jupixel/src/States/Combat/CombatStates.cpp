@@ -1,3 +1,5 @@
+#include "jppch.h"
+
 #include "CombatStates.h"
 
 #include "States/StateThings_incl.h"

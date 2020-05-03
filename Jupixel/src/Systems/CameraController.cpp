@@ -1,6 +1,6 @@
-#include "CameraController.h"
+#include "jppch.h"
 
-#include "glm/glm.hpp"
+#include "CameraController.h"
 
 #include "Player.h"
 #include "Components/TransformComponent.h"

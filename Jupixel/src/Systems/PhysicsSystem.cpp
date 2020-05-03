@@ -1,3 +1,5 @@
+#include "jppch.h"
+
 #include "PhysicsSystem.h"
 
 #include "World.h"
@@ -17,11 +19,6 @@
 #include "Physics/CollisionTestRequest.h"
 #include "Components/ColliderComponent.h"
 
-#include <stdio.h>
-#include <vector>
-#include "glm/glm.hpp"
-#define GLM_ENABLE_EXPERIMENTAL
-#include "glm/gtx/string_cast.hpp"
 #include "Renderer/Renderer.h"
 #include "VFXSystem.h"
 

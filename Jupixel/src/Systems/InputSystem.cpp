@@ -1,3 +1,5 @@
+#include "jppch.h"
+
 #include "InputSystem.h"
 
 #include "UserInput.h"
@@ -46,8 +48,8 @@ void update_input_system(Player* player)
 			is_button_down(player->ID, GLFW_GAMEPAD_BUTTON_RIGHT_BUMPER) ||
 			is_button_down(player->ID, GLFW_GAMEPAD_BUTTON_Y);
 		input.Attack = is_key_pressed(KeyCode::O) || is_button_down(player->ID, GLFW_GAMEPAD_BUTTON_A);
-		// HACK is 0 when no controller?
 		float axis = get_axis(player->ID, GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER);
+		// HACK is 0 when no controller?
 		input.Block = is_key_pressed(KeyCode::Y) || axis != -0.0f;
 	}
 

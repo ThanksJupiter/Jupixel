@@ -1,7 +1,8 @@
+#include "jppch.h"
+
 #include "Player.h"
 
 #include "SkeletonAnimations.h"
-#include <stdio.h>
 #include "Attack.h"
 #include "Physics/Raycaster.h"
 #include "Systems/ActionStateSystem.h"

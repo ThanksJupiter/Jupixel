@@ -1,8 +1,10 @@
+#include "jppch.h"
+
 #include "Texture2D.h"
 
 #include <glad/glad.h>
 #include <stb_image.h>
-#include <string>
+
 
 Texture2D* load_texture(const std::string& path)
 {

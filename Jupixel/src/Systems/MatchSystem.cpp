@@ -1,11 +1,11 @@
+#include "jppch.h"
+
 #include "MatchSystem.h"
 
 #include "World.h"
 #include "../ImGui/GUILayer.h"
 #include "ActionStateSystem.h"
 #include "imgui.h"
-#define GLM_ENABLE_EXPERIMENTAL
-#include "glm/gtx/string_cast.hpp"
 #include "VFXSystem.h"
 #include "SkeletonAnimations.h"
 #include "Renderer/Renderer.h"

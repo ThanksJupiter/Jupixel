@@ -1,3 +1,5 @@
+#include "jppch.h"
+
 #include "Sprite.h"
 
 #include "Texture2D.h"

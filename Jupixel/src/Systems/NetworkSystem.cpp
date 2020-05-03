@@ -1,3 +1,5 @@
+#include "jppch.h"
+
 #include "NetworkSystem.h"
 
 #define _WIN32_WINNT 0x0600
@@ -9,7 +11,6 @@
 #pragma comment(lib, "ws2_32.lib")
 #pragma comment(lib, "iphlpapi.lib")
 
-#include <stdio.h>
 #include <stdlib.h>
 
 bool net_init()
