@@ -11,6 +11,13 @@ const float c_threshold = 0.8f;
 const float tilt_threshold = 0.1f;
 const float smash_threshold = 0.9f;
 
+
+
+void input_update()
+{
+	
+}
+
 void update_input_system(Player* player)
 {
 	update_gamepad_state(player->ID);

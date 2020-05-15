@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <algorithm>
 #include <string>
+#include <map>
 
 #include "glm/glm.hpp"
 #include "glm/gtc/type_ptr.hpp"
