@@ -110,7 +110,7 @@ void load_skeleton_sprites()
 	attack_anim_sheets.push_back(new Spritesheet(texture, 64, 32, 10, 0.08f));
 
 	texture = load_texture("assets/textures/Dsmash_Sheet.png");
-	attack_anim_sheets.push_back(new Spritesheet(texture, 32, 32, 15, 0.08f));
+	attack_anim_sheets.push_back(new Spritesheet(texture, 32, 32, 15, 0.06f));
 
 	texture = load_texture("assets/textures/Ftilt_Sheet.png");
 	attack_anim_sheets.push_back(new Spritesheet(texture, 32, 32, 5, 0.1f)); // 10

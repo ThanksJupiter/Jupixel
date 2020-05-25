@@ -248,11 +248,13 @@ void airborne_physics_update(Player* player, float dt)
 		transform.Position.y += v.y * dt;
 	}
 
-	float fall_add = 10.0f;
+	float fall_add = 40.0f;
 	if (v.y < 1.0f)
 	{
-		if (v.y < 0.0f && v.y > -1.0f)
+		// fast falling
+		if (v.y < 0.0f && v.y > -1.0f) // only fast fall within apex of jump
 		{
+			// impact fall speed more if within apex
 			fall_add = input.Left_stick_y < 0.0f ? -input.Left_stick_y * 60.0f : 10.0f;
 		}
 		else

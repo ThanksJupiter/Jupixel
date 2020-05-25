@@ -21,8 +21,8 @@ struct LocomotionComponent
 	float Current_short_hop_timer = 0.0f;
 	const float Short_hop_time = 0.07f;
 
-	float Short_hop_velocity = 3.0f;
-	float Full_jump_velocity = 4.5f;
+	float Short_hop_velocity = 6.0f;
+	float Full_jump_velocity = 9.5f;
 
 	bool Is_dash_from_walk_allowed = false;
 
